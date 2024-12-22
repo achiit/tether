@@ -2,20 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --font-mona-sans: var(--font-mona-sans);
+    --font-glacier: var(--font-glacier);
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+.font-mona {
+  font-family: var(--font-mona-sans);
 }
+
+.font-glacier {
+  font-family: var(--font-glacier);
+}
+
+/* Add smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Gradient backgrounds */
+.gradient-bg {
+  background: linear-gradient(
+    135deg,
+    rgba(167, 139, 250, 0.1) 0%,
+    rgba(167, 139, 250, 0.1) 0.01%,
+    rgba(167, 139, 250, 0.1) 100%
+  );
+}
+
