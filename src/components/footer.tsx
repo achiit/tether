@@ -15,7 +15,7 @@ export function Footer() {
                   Building Networks, Growing Wealth Together
                 </p>
               </div>
-              <div className="flex justify-center items-center gap-4">
+              <div className="flex justify-center items-center gap-12">
                 <Link href="#" className="text-gray-600 hover:text-[#f3ba2f]">
                   <Facebook className="w-8 h-8" />
                 </Link>

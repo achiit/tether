@@ -114,16 +114,16 @@ export default Header;
 
 const BrandLogo = () => (
   <Link href="/" className="flex items-center justify-start gap-2">
-    <div className="w-8">
+    <div className="w-16 h-auto">
       <Image
-        src="/placeholder.svg"
+        src="/images/logo.png"
         alt="Logo"
-        width={100}
-        height={100}
+        width={400}
+        height={400}
         quality={100}
         className="object-contain w-full"
       />
     </div>
-    <span className="font-semibold text-xl">Tether</span>
+    {/* <span className="font-semibold text-xl">Tether</span> */}
   </Link>
 );
