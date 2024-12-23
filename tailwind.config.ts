@@ -1,6 +1,6 @@
 import type { Config } from "tailwindcss";
 
-export default {
+const config: Config = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -8,14 +8,21 @@ export default {
   ],
   theme: {
     extend: {
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+      animation: {
+        'spin-slow': 'spin 8s linear infinite',
+        'spin-slower': 'spin 12s linear infinite',
+        'reverse-spin': 'reverse-spin 10s linear infinite',
       },
-      fontFamily: {
-        glacier: ["var(--font-glacier)"],
+      keyframes: {
+        'reverse-spin': {
+          from: {
+            transform: 'rotate(360deg)',
+          },
+        },
       },
     },
   },
   plugins: [],
-} satisfies Config;
+};
+
+export default config;
