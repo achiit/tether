@@ -1,85 +1,100 @@
 import { GradientCursor } from "@/components/ui/gradient-cursor";
 import { FlipWords } from "@/components/ui/flip-words";
-import { Header } from "@/components/header";
+import Header from "@/components/header";
 import { Footer } from "@/components/footer";
 import HowItWorks from "../components/how-it-works";
 import Image from "next/image";
 import { SplitViewSection } from "@/components/split-view-section";
+import Container from "@/components/Container";
 
 export default function Home() {
   return (
-    <main className="relative min-h-screen bg-white">
+    <main className="relative min-h-screen bg-white w-full">
       <GradientCursor />
       <Header />
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center px-4 md:px-6 pt-32">
-        <div className="container mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <section className="relative flex items-center pt-20 lg:pt-16 min-h-screen w-full overflow-hidden">
+        <Container>
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-28 justify-center items-center h-full w-full">
             {/* Image container - centered on mobile */}
-            <div className="relative mx-auto lg:mx-0 w-[280px] md:w-[400px] lg:w-5/6 aspect-square">
+            <div className="relative">
               {/* Glow effect */}
               <div className="absolute inset-0 bg-[#f3ba2f] opacity-20 blur-3xl rounded-full animate-pulse" />
-              
+
               {/* Saturn Rings */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-[120%] h-[120%] border border-[#f3ba2f]/20 rounded-full absolute animate-spin-slow" />
                 <div className="w-[140%] h-[140%] border border-[#f3ba2f]/10 rounded-full absolute animate-spin-slower" />
                 <div className="w-[160%] h-[160%] border border-[#f3ba2f]/5 rounded-full absolute animate-reverse-spin" />
               </div>
-              
+
               {/* Main Image */}
-              <Image
-                src="/images/landingpage.png"
-                alt="tether Logo Animation"
-                fill
-                className="object-contain relative z-10"
-              />
+              <div>
+                <Image
+                  src="/images/landingpage.png"
+                  alt="tether Logo Animation"
+                  width={400}
+                  height={400}
+                  quality={100}
+                  priority
+                  className="object-contain relative z-10 w-full"
+                />
+              </div>
             </div>
 
             {/* Text content */}
-            <div className="space-y-12">
-              <h1 className="text-5xl md:text-6xl lg:text-6xl font-bold space-y-2">
-                <div className="h-[49px] md:h-[80px] lg:h-[50px]">
+            <div className="space-y-3 lg:space-y-4 lg:mb-12">
+              <div className="text-4xl lg:text-6xl">
+                <div className="lg:text-7xl font-bold ">
                   <FlipWords
-                    words={[ "Expand", "Excel"]}
-                    className="!text-[#f3ba2f]"
+                    words={["Expand", "Excel"]}
+                    className="!text-[#f3ba2f] !px-0"
                   />
                 </div>
-                
-                <div className="mt-4">
-                  earning with
-                </div>
-                <div className="mt-4">
-                  Tether Ventures
-                </div>
-              </h1>
-              <p className="text-lg md:text-xl text-gray-600">
+
+                <h1 className="font-semibold">
+                  <span className="leading-tight">Earning with</span>
+                  <br />
+                  <span className="leading-tight font-extrabold">
+                    Tether Ventures
+                  </span>
+                </h1>
+              </div>
+              <p className="lg:text-xl text-gray-600">
                 Leverage Your Network for Unmatched Rewards and Opportunities.
               </p>
-              <div className="flex gap-4">
-                <div className="text-2xl font-bold">3.0% APR</div>
-                <div className="text-2xl font-bold">$32,227,733,224 TVL</div>
+              <div className="flex gap-8">
+                <div className="">
+                  <span className="text-2xl lg:text-3xl font-semibold">
+                    3.0%
+                  </span>{" "}
+                  <br />
+                  <span>APR</span>
+                </div>
+                <div className="">
+                  <span className="text-2xl lg:text-3xl font-semibold">
+                    $32,227,733,224
+                  </span>{" "}
+                  <br />
+                  <span>TVL</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* Split View Section */}
-      <div className="overflow-hidden">
-        <div className="overflow-visible">
-          <SplitViewSection />
-        </div>
-      </div>
+      <SplitViewSection />
 
       {/* How it Works Section */}
       <HowItWorks />
 
       {/* Features Grid */}
-      <section className="py-24 px-4 md:px-6 bg-gray-50">
-        <div className="container mx-auto">
-          <div className="grid md:grid-cols-2 gap-8">
+      <section className="py-20 lg:py-24 bg-gray-50">
+        <Container>
+          <div className="grid lg:grid-cols-2 gap-4 lg:gap-8">
             {[
               {
                 title: "Direct Referral Rewards",
@@ -112,15 +127,21 @@ export default function Home() {
             ].map((feature) => (
               <div
                 key={feature.title}
-                className={`rounded-3xl px-8 py-12 drop-shadow-lg border border-black border-opacity-10 ${feature.bg}`}
+                className={`rounded-3xl px-4 lg:px-8 py-8 lg:py-12 drop-shadow-lg border border-black border-opacity-10 ${feature.bg}`}
               >
-                <h3 className="text-3xl font-bold mb-6">{feature.title}</h3>
-                <p className="text-xl text-gray-600 mb-6">{feature.description}</p>
-                <div className="text-2xl font-bold text-[#f3ba2f]">{feature.stats}</div>
+                <h3 className="text-2xl lg:text-3xl font-bold mb-4 lg:mb-6">
+                  {feature.title}
+                </h3>
+                <p className="lg:text-xl text-gray-600 mb-4 lg:mb-6">
+                  {feature.description}
+                </p>
+                <div className="text-xl lg:text-2xl font-bold text-[#f3ba2f]">
+                  {feature.stats}
+                </div>
               </div>
             ))}
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* Footer */}
@@ -128,4 +149,3 @@ export default function Home() {
     </main>
   );
 }
-

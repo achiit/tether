@@ -1,137 +1,141 @@
-"use client"
+"use client";
 
-import { useRef, useEffect } from 'react'
+import Container from "./Container";
 
 export function SplitViewSection() {
-  const sectionRef = useRef<HTMLElement>(null)
-  const leftSideRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const section = sectionRef.current
-    const leftSide = leftSideRef.current
-
-    if (!section || !leftSide) return
-
-    // Update the left side position based on viewport width
-    const updatePosition = () => {
-      if (window.innerWidth >= 1024) {
-        leftSide.style.position = 'sticky'
-      } else {
-        leftSide.style.position = 'relative'
-      }
-    }
-
-    // Initial position update
-    updatePosition()
-
-    // Listen for window resize
-    window.addEventListener('resize', updatePosition)
-
-    return () => {
-      window.removeEventListener('resize', updatePosition)
-    }
-  }, [])
-
   return (
-    <section 
-      ref={sectionRef} 
-      className="relative bg-white overflow-visible"
-    >
-      <div className="container mx-auto">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-0">
-          <div className="w-full">
-            <div
-              ref={leftSideRef}
-              className="p-6 lg:p-12 lg:sticky lg:top-20 lg:h-[calc(100vh-5rem)] overflow-hidden"
-            >
-              <h2 className="text-4xl lg:text-6xl font-bold mb-6 lg:mb-8">
-                Why Choose<br />Tether Ventures?
+    <Container>
+      <div className="relative w-full">
+        <div className="grid lg:grid-cols-2 gap-4 lg:gap-8 border-y w-full">
+          <div className="lg:sticky lg:top-10 lg:self-start lg:h-[calc(100vh-40px)]">
+            <div className="lg:pe-12 py-10 lg:py-20">
+              <h2 className="text-3xl lg:text-6xl font-bold mb-4 lg:mb-8">
+                Why Choose
+                <br />
+                Tether Ventures?
               </h2>
-              <p className="text-xl lg:text-2xl text-gray-600 mb-6 lg:mb-8">
-                Join the fastest growing referral network and unlock unlimited earning potential.
+              <p className="text-lg lg:text-2xl text-gray-600 mb-6 lg:mb-8">
+                Join the fastest growing referral network and unlock unlimited
+                earning potential.
               </p>
               <div className="space-y-4 lg:space-y-6">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-[#f3ba2f] flex items-center justify-center">
                     <span className="text-xl lg:text-2xl font-bold">$</span>
                   </div>
-                  <div className="text-lg lg:text-xl font-semibold">Low Entry Barrier - Start with just $11</div>
+                  <div className="text-lg lg:text-xl font-semibold">
+                    Low Entry Barrier - Start with just $11
+                  </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-[#f3ba2f] flex items-center justify-center">
                     <span className="text-xl lg:text-2xl font-bold">3x</span>
                   </div>
-                  <div className="text-lg lg:text-xl font-semibold">Triple Referral System</div>
+                  <div className="text-lg lg:text-xl font-semibold">
+                    Triple Referral System
+                  </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-[#f3ba2f] flex items-center justify-center">
                     <span className="text-xl lg:text-2xl font-bold">∞</span>
                   </div>
-                  <div className="text-lg lg:text-xl font-semibold">Unlimited Earning Potential</div>
+                  <div className="text-lg lg:text-xl font-semibold">
+                    Unlimited Earning Potential
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="w-full lg:border-l border-gray-200">
-            <div className="p-6 lg:p-12 space-y-16 lg:space-y-32">
-              <div className="space-y-4 lg:space-y-6">
-                <h3 className="text-3xl lg:text-4xl font-bold">Simple 3-Step Process</h3>
-                <p className="text-lg lg:text-xl text-gray-600">Getting started is easier than ever</p>
-                <div className="space-y-8 lg:space-y-12">
-                  <div className="space-y-2 lg:space-y-4">
-                    <div className="text-2xl lg:text-3xl font-semibold">1. Initial Deposit</div>
-                    <p className="text-lg lg:text-xl text-gray-600">Start your journey with just $11. This one-time deposit activates your network potential.</p>
-                  </div>
-                  <div className="space-y-2 lg:space-y-4">
-                    <div className="text-2xl lg:text-3xl font-semibold">2. Build Your Network</div>
-                    <p className="text-lg lg:text-xl text-gray-600">Invite 3 direct referrals to join your network. Each successful referral earns you $10 instantly.</p>
-                  </div>
-                  <div className="space-y-2 lg:space-y-4">
-                    <div className="text-2xl lg:text-3xl font-semibold">3. Expand & Earn</div>
-                    <p className="text-lg lg:text-xl text-gray-600">As your network grows, unlock additional rewards and bonuses at each level.</p>
-                  </div>
+          <div className="relative lg:ps-16 py-10 lg:py-20 space-y-12 lg:space-y-20 w-full border-t lg:border-l border-gray-200">
+            {sections.map((section, index) => (
+              <div key={index} className="">
+                <div className="space-y-2 lg:space-y-4 mb-6 lg:mb-10">
+                  <h3 className="text-3xl lg:text-4xl font-bold">
+                    {section.title}
+                  </h3>
+                  <p className="text-lg lg:text-xl text-gray-600">
+                    {section.description}
+                  </p>
+                </div>
+                <div className="space-y-6 lg:space-y-8">
+                  {section.items.map((item, idx) => (
+                    <div key={idx} className="space-y-2 lg:space-y-4">
+                      <div className="text-2xl lg:text-3xl font-semibold">
+                        {item.heading}
+                      </div>
+                      <p className="text-lg lg:text-xl text-gray-600">
+                        {item.content}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
-
-              <div className="space-y-4 lg:space-y-6">
-                <h3 className="text-3xl lg:text-4xl font-bold">Reward Structure</h3>
-                <p className="text-lg lg:text-xl text-gray-600">Multiple ways to earn with our platform</p>
-                <div className="space-y-8 lg:space-y-12">
-                  <div className="space-y-2 lg:space-y-4">
-                    <div className="text-2xl lg:text-3xl font-semibold">Direct Referral Bonus</div>
-                    <p className="text-lg lg:text-xl text-gray-600">Earn $10 instantly for each direct referral who joins with an $11 deposit.</p>
-                  </div>
-                  <div className="space-y-2 lg:space-y-4">
-                    <div className="text-2xl lg:text-3xl font-semibold">Network Growth Rewards</div>
-                    <p className="text-lg lg:text-xl text-gray-600">Earn additional rewards as your network expands through multiple levels.</p>
-                  </div>
-                  <div className="space-y-2 lg:space-y-4">
-                    <div className="text-2xl lg:text-3xl font-semibold">Performance Bonuses</div>
-                    <p className="text-lg lg:text-xl text-gray-600">Unlock special bonuses when your team reaches certain milestones.</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4 lg:space-y-6">
-                <h3 className="text-3xl lg:text-4xl font-bold">Security First</h3>
-                <p className="text-lg lg:text-xl text-gray-600">Your investment is protected</p>
-                <div className="space-y-8 lg:space-y-12">
-                  <div className="space-y-2 lg:space-y-4">
-                    <div className="text-2xl lg:text-3xl font-semibold">Smart Contract Security</div>
-                    <p className="text-lg lg:text-xl text-gray-600">All transactions and rewards are secured by blockchain technology.</p>
-                  </div>
-                  <div className="space-y-2 lg:space-y-4">
-                    <div className="text-2xl lg:text-3xl font-semibold">Transparent System</div>
-                    <p className="text-lg lg:text-xl text-gray-600">Every transaction and reward distribution is visible on the blockchain.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
-    </section>
-  )
+    </Container>
+  );
 }
 
+const sections = [
+  {
+    title: "Simple 3-Step Process",
+    description: "Getting started is easier than ever",
+    items: [
+      {
+        heading: "1. Initial Deposit",
+        content:
+          "Start your journey with just $11. This one-time deposit activates your network potential.",
+      },
+      {
+        heading: "2. Build Your Network",
+        content:
+          "Invite 3 direct referrals to join your network. Each successful referral earns you $10 instantly.",
+      },
+      {
+        heading: "3. Expand & Earn",
+        content:
+          "As your network grows, unlock additional rewards and bonuses at each level.",
+      },
+    ],
+  },
+  {
+    title: "Reward Structure",
+    description: "Multiple ways to earn with our platform",
+    items: [
+      {
+        heading: "Direct Referral Bonus",
+        content:
+          "Earn $10 instantly for each direct referral who joins with an $11 deposit.",
+      },
+      {
+        heading: "Network Growth Rewards",
+        content:
+          "Earn additional rewards as your network expands through multiple levels.",
+      },
+      {
+        heading: "Performance Bonuses",
+        content:
+          "Unlock special bonuses when your team reaches certain milestones.",
+      },
+    ],
+  },
+  {
+    title: "Security First",
+    description: "Your investment is protected",
+    items: [
+      {
+        heading: "Smart Contract Security",
+        content:
+          "All transactions and rewards are secured by blockchain technology.",
+      },
+      {
+        heading: "Transparent System",
+        content:
+          "Every transaction and reward distribution is visible on the blockchain.",
+      },
+    ],
+  },
+];

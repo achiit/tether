@@ -1,8 +1,8 @@
 "use client";
 
-import { Coins, Droplet, Wallet } from 'lucide-react'
-import { motion } from 'framer-motion'
-
+import { Coins, Droplet, Wallet } from "lucide-react";
+import { motion } from "framer-motion";
+import Container from "./Container";
 
 export default function HowItWorks() {
   const steps = [
@@ -21,80 +21,64 @@ export default function HowItWorks() {
       title: "Grow",
       subtitle: "Boost Network",
     },
-  ]
+  ];
+
+  // Animation variants for steps
+  const stepVariant = {
+    hidden: { opacity: 0, y: 50 },
+    visible: (index: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        delay: index * 0.3, // Stagger animation
+      },
+    }),
+  };
 
   return (
-    <section className="relative py-24">
-      <div className="container mx-auto px-4">
-        {/* Desktop View */}
-        <div className="hidden md:flex justify-between items-start relative gap-8 max-w-6xl mx-auto">
-          {/* Horizontal connecting line for desktop */}
-          <div className="absolute top-[60px] left-[15%] right-[15%] h-[1px] bg-gray-200">
-            <motion.div 
+    <section className="relative py-16 lg:py-24">
+      <Container>
+        <motion.div
+          className="flex flex-col lg:flex-row justify-between items-start relative gap-8 w-full"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+        >
+          <div className="absolute top-0 left-[40px] lg:top-[50px] lg:left-[15%] lg:right-[15%] w-px lg:w-auto h-full lg:h-px bg-gray-200">
+            <motion.div
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
+              transition={{ duration: 1, delay: 0.5, ease: "easeInOut" }}
+              viewport={{ once: true, amount: 0.2 }}
               className="w-full h-full bg-gray-200"
             />
           </div>
 
           {steps.map((step, index) => (
-            <motion.div 
-              key={step.title}
-              initial={{ opacity: 0, y: -50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.2 }}
-              className="relative z-10 text-center flex-1 px-4"
+            <motion.div
+              key={index}
+              className="relative z-10 text-center flex-1"
+              custom={index}
+              variants={stepVariant}
             >
-              <div className="inline-flex flex-col items-center">
-                <div className="bg-white p-4 rounded-full mb-8 border">
-                  <div className="w-16 h-16 rounded-full flex items-center justify-center">
+              <div className="inline-flex lg:flex-col justify-between items-start lg:items-center gap-8">
+                <div className="bg-white p-4 rounded-full border">
+                  <div className="w-12 lg:w-16 h-12 lg:h-16 rounded-full flex items-center justify-center">
                     {step.icon}
                   </div>
                 </div>
-                <h2 className="text-6xl font-normal mb-4">{step.title}</h2>
-                <p className="text-2xl text-gray-600">{step.subtitle}</p>
+                <div className="text-left lg:text-center w-full mt-1">
+                  <h2 className="text-4xl lg:text-6xl font-medium mb-1 lg:mb-4">
+                    {step.title}
+                  </h2>
+                  <p className="lg:text-2xl text-gray-600">{step.subtitle}</p>
+                </div>
               </div>
             </motion.div>
           ))}
-        </div>
-
-        {/* Mobile View */}
-        <div className="md:hidden relative">
-          {/* Vertical connecting line for mobile */}
-          <div className="absolute left-[50px] top-[50px] bottom-[50px] w-[1px] bg-gradient-to-b from-gray-200/0 via-gray-200 to-gray-200/0">
-            <motion.div 
-              initial={{ scaleY: 0 }}
-              animate={{ scaleY: 1 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="w-full h-full bg-gradient-to-b from-gray-200/0 via-gray-200 to-gray-200/0"
-            />
-          </div>
-
-          <div className="space-y-24">
-            {steps.map((step, index) => (
-              <motion.div 
-                key={step.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.2 }}
-                className="relative flex items-start gap-8"
-              >
-                <div className="relative z-10 shrink-0">
-                  <div className="w-[100px] h-[100px] rounded-full bg-white border flex items-center justify-center">
-                    {step.icon}
-                  </div>
-                </div>
-                <div className="flex-1 pt-8">
-                  <h2 className="text-6xl font-light mb-4">{step.title}</h2>
-                  <p className="text-2xl text-gray-600">{step.subtitle}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </div>
+        </motion.div>
+      </Container>
     </section>
-  )
+  );
 }
-

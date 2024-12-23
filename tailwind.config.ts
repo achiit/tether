@@ -8,15 +8,18 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        manrope: ["var(--font-manrope)"],
+      },
       animation: {
-        'spin-slow': 'spin 8s linear infinite',
-        'spin-slower': 'spin 12s linear infinite',
-        'reverse-spin': 'reverse-spin 10s linear infinite',
+        "spin-slow": "spin 8s linear infinite",
+        "spin-slower": "spin 12s linear infinite",
+        "reverse-spin": "reverse-spin 10s linear infinite",
       },
       keyframes: {
-        'reverse-spin': {
+        "reverse-spin": {
           from: {
-            transform: 'rotate(360deg)',
+            transform: "rotate(360deg)",
           },
         },
       },

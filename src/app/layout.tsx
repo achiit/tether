@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Manrope } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 
@@ -7,6 +7,13 @@ const glacier = localFont({
   src: "/fonts/Manrope-VariableFont_wght.ttf",
   weight: "300",
   variable: "--font-glacier",
+  display: "swap",
+});
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-manrope",
   display: "swap",
 });
 
@@ -24,7 +31,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} ${glacier.variable} font-glacier`}>
+      <body
+        className={`${inter.className} ${glacier.variable} ${manrope.variable} font-manrope`}
+      >
         {children}
       </body>
     </html>
