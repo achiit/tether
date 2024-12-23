@@ -12,28 +12,37 @@ export function SplitViewSection() {
 
     if (!section || !leftSide) return
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (leftSide && window.innerWidth >= 1024) {
-          leftSide.style.position = entry.isIntersecting ? 'sticky' : 'relative'
-        }
-      },
-      { threshold: [0, 1] }
-    )
+    // Update the left side position based on viewport width
+    const updatePosition = () => {
+      if (window.innerWidth >= 1024) {
+        leftSide.style.position = 'sticky'
+      } else {
+        leftSide.style.position = 'relative'
+      }
+    }
 
-    observer.observe(section)
+    // Initial position update
+    updatePosition()
 
-    return () => observer.disconnect()
+    // Listen for window resize
+    window.addEventListener('resize', updatePosition)
+
+    return () => {
+      window.removeEventListener('resize', updatePosition)
+    }
   }, [])
 
   return (
-    <section ref={sectionRef} className="relative bg-white">
+    <section 
+      ref={sectionRef} 
+      className="relative bg-white overflow-visible"
+    >
       <div className="container mx-auto">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-0">
           <div className="w-full">
             <div
               ref={leftSideRef}
-              className="p-6 lg:p-12 lg:top-20 lg:min-h-[calc(100vh-5rem)]"
+              className="p-6 lg:p-12 lg:sticky lg:top-20 lg:h-[calc(100vh-5rem)] overflow-hidden"
             >
               <h2 className="text-4xl lg:text-6xl font-bold mb-6 lg:mb-8">
                 Why Choose<br />Tether Ventures?
@@ -89,7 +98,18 @@ export function SplitViewSection() {
                 <h3 className="text-3xl lg:text-4xl font-bold">Reward Structure</h3>
                 <p className="text-lg lg:text-xl text-gray-600">Multiple ways to earn with our platform</p>
                 <div className="space-y-8 lg:space-y-12">
-                  {/* ... rest of the content ... */}
+                  <div className="space-y-2 lg:space-y-4">
+                    <div className="text-2xl lg:text-3xl font-semibold">Direct Referral Bonus</div>
+                    <p className="text-lg lg:text-xl text-gray-600">Earn $10 instantly for each direct referral who joins with an $11 deposit.</p>
+                  </div>
+                  <div className="space-y-2 lg:space-y-4">
+                    <div className="text-2xl lg:text-3xl font-semibold">Network Growth Rewards</div>
+                    <p className="text-lg lg:text-xl text-gray-600">Earn additional rewards as your network expands through multiple levels.</p>
+                  </div>
+                  <div className="space-y-2 lg:space-y-4">
+                    <div className="text-2xl lg:text-3xl font-semibold">Performance Bonuses</div>
+                    <p className="text-lg lg:text-xl text-gray-600">Unlock special bonuses when your team reaches certain milestones.</p>
+                  </div>
                 </div>
               </div>
 
@@ -97,7 +117,14 @@ export function SplitViewSection() {
                 <h3 className="text-3xl lg:text-4xl font-bold">Security First</h3>
                 <p className="text-lg lg:text-xl text-gray-600">Your investment is protected</p>
                 <div className="space-y-8 lg:space-y-12">
-                  {/* ... rest of the content ... */}
+                  <div className="space-y-2 lg:space-y-4">
+                    <div className="text-2xl lg:text-3xl font-semibold">Smart Contract Security</div>
+                    <p className="text-lg lg:text-xl text-gray-600">All transactions and rewards are secured by blockchain technology.</p>
+                  </div>
+                  <div className="space-y-2 lg:space-y-4">
+                    <div className="text-2xl lg:text-3xl font-semibold">Transparent System</div>
+                    <p className="text-lg lg:text-xl text-gray-600">Every transaction and reward distribution is visible on the blockchain.</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -106,4 +133,5 @@ export function SplitViewSection() {
       </div>
     </section>
   )
-} 
+}
+

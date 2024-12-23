@@ -8,15 +8,16 @@ import { SplitViewSection } from "@/components/split-view-section";
 
 export default function Home() {
   return (
-    <main className="relative min-h-screen overflow-hidden bg-white">
+    <main className="relative min-h-screen bg-white">
       <GradientCursor />
       <Header />
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center px-4 md:px-6 pt-16">
+      <section className="relative min-h-screen flex items-center px-4 md:px-6 pt-32">
         <div className="container mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="relative aspect-square w-5/6">
+            {/* Image container - centered on mobile */}
+            <div className="relative mx-auto lg:mx-0 w-[280px] md:w-[400px] lg:w-5/6 aspect-square">
               {/* Glow effect */}
               <div className="absolute inset-0 bg-[#f3ba2f] opacity-20 blur-3xl rounded-full animate-pulse" />
               
@@ -32,22 +33,29 @@ export default function Home() {
                 src="/images/landingpage.png"
                 alt="tether Logo Animation"
                 fill
-                className="object-contain w-full relative z-10"
+                className="object-contain relative z-10"
               />
             </div>
-            <div className="space-y-10">
-              <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold">
-                <FlipWords
-                  words={["Earn", "Expand", "Excel"]}
-                  className="!text-[#f3ba2f]"
-                />
-                <br />
-                earning with
-                <br />
-                Tether Ventures
+
+            {/* Text content */}
+            <div className="space-y-12">
+              <h1 className="text-5xl md:text-6xl lg:text-6xl font-bold space-y-2">
+                <div className="h-[49px] md:h-[80px] lg:h-[50px]">
+                  <FlipWords
+                    words={[ "Expand", "Excel"]}
+                    className="!text-[#f3ba2f]"
+                  />
+                </div>
+                
+                <div className="mt-4">
+                  earning with
+                </div>
+                <div className="mt-4">
+                  Tether Ventures
+                </div>
               </h1>
-              <p className="text-2xl text-gray-600">
-              Leverage Your Network for Unmatched Rewards and Opportunities.
+              <p className="text-lg md:text-xl text-gray-600">
+                Leverage Your Network for Unmatched Rewards and Opportunities.
               </p>
               <div className="flex gap-4">
                 <div className="text-2xl font-bold">3.0% APR</div>
@@ -59,7 +67,11 @@ export default function Home() {
       </section>
 
       {/* Split View Section */}
-      <SplitViewSection />
+      <div className="overflow-hidden">
+        <div className="overflow-visible">
+          <SplitViewSection />
+        </div>
+      </div>
 
       {/* How it Works Section */}
       <HowItWorks />
@@ -116,3 +128,4 @@ export default function Home() {
     </main>
   );
 }
+

@@ -4,7 +4,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 
 const glacier = localFont({
-  src: "/fonts/Arciform.otf",
+  src: "/fonts/Manrope-VariableFont_wght.ttf",
   weight: "300",
   variable: "--font-glacier",
   display: "swap",
