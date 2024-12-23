@@ -10,8 +10,8 @@ export function Footer() {
           <section className="grid lg:grid-cols-2 gap-8 w-full">
             <div className="flex flex-col justify-center lg:items-start lg:justify-start gap-4 w-full">
               <div className="text-center lg:text-start">
-                <h2 className="text-3xl font-bold mb-2">Tether Ventures</h2>
-                <p className="text-xl text-gray-600">
+                <h2 className="text-2xl font-bold mb-2">Tether Ventures</h2>
+                <p className="text-l text-gray-600">
                   Building Networks, Growing Wealth Together
                 </p>
               </div>
@@ -32,26 +32,26 @@ export function Footer() {
               <nav className="flex gap-8">
                 <Link
                   href="#"
-                  className="text-lg text-gray-600 hover:text-[#f3ba2f]"
+                  className="text-l text-gray-600 hover:text-[#f3ba2f]"
                 >
                   Learn
                 </Link>
                 <Link
                   href="#"
-                  className="text-lg text-gray-600 hover:text-[#f3ba2f]"
+                  className="text-l text-gray-600 hover:text-[#f3ba2f]"
                 >
                   FAQ
                 </Link>
                 <Link
                   href="#"
-                  className="text-lg text-gray-600 hover:text-[#f3ba2f]"
+                  className="text-l text-gray-600 hover:text-[#f3ba2f]"
                 >
                   Support
                 </Link>
               </nav>
             </div>
           </section>
-          <section className="flex justify-center items-center pt-4 lg:pt-6 border-t w-full">
+          <section className="flex justify-center items-center pt-4 l:pt-6 border-t w-full">
             <div className=" text-gray-600">
               © {new Date().getFullYear()} Tether Ventures. All rights reserved.
             </div>
