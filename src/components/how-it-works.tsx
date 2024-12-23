@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from '@/components/ui/button'
-import { ChevronDown, Coins, Droplet, Wallet } from 'lucide-react'
+
+import {  Coins, Droplet, Wallet } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 export default function HowItWorks() {
