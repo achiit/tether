@@ -62,14 +62,14 @@ const Header: React.FC = () => {
               {isMobileMenuOpen ? <X size={28} /> : <AlignJustify size={28} />}
             </button>
 
-            <div className="hidden lg:block">
+            <Link href="/dashboard" className="hidden lg:block">
               <Button
                 variant="default"
                 className="bg-[#f3ba2f] text-black hover:bg-[#f3ba2f]/90 h-10 font-semibold transition-all duration-300"
               >
-                Connect Wallet
+                Launch App
               </Button>
-            </div>
+            </Link>
           </section>
         </div>
       </Container>
@@ -87,14 +87,14 @@ const Header: React.FC = () => {
             <NavLinks />
           </div>
 
-          <div className="mt-4">
+          <Link href="/dashboard" className="mt-4">
             <Button
               variant="default"
               className="bg-[#f3ba2f] text-black hover:bg-[#f3ba2f]/90 h-10 font-semibold transition-all duration-300"
             >
-              Connect Wallet
+              Launch App
             </Button>
-          </div>
+          </Link>
 
           <button
             className="absolute top-6 right-6 text-3xl"

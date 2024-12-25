@@ -22,9 +22,9 @@ const Dashboard = () => {
       case "dashboard":
         return <DashboardPage />;
       case "referrals":
-        return <Referrals/>;
+        return <Referrals />;
       case "downline":
-        return <DownLine/>;
+        return <DownLine />;
       default:
         return <div>Select a tab to view content.</div>;
     }
@@ -36,6 +36,12 @@ const Dashboard = () => {
         <div className="w-full lg:w-1/5 drop-shadow-lg  bg-white lg:rounded-lg">
           <div className="border-b px-4 py-2.5">
             <BrandLogo />
+          </div>
+
+          <div className="absolute top-4 lg:top-auto right-0 lg:right-auto lg:bottom-8 px-4 flex justify-end items-end lg:w-full">
+            <button className="p-2.5 lg:p-4 px-8 font-semibold cursor-pointer bg-gray-400 hover:bg-red-600 rounded-lg w-full transition-all duration-300">
+              Logout
+            </button>
           </div>
           <ul className="flex lg:flex-col gap-4 p-4 mt-2 lg:mt-4 overflow-y-auto">
             {tabs.map((tab) => (
