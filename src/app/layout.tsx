@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Manrope } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
+import { GradientCursor } from "@/components/ui/gradient-cursor";
 
 const glacier = localFont({
   src: "/fonts/Manrope-VariableFont_wght.ttf",
@@ -34,6 +35,7 @@ export default function RootLayout({
       <body
         className={`${inter.className} ${glacier.variable} ${manrope.variable} font-manrope`}
       >
+        <GradientCursor />
         {children}
       </body>
     </html>
