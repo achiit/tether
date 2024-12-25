@@ -16,7 +16,8 @@ import { useAccount } from 'wagmi';
 import { useState, useCallback, useEffect } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { getContracts, publicClient } from '@/utils/contract';
-import { parseEther, formatUnits } from 'viem';
+import { formatUnits } from 'viem';
+import Link from "next/link";
 
 interface UserStats {
   currentLevel: number;
@@ -437,9 +438,9 @@ const DashboardPage = () => {
 
       <div className="text-center text-sm font-semibold mt-4">
         <p>RideBNB Contract opbnb.bscscan</p>
-        <a href="/" className="text-yellow-700 hover:underline">
+        <Link href="https://opbnb.bscscan.com/address/" className="text-yellow-700 hover:underline">
           (0xc0d396da...d212340)
-        </a>
+        </Link>
       </div>
     </div>
   );
