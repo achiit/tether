@@ -53,13 +53,14 @@ const Dashboard = () => {
           </div>
 
           <div className="absolute top-4 lg:top-auto right-0 lg:right-auto lg:bottom-8 px-4 flex justify-end items-end lg:w-full">
-            <button className="p-2.5 lg:p-4 px-8 font-semibold cursor-pointer bg-gray-400 hover:bg-red-600 rounded-lg w-full transition-all duration-300">
+            <button type="button" className="p-2.5 lg:p-4 px-8 font-semibold cursor-pointer bg-gray-400 hover:bg-red-600 rounded-lg w-full transition-all duration-300">
               Logout
             </button>
           </div>
           <ul className="flex lg:flex-col gap-4 p-4 mt-2 lg:mt-4 overflow-y-auto">
             {tabs.map((tab) => (
-              <li
+              <button 
+                type="button"
                 key={tab.id}
                 className={`p-2.5 lg:p-4 px-8 font-semibold cursor-pointer hover:bg-[#f3ba2f] rounded-lg ${
                   activeTab === tab.id ? "bg-[#f3ba2f] " : "bg-[#f3ba2f]/50"
@@ -67,7 +68,7 @@ const Dashboard = () => {
                 onClick={() => setActiveTab(tab.id)}
               >
                 {tab.label}
-              </li>
+              </button>
             ))}
           </ul>
         </div>

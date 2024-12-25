@@ -2,44 +2,34 @@
 
 import { WagmiConfig } from 'wagmi';
 import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
-import { QueryClientProvider } from "@tanstack/react-query";
-import { config, queryClient } from './wallet-config';
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { wagmiConfig } from './wallet-config';
 import { useState, useEffect } from 'react';
+
+// Create a client
+const queryClient = new QueryClient();
 
 export function ClientProviders({ children }: { children: React.ReactNode }) {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        // Check if MetaMask is installed
-        if (typeof window !== 'undefined' && window.ethereum) {
-            // Request permission to connect
-            window.ethereum.request({ method: 'eth_requestAccounts' })
-                .then(() => {
-                    setMounted(true);
-                })
-                .catch((err: Error) => {
-                    console.error('Failed to connect to wallet:', err);
-                    // Still set mounted to true to allow manual connection
-                    setMounted(true);
-                });
-        } else {
-            // If no wallet is available, still mount the app
-            setMounted(true);
+        setMounted(true);
+        // Add this to ensure wallet connection is initialized
+        if (typeof window !== 'undefined') {
+            window.ethereum?.enable();
         }
-
-        return () => {
-            // Cleanup if needed
-        };
     }, []);
 
+    if (!mounted) return null;
+
     return (
-        <WagmiConfig config={config}>
+        <WagmiConfig config={wagmiConfig}>
             <QueryClientProvider client={queryClient}>
                 <RainbowKitProvider
                     modalSize="compact"
                     theme={darkTheme()}
                 >
-                    {mounted ? children : null}
+                    {children}
                 </RainbowKitProvider>
             </QueryClientProvider>
         </WagmiConfig>
