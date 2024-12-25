@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 import { Button } from "../components/ui/button";
 import Container from "./Container";
 import { AlignJustify, X } from "lucide-react";
+import { WalletConnect } from './WalletConnect';
 
 const navItems = [
   { name: "Staking", href: "" },
@@ -56,20 +57,25 @@ const Header: React.FC = () => {
           </section>
           <section>
             <button
+              type="button"
               className="lg:hidden text-3xl"
               onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? <X size={28} /> : <AlignJustify size={28} />}
             </button>
 
-            <Link href="/dashboard" className="hidden lg:block">
+            {/* <Link href="/dashboard" className="hidden lg:block">
               <Button
                 variant="default"
                 className="bg-[#f3ba2f] text-black hover:bg-[#f3ba2f]/90 h-10 font-semibold transition-all duration-300"
               >
                 Launch App
               </Button>
-            </Link>
+            </Link> */}
+
+            <div className="hidden lg:block">
+              <WalletConnect />
+            </div>
           </section>
         </div>
       </Container>
@@ -87,16 +93,21 @@ const Header: React.FC = () => {
             <NavLinks />
           </div>
 
-          <Link href="/dashboard" className="mt-4">
-            <Button
-              variant="default"
-              className="bg-[#f3ba2f] text-black hover:bg-[#f3ba2f]/90 h-10 font-semibold transition-all duration-300"
-            >
-              Launch App
-            </Button>
-          </Link>
+          {/* <Link href="/dashboard" className="hidden lg:block">
+              <Button
+                variant="default"
+                className="bg-[#f3ba2f] text-black hover:bg-[#f3ba2f]/90 h-10 font-semibold transition-all duration-300"
+              >
+                Launch App
+              </Button>
+            </Link> */}
+
+          <div className="mt-4">
+            <WalletConnect />
+          </div>
 
           <button
+            type="button"
             className="absolute top-6 right-6 text-3xl"
             onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
           >
@@ -104,7 +115,13 @@ const Header: React.FC = () => {
           </button>
         </div>
 
-        <div className="flex-1" onClick={() => setMobileMenuOpen(false)} />
+        <div 
+          className="flex-1" 
+          onClick={() => setMobileMenuOpen(false)}
+          onKeyDown={(e) => e.key === 'Escape' && setMobileMenuOpen(false)}
+          role="button"
+          tabIndex={0}
+        />
       </div>
     </header>
   );

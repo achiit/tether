@@ -12,8 +12,64 @@ import {
   Link2,
 } from "lucide-react";
 import SocialLinks from "./SocialLinks";
+import { useAccount } from 'wagmi';
+import { useState } from 'react';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const DashboardPage = () => {
+  const { address } = useAccount();
+  const [isCopied, setIsCopied] = useState(false);
+  const [referrerAddress, setReferrerAddress] = useState('');
+  const [isRegistered, setIsRegistered] = useState(false);
+
+  const truncateAddress = (address: string) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
+  const handleRegister = async () => {
+    if (!signer || !referrerAddress) return;
+
+    try {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      setSigner(signer);
+
+      const { tetherWave, usdt } = getContracts(signer);
+
+      // First approve USDT spending
+      const approveTx = await usdt.approve(
+        tetherWave.address,
+        ethers.utils.parseUnits('11', 18)
+      );
+      await approveTx.wait();
+
+      // Then register
+      const tx = await tetherWave.register(referrerAddress);
+      await tx.wait();
+
+      // Update registration status and level
+      setIsRegistered(true);
+      setCurrentLevel(1);
+      alert('Registration successful!');
+
+      // Refresh user stats
+      await checkRegistrationStatus();
+    } catch (error) {
+      console.error('Registration error:', error);
+      alert('Registration failed!');
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <section className="lg:hidden flex justify-between items-center drop-shadow-lg lg:p-4 py-4 bg-white lg:rounded-lg">
@@ -49,24 +105,64 @@ const DashboardPage = () => {
           <section>
             <div className="flex items-center space-x-2 text-lg font-bold">
               <Wallet className="h-5 w-5" />
-              <span>Wallet Detail</span>
+              <span>Wallet Details</span>
             </div>
             <div className="mt-2">
               <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium">ID:</span>
-                <div className="flex items-center space-x-2 cursor-pointer">
-                  <span className="font-bold">abcdefgey3....40ef34</span>
-                  <Copy className="h-4 w-4 text-muted-foreground" />
-                </div>
+                <span className="text-sm font-medium">Address:</span>
+                <button
+                  type="button"
+                  className="flex items-center space-x-2 cursor-pointer"
+                  onClick={() => address && copyToClipboard(address)}
+                  onKeyDown={(e) => e.key === 'Enter' && address && copyToClipboard(address)}
+                >
+                  <span className="font-bold">
+                    {address ? truncateAddress(address) : 'Not Connected'}
+                  </span>
+                  <Copy className={`h-4 w-4 transition-colors ${isCopied ? 'text-green-500' : 'text-muted-foreground hover:text-black'}`} />
+                </button>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium">Wallet Fund:</span>
-                <div className="flex items-center space-x-2 cursor-pointer">
-                  <span className="font-bold">0.005684 BNB</span>
-                </div>
+                <span className="text-sm font-medium">Balance:</span>
+                <ConnectButton.Custom>
+                  {({
+                    account,
+                    chain,
+                    authenticationStatus,
+                    mounted,
+                  }) => {
+                    const ready = mounted && authenticationStatus !== 'loading';
+                    const connected = ready && account && chain &&
+                      (!authenticationStatus || authenticationStatus === 'authenticated');
+                    console.log("account?.displayBalance", account?.displayBalance);
+
+                    return (
+                      <div
+                        {...(!ready && {
+                          'aria-hidden': true,
+                          'style': {
+                            opacity: 0,
+                            pointerEvents: 'none',
+                            userSelect: 'none',
+                          },
+                        })}
+                      >
+                        <span className="font-bold">
+                          {!connected
+                            ? 'Not Connected'
+                            : account?.displayBalance
+                              ? ` (${account.displayBalance})`
+                              : `0.0000 ${chain?.name || 'BNB'}`
+                          }
+                        </span>
+                      </div>
+                    );
+                  }}
+                </ConnectButton.Custom>
               </div>
             </div>
           </section>
+
           <section>
             <div className="flex items-center space-x-2 text-lg font-bold">
               <Link2 className="h-5 w-5" />
@@ -74,12 +170,17 @@ const DashboardPage = () => {
             </div>
             <div className="mt-2">
               <div className="flex items-center space-x-2">
-                <div className="flex items-center space-x-2 cursor-pointer">
+                <button
+                  type="button"
+                  className="flex items-center space-x-2 cursor-pointer"
+                  onClick={() => address && copyToClipboard(`${window.location.origin}?ref=${address}`)}
+                  onKeyDown={(e) => e.key === 'Enter' && address && copyToClipboard(`${window.location.origin}?ref=${address}`)}
+                >
                   <span className="font-bold bg-yellow-300 px-2 py-1 rounded">
-                    abcdefgey3....40ef34
+                    {address ? truncateAddress(address) : 'Not Connected'}
                   </span>
-                  <Copy className="h-4 w-4 text-muted-foreground" />
-                </div>
+                  <Copy className={`h-4 w-4 transition-colors ${isCopied ? 'text-green-500' : 'text-muted-foreground hover:text-black'}`} />
+                </button>
               </div>
             </div>
           </section>
@@ -87,6 +188,25 @@ const DashboardPage = () => {
       </div>
 
       <section className="mt-4">
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h2 className="text-2xl font-semibold mb-4 text-black">Registration</h2>
+          <input
+            type="text"
+            placeholder="Referrer Address"
+            value={referrerAddress}
+            onChange={(e) => setReferrerAddress(e.target.value)}
+            className="w-full p-2 border rounded mb-4 text-black"
+          />
+          <button
+            type="button"
+            onClick={handleRegister}
+            disabled={isRegistered}
+            className={`bg-green-500 text-white px-6 py-2 rounded-lg 
+                  ${isRegistered ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-600'}`}
+          >
+            {isRegistered ? 'Already Registered' : 'Register'}
+          </button>
+        </div>
         <div className="drop-shadow-lg p-4 bg-white lg:rounded-lg ">
           <div className="flex items-center space-x-2 text-lg font-bold">
             <Boxes className="h-5 w-5" />
