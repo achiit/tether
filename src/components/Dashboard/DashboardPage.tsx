@@ -44,6 +44,7 @@ const DashboardPage = () => {
   const [isRegistered, setIsRegistered] = useState(false);
   const [currentLevel, setCurrentLevel] = useState(0);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
+  const [levelIncomes, setLevelIncomes] = useState<bigint[]>([]);
 
   const truncateAddress = (address: string) => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -58,6 +59,29 @@ const DashboardPage = () => {
       console.error('Failed to copy text: ', err);
     }
   };
+
+  const fetchLevelIncomes = useCallback(async () => {
+    if (!address) return;
+    try {
+      const { tetherWave } = getContracts();
+      const stats = await tetherWave.publicClient.readContract({
+        ...tetherWave,
+        functionName: 'getUserTeamStats',
+        args: [address]
+      }) as [number[], bigint[]];
+
+      setLevelIncomes(stats[1]);
+    } catch (error) {
+      console.error('Error fetching level incomes:', error);
+    }
+  }, [address]);
+
+  // Add to useEffect
+  useEffect(() => {
+    if (address) {
+      fetchLevelIncomes();
+    }
+  }, [address, fetchLevelIncomes]);
 
   const checkRegistrationStatus = useCallback(async () => {
     if (!address) return;
@@ -106,7 +130,7 @@ const DashboardPage = () => {
       const { tetherWave, usdt } = getContracts();
 
       // First approve USDT
-      const approveAmount = BigInt(11 * 10 ** 6); // 11 USDT with 6 decimals
+      const approveAmount = BigInt(11 * 10 ** 18);
       const approveHash = await usdt.walletClient.writeContract({
         ...usdt,
         functionName: 'approve',
@@ -148,7 +172,7 @@ const DashboardPage = () => {
       const { tetherWave, usdt } = getContracts();
 
       // First approve USDT
-      const approveAmount = BigInt(amount * 10 ** 18); // Using 6 decimals for USDT
+      const approveAmount = BigInt(amount * 10 ** 18);
       const approveHash = await usdt.walletClient.writeContract({
         ...usdt,
         functionName: 'approve',
@@ -192,7 +216,7 @@ const DashboardPage = () => {
 
           <div className="grid gap-2 mt-4">
             <ProfileItem icon={Hash} label="User ID" value="123" />
-            <ProfileItem icon={Crown} label="Rank" value="Gold" />
+            <ProfileItem icon={Crown} label="Rank" value={`${currentLevel} - ${LEVELS.find(l => l.level === currentLevel)?.name || 'Unknown'}`} />
             <ProfileItem
               icon={Calendar}
               label="Activation Date"
@@ -362,15 +386,15 @@ const DashboardPage = () => {
         <section className="flex flex-col lg:flex-row justify-between items-start gap-4 w-full mt-4">
           <div className="drop-shadow-lg p-4 bg-white lg:rounded-lg w-full">
             <p className="text-lg font-bold">Total Income</p>
-            <p>{userStats?.totalEarnings ? formatUnits(userStats.totalEarnings, 6) : '0'} USDT</p>
+            <p>{userStats?.totalEarnings ? formatUnits(userStats.totalEarnings, 18) : '0'} USDT</p>
           </div>
           <div className="drop-shadow-lg p-4 bg-white lg:rounded-lg w-full">
             <p className="text-lg font-bold">Referral Income</p>
-            <p>{userStats?.directCommissionEarned ? formatUnits(userStats.directCommissionEarned, 6) : '0'} USDT</p>
+            <p>{userStats?.directCommissionEarned ? formatUnits(userStats.directCommissionEarned, 18) : '0'} USDT</p>
           </div>
           <div className="drop-shadow-lg p-4 bg-white lg:rounded-lg w-full">
             <p className="text-lg font-bold">Level Income</p>
-            <p>{userStats?.levelIncomeEarned ? formatUnits(userStats.levelIncomeEarned, 6) : '0'} USDT</p>
+            <p>{userStats?.levelIncomeEarned ? formatUnits(userStats.levelIncomeEarned, 18) : '0'} USDT</p>
           </div>
           <div className="drop-shadow-lg p-4 bg-white lg:rounded-lg w-full">
             <p className="text-lg font-bold">Direct Referral</p>
@@ -386,15 +410,15 @@ const DashboardPage = () => {
             <span>Rank Income</span>
           </div>
           <div className="grid gap-4 md:grid-cols-2 mt-4">
-            {rankData.map((item) => (
+            {LEVELS.map((level, index) => (
               <div
-                key={item.id}
+                key={level.id}
                 className="rounded-lg px-4 py-3 bg-gradient-to-r border from-yellow-100 to-blue-50"
               >
                 <div className="flex justify-between items-center">
-                  <span className="">{item.rank}</span>
+                  <span className="">{level.name}</span>
                   <span className="bg-yellow-300 px-2 py-1 rounded font-medium">
-                    {item.amount} BNB
+                    {levelIncomes[index] ? formatUnits(levelIncomes[index], 18) : '0'} USDT
                   </span>
                 </div>
               </div>
@@ -467,29 +491,16 @@ function ProfileItem({
 }
 
 const LEVELS: LevelInfo[] = [
-  { id: 1, level: 1, name: "Starter", amount: 11, color: "bg-blue-500" },
-  { id: 2, level: 2, name: "Bronze", amount: 22, color: "bg-amber-600" },
-  { id: 3, level: 3, name: "Silver", amount: 44, color: "bg-gray-400" },
-  { id: 4, level: 4, name: "Gold", amount: 88, color: "bg-yellow-500" },
-  { id: 5, level: 5, name: "Diamond", amount: 176, color: "bg-purple-500" },
-  { id: 6, level: 6, name: "Platinum", amount: 352, color: "bg-pink-500" },
-  { id: 7, level: 7, name: "Titanium", amount: 704, color: "bg-orange-500" },
-  { id: 8, level: 8, name: "Crown", amount: 1408, color: "bg-purple-500" },
-  { id: 9, level: 9, name: "Royal", amount: 2816, color: "bg-pink-500" },
-  { id: 10, level: 10, name: "Ambassador", amount: 5632, color: "bg-orange-500" },
-];
-
-const rankData = [
-  { id: 1, rank: "Beginner", amount: 0.005684 },
-  { id: 2, rank: "Bronze", amount: 0.015684 },
-  { id: 3, rank: "Silver", amount: 0.035684 },
-  { id: 4, rank: "Gold", amount: 0.075684 },
-  { id: 5, rank: "Platinum", amount: 0.155684 },
-  { id: 6, rank: "Diamond", amount: 0.315684 },
-  { id: 7, rank: "Master", amount: 0.635684 },
-  { id: 8, rank: "Grandmaster", amount: 1.275684 },
-  { id: 9, rank: "Legend", amount: 2.555684 },
-  { id: 10, rank: "Mythic", amount: 5.115684 },
+  { id: 1, level: 1, name: "Newbie", amount: 11, color: "bg-blue-500" },
+  { id: 2, level: 2, name: "Apprentice", amount: 22, color: "bg-amber-600" },
+  { id: 3, level: 3, name: "Adventure", amount: 44, color: "bg-gray-400" },
+  { id: 4, level: 4, name: "Challenger", amount: 88, color: "bg-yellow-500" },
+  { id: 5, level: 5, name: "Warrior", amount: 176, color: "bg-purple-500" },
+  { id: 6, level: 6, name: "Champion", amount: 352, color: "bg-pink-500" },
+  { id: 7, level: 7, name: "Master", amount: 704, color: "bg-orange-500" },
+  { id: 8, level: 8, name: "Grand Master", amount: 1408, color: "bg-purple-500" },
+  { id: 9, level: 9, name: "Immortal", amount: 2816, color: "bg-pink-500" },
+  { id: 10, level: 10, name: "Winner", amount: 5632, color: "bg-orange-500" },
 ];
 
 const recentIncome = [
