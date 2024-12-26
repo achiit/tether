@@ -4,9 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import Container from "./Container";
+import Container from "../Container";
 import { AlignJustify, X } from "lucide-react";
-import { WalletConnect } from './WalletConnect';
+import { WalletConnect } from '../WalletConnect';
 
 const navItems = [
   { name: "Staking", href: "" },

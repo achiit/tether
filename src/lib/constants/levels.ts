@@ -1,14 +1,4 @@
-interface LevelInfo {
-    id: number;
-    level: number;
-    name: string;
-    amount: number;
-    color: string;
-  }
-
-export const truncateAddress = (address: string) => {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-};
+import type { LevelInfo } from '@/types/contract'
 
 export const LEVELS: LevelInfo[] = [
     { id: 1, level: 1, name: "Newbie", amount: 11, color: "bg-blue-500" },
@@ -21,4 +11,4 @@ export const LEVELS: LevelInfo[] = [
     { id: 8, level: 8, name: "Grand Master", amount: 1408, color: "bg-purple-500" },
     { id: 9, level: 9, name: "Immortal", amount: 2816, color: "bg-pink-500" },
     { id: 10, level: 10, name: "Winner", amount: 5632, color: "bg-orange-500" },
-  ]; 
+]

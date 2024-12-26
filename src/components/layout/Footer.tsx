@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Facebook, Instagram, Twitter } from "lucide-react";
-import Container from "./Container";
+import Container from "../Container";
 
 export function Footer() {
   return (

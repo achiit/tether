@@ -1,39 +1,21 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { useAccount } from "wagmi";
-import { getContracts } from "../../utils/contract";
-import { LEVELS } from "../../utils/constant";
-import { truncateAddress } from "../../utils/constant";
-
-interface ReferralData {
-  userAddress: string;
-  activationTime: number;
-  currentLevel: number;
-  directReferrals: number;
-}
+import React, { useEffect, useState } from "react";
+import { useContract } from "@/lib/hooks/useContract";
+import { LEVELS } from "@/lib/constants/levels";
+import { truncateAddress } from "@/lib/utils/format";
+import type { ReferralData } from "@/types/contract";
 
 const Referrals = () => {
-  const { address } = useAccount();
+  const { getReferralData } = useContract();
   const [referralData, setReferralData] = useState<ReferralData[]>([]);
 
-  const fetchReferralData = useCallback(async () => {
-    if (!address) return;
-    try {
-      const { tetherWave } = getContracts();
-      const data = await tetherWave.publicClient.readContract({
-        ...tetherWave,
-        functionName: 'getDirectReferralData',
-        args: [address]
-      }) as ReferralData[];
-
-      setReferralData(data);
-    } catch (error) {
-      console.error('Error fetching referral data:', error);
-    }
-  }, [address]);
-
   useEffect(() => {
+    const fetchReferralData = async () => {
+      const data = await getReferralData();
+      setReferralData(data);
+    };
+
     fetchReferralData();
-  }, [fetchReferralData]);
+  }, [getReferralData]);
 
   return (
     <div className="drop-shadow-lg p-4 bg-white lg:rounded-lg">

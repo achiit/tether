@@ -2,7 +2,7 @@
 
 import { Coins, Droplet, Wallet } from "lucide-react";
 import { motion } from "framer-motion";
-import Container from "./Container";
+import Container from "../Container";
 
 export default function HowItWorks() {
   const steps = [
@@ -57,7 +57,7 @@ export default function HowItWorks() {
 
           {steps.map((step, index) => (
             <motion.div
-              key={index}
+              key={`${index+1}`}
               className="relative z-10 text-center flex-1"
               custom={index}
               variants={stepVariant}
