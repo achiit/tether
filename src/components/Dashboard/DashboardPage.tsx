@@ -18,7 +18,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { getContracts, publicClient } from '@/utils/contract';
 import { formatUnits } from 'viem';
 import Link from "next/link";
-
+import { truncateAddress } from "@/utils/constant";
 interface UserStats {
   currentLevel: number;
   directReferrals: number;
@@ -37,6 +37,13 @@ interface LevelInfo {
   color: string;
 }
 
+interface RecentIncome {
+  from: string;
+  amount: bigint;
+  levelNumber: number;
+  timestamp: number;
+}
+
 const DashboardPage = () => {
   const { address } = useAccount();
   const [isCopied, setIsCopied] = useState(false);
@@ -45,10 +52,7 @@ const DashboardPage = () => {
   const [currentLevel, setCurrentLevel] = useState(0);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [levelIncomes, setLevelIncomes] = useState<bigint[]>([]);
-
-  const truncateAddress = (address: string) => {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
+  const [recentIncomes, setRecentIncomes] = useState<RecentIncome[]>([]);
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -76,12 +80,42 @@ const DashboardPage = () => {
     }
   }, [address]);
 
-  // Add to useEffect
   useEffect(() => {
     if (address) {
       fetchLevelIncomes();
     }
   }, [address, fetchLevelIncomes]);
+
+  const fetchRecentIncomes = useCallback(async () => {
+    if (!address) return;
+    try {
+      const { tetherWave } = getContracts();
+      const events = await tetherWave.publicClient.readContract({
+        ...tetherWave,
+        functionName: 'getRecentIncomeEvents',
+        args: [address] 
+      }) as [string[], number[], bigint[], number[], number];
+
+      const [userAddresses, levelNumbers, amounts, timestamps] = events;
+
+      const formattedIncomes: RecentIncome[] = userAddresses.map((from, index) => ({
+        from,
+        amount: amounts[index],
+        levelNumber: levelNumbers[index],
+        timestamp: timestamps[index]
+      }));
+
+      setRecentIncomes(formattedIncomes);
+    } catch (error) {
+      console.error('Error fetching recent incomes:', error);
+    }
+  }, [address]);
+
+  useEffect(() => {
+    if (address) {
+      fetchRecentIncomes();
+    }
+  }, [address, fetchRecentIncomes]);
 
   const checkRegistrationStatus = useCallback(async () => {
     if (!address) return;
@@ -433,26 +467,26 @@ const DashboardPage = () => {
           <span>Recent Income</span>
         </div>
         <div className="overflow-y-auto text-nowrap">
-          <table className="w-full mt-4 border-collapse ">
+          <table className="w-full mt-4 border-collapse">
             <thead className="overflow-y-auto">
-              <tr className="">
+              <tr>
                 <th className="bg-yellow-200 py-2 px-4 text-left">From</th>
                 <th className="bg-yellow-200 py-2 px-4 text-left">Amount</th>
-                <th className="bg-yellow-200 py-2 px-4 text-left">
-                  Rank Level
-                </th>
+                <th className="bg-yellow-200 py-2 px-4 text-left">Rank Level</th>
                 <th className="bg-yellow-200 py-2 px-4 text-left">Layer</th>
                 <th className="bg-yellow-200 py-2 px-4 text-left">Time</th>
               </tr>
             </thead>
             <tbody>
-              {recentIncome.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50 border-b">
-                  <td className="py-2 px-4">{item.from}</td>
-                  <td className="py-2 px-4">{item.amount} BNB</td>
-                  <td className="py-2 px-4">{item.rankLevel}</td>
-                  <td className="py-2 px-4">{item.layer}</td>
-                  <td className="py-2 px-4">{item.time}</td>
+              {recentIncomes.map((item, index) => (
+                <tr key={`${index + 1}`} className="hover:bg-gray-50 border-b">
+                  <td className="py-2 px-4">{truncateAddress(item.from)}</td>
+                  <td className="py-2 px-4">{formatUnits(item.amount, 6)} USDT</td>
+                  <td className="py-2 px-4">{LEVELS[item.levelNumber - 1]?.name || `Level ${item.levelNumber}`}</td>
+                  <td className="py-2 px-4">Layer {item.levelNumber}</td>
+                  <td className="py-2 px-4">
+                    {new Date(item.timestamp * 1000).toLocaleDateString()}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -461,9 +495,9 @@ const DashboardPage = () => {
       </section>
 
       <div className="text-center text-sm font-semibold mt-4">
-        <p>RideBNB Contract opbnb.bscscan</p>
-        <Link href="https://opbnb.bscscan.com/address/" className="text-yellow-700 hover:underline">
-          (0xc0d396da...d212340)
+        <p>TetherWave Contract opbnb.bscscan</p>
+        <Link href="https://opbnb-testnet.bscscan.com/address/0xc3ea8e34b056fa334244ab4c6c5dfca80c490f93" className="text-yellow-700 hover:underline">
+          (0xC3eA8E34B056fa334244AB4c6c5DfCa80C490f93)
         </Link>
       </div>
     </div>
@@ -501,39 +535,4 @@ const LEVELS: LevelInfo[] = [
   { id: 8, level: 8, name: "Grand Master", amount: 1408, color: "bg-purple-500" },
   { id: 9, level: 9, name: "Immortal", amount: 2816, color: "bg-pink-500" },
   { id: 10, level: 10, name: "Winner", amount: 5632, color: "bg-orange-500" },
-];
-
-const recentIncome = [
-  {
-    id: 1,
-    from: "12378",
-    amount: 0.024,
-    rankLevel: "Ambassador",
-    layer: "Layer 1",
-    time: "20/01/2023",
-  },
-  {
-    id: 2,
-    from: "84913",
-    amount: 0.048,
-    rankLevel: "Pioneer",
-    layer: "Layer 2",
-    time: "20/01/2023",
-  },
-  {
-    id: 3,
-    from: "94208",
-    amount: 0.012,
-    rankLevel: "Achiever",
-    layer: "Layer 3",
-    time: "20/01/2023",
-  },
-  {
-    id: 4,
-    from: "88754",
-    amount: 0.024,
-    rankLevel: "Ambassador",
-    layer: "Layer 4",
-    time: "20/01/2023",
-  },
 ];

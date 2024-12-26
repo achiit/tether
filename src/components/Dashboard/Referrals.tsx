@@ -1,44 +1,39 @@
-import React from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import { useAccount } from "wagmi";
+import { getContracts } from "../../utils/contract";
+import { LEVELS } from "../../utils/constant";
+import { truncateAddress } from "../../utils/constant";
+
+interface ReferralData {
+  userAddress: string;
+  activationTime: number;
+  currentLevel: number;
+  directReferrals: number;
+}
 
 const Referrals = () => {
-  // Sample referral data
-  const referralData = [
-    {
-      id: 1,
-      address: "12378",
-      activationDate: "2024-01-01",
-      level: "Gold",
-      directTeam: 10,
-    },
-    {
-      id: 2,
-      address: "45689",
-      activationDate: "2024-02-15",
-      level: "Silver",
-      directTeam: 8,
-    },
-    {
-      id: 3,
-      address: "78945",
-      activationDate: "2024-03-10",
-      level: "Platinum",
-      directTeam: 12,
-    },
-    {
-      id: 4,
-      address: "16234",
-      activationDate: "2024-04-25",
-      level: "Gold",
-      directTeam: 7,
-    },
-    {
-      id: 5,
-      address: "47589",
-      activationDate: "2024-05-05",
-      level: "Diamond",
-      directTeam: 15,
-    },
-  ];
+  const { address } = useAccount();
+  const [referralData, setReferralData] = useState<ReferralData[]>([]);
+
+  const fetchReferralData = useCallback(async () => {
+    if (!address) return;
+    try {
+      const { tetherWave } = getContracts();
+      const data = await tetherWave.publicClient.readContract({
+        ...tetherWave,
+        functionName: 'getDirectReferralData',
+        args: [address]
+      }) as ReferralData[];
+
+      setReferralData(data);
+    } catch (error) {
+      console.error('Error fetching referral data:', error);
+    }
+  }, [address]);
+
+  useEffect(() => {
+    fetchReferralData();
+  }, [fetchReferralData]);
 
   return (
     <div className="drop-shadow-lg p-4 bg-white lg:rounded-lg">
@@ -47,7 +42,6 @@ const Referrals = () => {
           <thead>
             <tr>
               <th className="bg-yellow-200 py-2 px-4 text-left">S.No</th>
-              <th className="bg-yellow-200 py-2 px-4 text-left">ID</th>
               <th className="bg-yellow-200 py-2 px-4 text-left">Address</th>
               <th className="bg-yellow-200 py-2 px-4 text-left">
                 Activation Date
@@ -61,18 +55,19 @@ const Referrals = () => {
           <tbody>
             {referralData.map((referral, index) => (
               <tr
-                key={referral.id}
-                className={index % 2 === 0 ? "hover:bg-gray-50 border-b" : "hover:bg-gray-50 border-b"}
+                key={`referral-${index + 1}`}
+                className="hover:bg-gray-50 border-b"
               >
                 <td className="py-2 px-4">{index + 1}</td>
-                <td className="py-2 px-4">{referral.id}</td>
-                <td className="py-2 px-4">{referral.address}</td>
+                <td className="py-2 px-4">{truncateAddress(referral.userAddress)}</td>
                 <td className="py-2 px-4">
-                  {referral.activationDate}
+                  {new Date(referral.activationTime * 1000).toLocaleDateString()}
                 </td>
-                <td className="py-2 px-4">{referral.level}</td>
                 <td className="py-2 px-4">
-                  {referral.directTeam}
+                  {LEVELS[referral.currentLevel - 1]?.name || `Level ${referral.currentLevel}`}
+                </td>
+                <td className="py-2 px-4">
+                  {referral.directReferrals}
                 </td>
               </tr>
             ))}
