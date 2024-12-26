@@ -75,7 +75,7 @@ export function useContract() {
                 args: [userAddress, newStartIndex, limit],
             }) as [Address[], number[], bigint[], number[], number];
 
-            const [userAddresses, levelNumbers, amounts, timestamps, _totalCount] = data;
+            const [userAddresses, levelNumbers, amounts, timestamps] = data;
 
             return {
                 userAddresses,

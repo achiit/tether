@@ -4,6 +4,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import { useRouter } from 'next/navigation';
 import { Button } from './ui/button';
+import Image from 'next/image';
 
 export const WalletConnect = () => {
     const { isConnected } = useAccount();
@@ -78,7 +79,7 @@ export const WalletConnect = () => {
                                             }}
                                         >
                                             {chain.iconUrl && (
-                                                <img
+                                                <Image
                                                     alt={chain.name ?? 'Chain icon'}
                                                     src={chain.iconUrl}
                                                     style={{ width: '100%', height: '100%' }}
