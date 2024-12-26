@@ -1,3 +1,5 @@
+"use client";
+
 import { GradientCursor } from "@/components/ui/gradient-cursor";
 import { FlipWords } from "@/components/ui/flip-words";
 import Header from "@/components/header";
