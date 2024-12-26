@@ -1,39 +1,62 @@
 "use client";
 
-import { Loader } from "lucide-react";
-import React, { useState, useEffect } from "react";
-
-interface IncomeData {
-  id: string;
-  address: string;
-  sponsorId: number;
-}
+import { useState, useEffect } from 'react';
+import { useWallet } from '@/lib/hooks/useWallet';
+import { useContract } from '@/lib/hooks/useContract';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { truncateAddress } from '@/lib/utils/format';
 
 const DownLine = () => {
-  const [selectedNumber, setSelectedNumber] = useState<number | null>(1); // Set the first button as default
-  const [isLoading, setIsLoading] = useState<boolean>(true); // Add loading state
+  const { address } = useWallet();
+  const { getDownlineByDepthPaginated } = useContract();
+  const [selectedLevel, setSelectedLevel] = useState(1);
+  const [downlineData, setDownlineData] = useState<{
+    downlineAddresses: `0x${string}`[];
+    sponsorAddresses: `0x${string}`[];
+    totalCount: number;
+  }>({ downlineAddresses: [], sponsorAddresses: [], totalCount: 0 });
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
-    // Simulate loading delay
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer); // Cleanup timer on unmount
-  }, []);
+    const fetchDownlineData = async () => {
+      if (!address) return;
+      
+      try {
+        const result = await getDownlineByDepthPaginated(
+          address,
+          selectedLevel,
+          BigInt((currentPage - 1) * itemsPerPage),
+          BigInt(itemsPerPage)
+        );
+        setDownlineData(result);
+      } catch (error) {
+        console.error('Error fetching downline data:', error);
+      }
+    };
+
+    fetchDownlineData();
+  }, [address, selectedLevel, currentPage, getDownlineByDepthPaginated]);
 
   return (
     <div>
       <div className="drop-shadow-lg p-4 bg-white lg:rounded-lg">
         <div className="flex justify-start gap-4 overflow-x-auto">
-          {Object.keys(recentIncome).map((number) => (
+          {Array.from({ length: 10 }, (_, i) => i + 1).map((level) => (
             <button
-              key={number}
-              onClick={() => setSelectedNumber(Number(number))}
+              type="button"
+              key={level}
+              onClick={() => {
+                setSelectedLevel(level);
+                setCurrentPage(1);
+              }}
               className={`py-2 px-4 rounded ${
-                selectedNumber === Number(number)
+                selectedLevel === level
                   ? "bg-yellow-700 text-white"
                   : "bg-yellow-500"
               }`}
             >
-              {number}
+              {level}
             </button>
           ))}
         </div>
@@ -45,41 +68,65 @@ const DownLine = () => {
             <thead>
               <tr>
                 <th className="bg-yellow-200 py-2 px-4 text-left">S.No.</th>
-                <th className="bg-yellow-200 py-2 px-4 text-left">ID</th>
                 <th className="bg-yellow-200 py-2 px-4 text-left">Address</th>
-                <th className="bg-yellow-200 py-2 px-4 text-left">
-                  Sponsor ID
-                </th>
+                <th className="bg-yellow-200 py-2 px-4 text-left">Sponsor</th>
               </tr>
             </thead>
             <tbody>
-              {isLoading ? (
-                <tr className="w-full">
-                  <td colSpan={4} className="text-center w-full py-4">
-                    <span className="flex justify-center items-center">
-                      <Loader className="animate-spin mr-2" />
-                      Loading data...
-                    </span>
-                  </td>
+              {downlineData.downlineAddresses.map((address, index) => (
+                <tr key={address} className="hover:bg-gray-50 border-b">
+                  <td className="py-2 px-4">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                  <td className="py-2 px-4">{truncateAddress(address)}</td>
+                  <td className="py-2 px-4">{truncateAddress(downlineData.sponsorAddresses[index])}</td>
                 </tr>
-              ) : (
-                selectedNumber &&
-                recentIncome[selectedNumber]?.map((item, index) => (
-                  <tr key={item.id} className="hover:bg-gray-50 border-b">
-                    <td className="py-2 px-4">{index + 1}</td>
-                    <td className="py-2 px-4">{item.id}</td>
-                    <td className="py-2 px-4">{item.address}</td>
-                    <td className="py-2 px-4">{item.sponsorId.toFixed(3)}</td>
-                  </tr>
-                ))
-              )}
+              ))}
             </tbody>
           </table>
-          {!selectedNumber && (
+
+          {downlineData.downlineAddresses.length === 0 && (
             <p className="text-gray-500 text-center mt-4">
-              Select a number to view data.
+              No downline data available for this level.
             </p>
           )}
+
+          <div className="flex justify-between items-center mt-4">
+            <div className="text-sm text-gray-500">
+              Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
+              {Math.min(currentPage * itemsPerPage, downlineData.totalCount)} of{' '}
+              {downlineData.totalCount} entries
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 rounded ${
+                  currentPage === 1
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-yellow-200 hover:bg-yellow-300'
+                }`}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <div className="px-3 py-1 rounded bg-yellow-300">
+                {currentPage} of {Math.ceil(downlineData.totalCount / itemsPerPage)}
+              </div>
+              <button
+                type="button"
+                onClick={() => setCurrentPage(prev =>
+                  Math.min(prev + 1, Math.ceil(downlineData.totalCount / itemsPerPage))
+                )}
+                disabled={currentPage === Math.ceil(downlineData.totalCount / itemsPerPage)}
+                className={`px-3 py-1 rounded ${
+                  currentPage === Math.ceil(downlineData.totalCount / itemsPerPage)
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-yellow-200 hover:bg-yellow-300'
+                }`}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
         </div>
       </section>
     </div>
@@ -87,34 +134,3 @@ const DownLine = () => {
 };
 
 export default DownLine;
-
-const recentIncome: Record<number, IncomeData[]> = {
-  1: [
-    { id: "1", address: "12378", sponsorId: 0.024 },
-    { id: "2", address: "12479", sponsorId: 0.035 },
-  ],
-  2: [
-    { id: "3", address: "45689", sponsorId: 0.032 },
-    { id: "4", address: "45890", sponsorId: 0.028 },
-  ],
-  3: [
-    { id: "5", address: "78945", sponsorId: 0.015 },
-    { id: "6", address: "78456", sponsorId: 0.02 },
-  ],
-  4: [
-    { id: "7", address: "16234", sponsorId: 0.018 },
-    { id: "8", address: "16789", sponsorId: 0.045 },
-  ],
-  5: [
-    { id: "9", address: "47589", sponsorId: 0.05 },
-    { id: "10", address: "47890", sponsorId: 0.038 },
-  ],
-  6: [
-    { id: "11", address: "99871", sponsorId: 0.027 },
-    { id: "12", address: "99672", sponsorId: 0.03 },
-  ],
-  7: [
-    { id: "13", address: "23456", sponsorId: 0.033 },
-    { id: "14", address: "23987", sponsorId: 0.042 },
-  ],
-};

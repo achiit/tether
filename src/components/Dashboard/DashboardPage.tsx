@@ -10,45 +10,58 @@ import {
   Copy,
   Boxes,
   Link2,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
-import SocialLinks from "./SocialLinks";
-import { useAccount } from 'wagmi';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { getContracts, publicClient } from '@/utils/contract';
 import { formatUnits } from 'viem';
 import Link from "next/link";
 
-interface UserStats {
-  currentLevel: number;
-  directReferrals: number;
-  totalEarnings: bigint;
-  directCommissionEarned: bigint;
-  levelIncomeEarned: bigint;
-  timestamp: number;
-  isActive: boolean;
-}
+import { useWallet } from "@/lib/hooks/useWallet";
+import { useContract } from "@/lib/hooks/useContract";
+import { truncateAddress } from "@/lib/utils/format";
+import { LEVELS } from "@/lib/constants/levels";
+import SocialLinks from "./SocialLinks";
+import type { UserStats, RecentIncomeEvents } from "@/types/contract";
 
-interface LevelInfo {
-  id: number;
-  level: number;
-  name: string;
-  amount: number;
-  color: string;
+function ProfileItem({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex items-center space-x-2">
+      <Icon className="h-4 w-4 text-muted-foreground" />
+      <span className="text-sm font-medium">{label}:</span>
+      <span className="font-bold">{value}</span>
+    </div>
+  );
 }
 
 const DashboardPage = () => {
-  const { address } = useAccount();
+  const { address, balances } = useWallet();
+  const { getUserStats, getLevelIncomes, getRecentIncomeEventsPaginated, register, upgrade } = useContract();
+
   const [isCopied, setIsCopied] = useState(false);
   const [referrerAddress, setReferrerAddress] = useState('');
   const [isRegistered, setIsRegistered] = useState(false);
   const [currentLevel, setCurrentLevel] = useState(0);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [levelIncomes, setLevelIncomes] = useState<bigint[]>([]);
-
-  const truncateAddress = (address: string) => {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  const [recentIncomes, setRecentIncomes] = useState<RecentIncomeEvents>({
+    userAddresses: [],
+    levelNumbers: [],
+    amounts: [],
+    timestamps: [],
+    totalCount: 0
+  });
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -60,139 +73,60 @@ const DashboardPage = () => {
     }
   };
 
-  const fetchLevelIncomes = useCallback(async () => {
-    if (!address) return;
-    try {
-      const { tetherWave } = getContracts();
-      const stats = await tetherWave.publicClient.readContract({
-        ...tetherWave,
-        functionName: 'getUserTeamStats',
-        args: [address]
-      }) as [number[], bigint[]];
-
-      setLevelIncomes(stats[1]);
-    } catch (error) {
-      console.error('Error fetching level incomes:', error);
-    }
-  }, [address]);
-
-  // Add to useEffect
   useEffect(() => {
-    if (address) {
-      fetchLevelIncomes();
-    }
-  }, [address, fetchLevelIncomes]);
+    const fetchData = async () => {
+      if (!address) return;
 
-  const checkRegistrationStatus = useCallback(async () => {
-    if (!address) return;
-    try {
-      const { tetherWave } = getContracts();
-      const statsArray = await tetherWave.publicClient.readContract({
-        ...tetherWave,
-        functionName: 'getUserStats',
-        args: [address]
-      }) as [number, number, bigint, bigint, bigint, number, boolean];
+      try {
+        const stats = await getUserStats();
+        if (stats) {
+          setCurrentLevel(stats.currentLevel);
+          setUserStats(stats);
+          setIsRegistered(stats.isActive);
+        }
 
-      // Convert array to object
-      const stats: UserStats = {
-        currentLevel: Number(statsArray[0]),
-        directReferrals: Number(statsArray[1]),
-        totalEarnings: statsArray[2],
-        directCommissionEarned: statsArray[3],
-        levelIncomeEarned: statsArray[4],
-        timestamp: Number(statsArray[5]),
-        isActive: statsArray[6]
-      };
+        const incomes = await getLevelIncomes();
+        setLevelIncomes(incomes);
 
-      if (stats.currentLevel > 0) {
-        setCurrentLevel(stats.currentLevel);
-        setUserStats(stats);
-        setIsRegistered(true);
+        const resultInc = await getRecentIncomeEventsPaginated(
+          address,
+          BigInt((currentPage - 1) * itemsPerPage),
+          BigInt(itemsPerPage)
+        );
+        setRecentIncomes(resultInc);
+      } catch (error) {
+        console.error('Error fetching data:', error);
       }
-    } catch (error) {
-      console.error('Error checking registration:', error);
-      setIsRegistered(false);
-      setCurrentLevel(0);
-    }
-  }, [address]);
+    };
 
-  useEffect(() => {
-    if (address) {
-      checkRegistrationStatus();
-    }
-  }, [address, checkRegistrationStatus]);
+    fetchData();
+  }, [address, getUserStats, getLevelIncomes, getRecentIncomeEventsPaginated, currentPage]);
 
-  // Handle Registration
   const handleRegister = async () => {
     if (!address || !referrerAddress) return;
 
     try {
-      const { tetherWave, usdt } = getContracts();
-
-      // First approve USDT
-      const approveAmount = BigInt(11 * 10 ** 18);
-      const approveHash = await usdt.walletClient.writeContract({
-        ...usdt,
-        functionName: 'approve',
-        args: [tetherWave.address, approveAmount],
-        account: address as `0x${string}`
-      });
-      await publicClient.waitForTransactionReceipt({ hash: approveHash });
-
-      // Then register
-      const { request } = await tetherWave.publicClient.simulateContract({
-        ...tetherWave,
-        functionName: 'register',
-        args: [referrerAddress],
-        account: address as `0x${string}`
-      });
-
-      const registerHash = await tetherWave.walletClient.writeContract(request);
-      await publicClient.waitForTransactionReceipt({ hash: registerHash });
-
-      // Update state after successful registration
+      await register(referrerAddress);
       setIsRegistered(true);
       setCurrentLevel(1);
-      await checkRegistrationStatus(); // Refresh stats
+      const stats = await getUserStats();
+      if (stats) setUserStats(stats);
       alert('Registration successful!');
     } catch (error) {
       console.error('Registration error:', error);
-      if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string' && error.message.includes('Invalid registration')) {
-        await checkRegistrationStatus();
-      }
       alert(`Registration failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   };
 
-  // Handle Upgrade
   const handleUpgrade = async (targetLevel: number, amount: number) => {
     if (!address) return;
 
     try {
-      const { tetherWave, usdt } = getContracts();
-
-      // First approve USDT
-      const approveAmount = BigInt(amount * 10 ** 18);
-      const approveHash = await usdt.walletClient.writeContract({
-        ...usdt,
-        functionName: 'approve',
-        args: [tetherWave.address, approveAmount],
-        account: address as `0x${string}`
-      });
-      await publicClient.waitForTransactionReceipt({ hash: approveHash });
-
-      // Then upgrade
-      const upgradeHash = await tetherWave.walletClient.writeContract({
-        ...tetherWave,
-        functionName: 'upgrade',
-        args: [targetLevel],
-        account: address as `0x${string}`
-      });
-      await publicClient.waitForTransactionReceipt({ hash: upgradeHash });
-
+      await upgrade(targetLevel, amount);
       setCurrentLevel(targetLevel);
       alert('Upgrade successful!');
-      await checkRegistrationStatus();
+      const stats = await getUserStats();
+      if (stats) setUserStats(stats);
     } catch (error) {
       console.error('Upgrade error:', error);
       alert('Upgrade failed!');
@@ -220,7 +154,7 @@ const DashboardPage = () => {
             <ProfileItem
               icon={Calendar}
               label="Activation Date"
-              value="2023-01-15"
+              value="2024-01-01"
             />
             <ProfileItem
               icon={Users}
@@ -251,42 +185,50 @@ const DashboardPage = () => {
                   <Copy className={`h-4 w-4 transition-colors ${isCopied ? 'text-green-500' : 'text-muted-foreground hover:text-black'}`} />
                 </button>
               </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium">Balance:</span>
-                <ConnectButton.Custom>
-                  {({
-                    account,
-                    chain,
-                    authenticationStatus,
-                    mounted,
-                  }) => {
-                    const ready = mounted && authenticationStatus !== 'loading';
-                    const connected = ready && account && chain &&
-                      (!authenticationStatus || authenticationStatus === 'authenticated');
+              <div className="flex flex-col space-y-1">
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm font-medium">Balance:</span>
+                  <ConnectButton.Custom>
+                    {({
+                      account,
+                      chain,
+                      authenticationStatus,
+                      mounted,
+                    }) => {
+                      const ready = mounted && authenticationStatus !== 'loading';
+                      const connected = ready && account && chain &&
+                        (!authenticationStatus || authenticationStatus === 'authenticated');
 
-                    return (
-                      <div
-                        {...(!ready && {
-                          'aria-hidden': true,
-                          'style': {
-                            opacity: 0,
-                            pointerEvents: 'none',
-                            userSelect: 'none',
-                          },
-                        })}
-                      >
-                        <span className="font-bold">
-                          {!connected
-                            ? 'Not Connected'
-                            : account?.displayBalance
-                              ? ` ${account.balanceFormatted}`
-                              : `0.0000 ${chain?.name || 'BNB'}`
-                          }
-                        </span>
-                      </div>
-                    );
-                  }}
-                </ConnectButton.Custom>
+                      return (
+                        <div
+                          {...(!ready && {
+                            'aria-hidden': true,
+                            'style': {
+                              opacity: 0,
+                              pointerEvents: 'none',
+                              userSelect: 'none',
+                            },
+                          })}
+                        >
+                          <span className="font-bold">
+                            {!connected
+                              ? 'Not Connected'
+                              : account?.displayBalance
+                                ? ` ${account.balanceFormatted}`
+                                : `0.0000 ${chain?.name || 'BNB'}`
+                            }
+                          </span>
+                        </div>
+                      );
+                    }}
+                  </ConnectButton.Custom>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm font-medium">USDT Balance:</span>
+                  <span className="font-bold">
+                    {balances.usdt ? `${balances.usdt} USDT` : '0.0000 USDT'}
+                  </span>
+                </div>
               </div>
             </div>
           </section>
@@ -315,7 +257,6 @@ const DashboardPage = () => {
         </section>
       </div>
 
-      {/* Registration Section - Only show if not registered */}
       {!isRegistered && (
         <section className="mt-4">
           <div className="bg-white p-6 rounded-lg shadow">
@@ -338,7 +279,6 @@ const DashboardPage = () => {
         </section>
       )}
 
-      {/* Upgrade Section - Only show if registered */}
       {isRegistered && (
         <div className="drop-shadow-lg p-4 bg-white lg:rounded-lg">
           <div className="flex items-center space-x-2 text-lg font-bold">
@@ -347,7 +287,6 @@ const DashboardPage = () => {
           </div>
           <div className="grid grid-cols-5 gap-4 mt-4">
             {LEVELS.map((levelInfo) => {
-              // Ensure all values are numbers
               const currentLevelNum = Number(currentLevel);
               const levelNum = Number(levelInfo.level);
               const isNextLevel = levelNum === (currentLevelNum + 1);
@@ -381,7 +320,6 @@ const DashboardPage = () => {
         </div>
       )}
 
-      {/* User Stats Section - Only show if registered */}
       {isRegistered && userStats && (
         <section className="flex flex-col lg:flex-row justify-between items-start gap-4 w-full mt-4">
           <div className="drop-shadow-lg p-4 bg-white lg:rounded-lg w-full">
@@ -410,15 +348,23 @@ const DashboardPage = () => {
             <span>Rank Income</span>
           </div>
           <div className="grid gap-4 md:grid-cols-2 mt-4">
-            {LEVELS.map((level, index) => (
+            <div className="rounded-lg px-4 py-3 bg-gradient-to-r border from-yellow-100 to-blue-50">
+              <div className="flex justify-between items-center">
+                <span>{LEVELS[0].name}</span>
+                <span className="bg-yellow-300 px-2 py-1 rounded font-medium">
+                  {userStats?.directCommissionEarned ? formatUnits(userStats.directCommissionEarned, 18) : '0'} USDT
+                </span>
+              </div>
+            </div>
+            {LEVELS.slice(1).map((level, index) => (
               <div
                 key={level.id}
                 className="rounded-lg px-4 py-3 bg-gradient-to-r border from-yellow-100 to-blue-50"
               >
                 <div className="flex justify-between items-center">
-                  <span className="">{level.name}</span>
+                  <span>{level.name}</span>
                   <span className="bg-yellow-300 px-2 py-1 rounded font-medium">
-                    {levelIncomes[index] ? formatUnits(levelIncomes[index], 18) : '0'} USDT
+                    {levelIncomes[index + 1] ? formatUnits(levelIncomes[index + 1], 18) : '0'} USDT
                   </span>
                 </div>
               </div>
@@ -433,37 +379,81 @@ const DashboardPage = () => {
           <span>Recent Income</span>
         </div>
         <div className="overflow-y-auto text-nowrap">
-          <table className="w-full mt-4 border-collapse ">
+          <table className="w-full mt-4 border-collapse">
             <thead className="overflow-y-auto">
-              <tr className="">
+              <tr>
                 <th className="bg-yellow-200 py-2 px-4 text-left">From</th>
                 <th className="bg-yellow-200 py-2 px-4 text-left">Amount</th>
-                <th className="bg-yellow-200 py-2 px-4 text-left">
-                  Rank Level
-                </th>
+                <th className="bg-yellow-200 py-2 px-4 text-left">Rank Level</th>
                 <th className="bg-yellow-200 py-2 px-4 text-left">Layer</th>
                 <th className="bg-yellow-200 py-2 px-4 text-left">Time</th>
               </tr>
             </thead>
             <tbody>
-              {recentIncome.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50 border-b">
-                  <td className="py-2 px-4">{item.from}</td>
-                  <td className="py-2 px-4">{item.amount} BNB</td>
-                  <td className="py-2 px-4">{item.rankLevel}</td>
-                  <td className="py-2 px-4">{item.layer}</td>
-                  <td className="py-2 px-4">{item.time}</td>
+              {recentIncomes.userAddresses.map((address, index) => (
+                <tr key={`${index + 1}`} className="hover:bg-gray-50 border-b">
+                  <td className="py-2 px-4">{truncateAddress(address)}</td>
+                  <td className="py-2 px-4">
+                    {formatUnits(recentIncomes.amounts[index], 18)} USDT
+                  </td>
+                  <td className="py-2 px-4">
+                    {LEVELS[recentIncomes.levelNumbers[index] - 1]?.name ||
+                      `Level ${recentIncomes.levelNumbers[index]}`}
+                  </td>
+                  <td className="py-2 px-4">
+                    Level {recentIncomes.levelNumbers[index]}
+                  </td>
+                  <td className="py-2 px-4">
+                    {new Date(recentIncomes.timestamps[index] * 1000).toLocaleDateString()}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+
+          <div className="flex justify-between items-center mt-4">
+            <div className="text-sm text-gray-500">
+              Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
+              {Math.min(currentPage * itemsPerPage, recentIncomes.totalCount)} of{' '}
+              {recentIncomes.totalCount} entries
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 rounded ${currentPage === 1
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-yellow-200 hover:bg-yellow-300'
+                  }`}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <div className="px-3 py-1 rounded bg-yellow-300">
+                {currentPage} of {Math.ceil(recentIncomes.totalCount / itemsPerPage)}
+              </div>
+              <button
+                type="button"
+                onClick={() => setCurrentPage(prev =>
+                  Math.min(prev + 1, Math.ceil(recentIncomes.totalCount / itemsPerPage))
+                )}
+                disabled={currentPage === Math.ceil(recentIncomes.totalCount / itemsPerPage)}
+                className={`px-3 py-1 rounded ${currentPage === Math.ceil(recentIncomes.totalCount / itemsPerPage)
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-yellow-200 hover:bg-yellow-300'
+                  }`}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
       <div className="text-center text-sm font-semibold mt-4">
-        <p>RideBNB Contract opbnb.bscscan</p>
-        <Link href="https://opbnb.bscscan.com/address/" className="text-yellow-700 hover:underline">
-          (0xc0d396da...d212340)
+        <p>TetherWave Contract opbnb.bscscan</p>
+        <Link href="https://opbnb-testnet.bscscan.com/address/0xc3ea8e34b056fa334244ab4c6c5dfca80c490f93" className="text-yellow-700 hover:underline">
+          (0xC3eA8E34B056fa334244AB4c6c5DfCa80C490f93)
         </Link>
       </div>
     </div>
@@ -471,69 +461,3 @@ const DashboardPage = () => {
 };
 
 export default DashboardPage;
-
-function ProfileItem({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: React.ElementType;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="flex items-center space-x-2">
-      <Icon className="h-4 w-4 text-muted-foreground" />
-      <span className="text-sm font-medium">{label}:</span>
-      <span className="font-bold">{value}</span>
-    </div>
-  );
-}
-
-const LEVELS: LevelInfo[] = [
-  { id: 1, level: 1, name: "Newbie", amount: 11, color: "bg-blue-500" },
-  { id: 2, level: 2, name: "Apprentice", amount: 22, color: "bg-amber-600" },
-  { id: 3, level: 3, name: "Adventure", amount: 44, color: "bg-gray-400" },
-  { id: 4, level: 4, name: "Challenger", amount: 88, color: "bg-yellow-500" },
-  { id: 5, level: 5, name: "Warrior", amount: 176, color: "bg-purple-500" },
-  { id: 6, level: 6, name: "Champion", amount: 352, color: "bg-pink-500" },
-  { id: 7, level: 7, name: "Master", amount: 704, color: "bg-orange-500" },
-  { id: 8, level: 8, name: "Grand Master", amount: 1408, color: "bg-purple-500" },
-  { id: 9, level: 9, name: "Immortal", amount: 2816, color: "bg-pink-500" },
-  { id: 10, level: 10, name: "Winner", amount: 5632, color: "bg-orange-500" },
-];
-
-const recentIncome = [
-  {
-    id: 1,
-    from: "12378",
-    amount: 0.024,
-    rankLevel: "Ambassador",
-    layer: "Layer 1",
-    time: "20/01/2023",
-  },
-  {
-    id: 2,
-    from: "84913",
-    amount: 0.048,
-    rankLevel: "Pioneer",
-    layer: "Layer 2",
-    time: "20/01/2023",
-  },
-  {
-    id: 3,
-    from: "94208",
-    amount: 0.012,
-    rankLevel: "Achiever",
-    layer: "Layer 3",
-    time: "20/01/2023",
-  },
-  {
-    id: 4,
-    from: "88754",
-    amount: 0.024,
-    rankLevel: "Ambassador",
-    layer: "Layer 4",
-    time: "20/01/2023",
-  },
-];

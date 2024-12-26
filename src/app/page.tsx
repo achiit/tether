@@ -2,11 +2,11 @@
 
 import { GradientCursor } from "@/components/ui/gradient-cursor";
 import { FlipWords } from "@/components/ui/flip-words";
-import Header from "@/components/header";
-import { Footer } from "@/components/footer";
-import HowItWorks from "../components/how-it-works";
+import Header from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
+import HowItWorks from "@/components/home/HowItWorks";
 import Image from "next/image";
-import { SplitViewSection } from "@/components/split-view-section";
+import { SplitViewSection } from "@/components/home/SplitViewSection";
 import Container from "@/components/Container";
 
 export default function Home() {

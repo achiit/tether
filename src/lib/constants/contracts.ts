@@ -1,8 +1,8 @@
 import { createPublicClient, createWalletClient, http, custom } from 'viem';
 import type { Chain } from 'viem';
-import { CONTRACT_ADDRESSES } from '../config/contracts';
-import TetherWaveABI from './abi/Tether.json';
-import USDTABI from './abi/USDT.json';
+import { siteConfig } from '../../config/site';
+import TetherWaveABI from '../abi/Tether.json';
+import USDTABI from '../abi/USDT.json';
 
 // Define opBNB testnet chain
 export const opBNBTestnet: Chain = {
@@ -45,13 +45,13 @@ export const getContracts = () => {
 
     return {
         tetherWave: {
-            address: CONTRACT_ADDRESSES.TETHER_WAVE as `0x${string}`,
+            address: siteConfig.contracts.TetherWave as `0x${string}`,
             abi: TetherWaveABI,
             publicClient,
             walletClient
         },
         usdt: {
-            address: CONTRACT_ADDRESSES.USDT as `0x${string}`,
+            address: siteConfig.contracts.USDT as `0x${string}`,
             abi: USDTABI,
             publicClient,
             walletClient

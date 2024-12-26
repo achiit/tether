@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { useAccount } from 'wagmi';
+import { useAccount, useDisconnect } from 'wagmi';
 import { useRouter } from 'next/navigation';
 
 import DashboardPage from "@/components/Dashboard/DashboardPage";
@@ -19,6 +19,7 @@ const tabs = [
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState<string>("dashboard");
   const { isConnected } = useAccount();
+  const { disconnect } = useDisconnect();
   const router = useRouter();
 
   useEffect(() => {
@@ -30,6 +31,11 @@ const Dashboard = () => {
   if (!isConnected) {
     return null;
   }
+
+  const handleLogout = () => {
+    disconnect();
+    router.push('/');
+  };
 
   const renderContent = () => {
     switch (activeTab) {
@@ -53,7 +59,11 @@ const Dashboard = () => {
           </div>
 
           <div className="absolute top-4 lg:top-auto right-0 lg:right-auto lg:bottom-8 px-4 flex justify-end items-end lg:w-full">
-            <button type="button" className="p-2.5 lg:p-4 px-8 font-semibold cursor-pointer bg-gray-400 hover:bg-red-600 rounded-lg w-full transition-all duration-300">
+            <button 
+              type="button" 
+              onClick={handleLogout}
+              className="p-2.5 lg:p-4 px-8 font-semibold cursor-pointer bg-gray-400 hover:bg-red-600 rounded-lg w-full transition-all duration-300"
+            >
               Logout
             </button>
           </div>
