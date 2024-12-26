@@ -12,13 +12,16 @@ import {
   Link2,
 } from "lucide-react";
 import SocialLinks from "./SocialLinks";
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
 import { useState, useCallback, useEffect } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { getContracts, publicClient } from '@/utils/contract';
 import { formatUnits } from 'viem';
 import Link from "next/link";
 import { truncateAddress } from "@/utils/constant";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+
 interface UserStats {
   currentLevel: number;
   directReferrals: number;
@@ -53,6 +56,19 @@ const DashboardPage = () => {
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [levelIncomes, setLevelIncomes] = useState<bigint[]>([]);
   const [recentIncomes, setRecentIncomes] = useState<RecentIncome[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = recentIncomes.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(recentIncomes.length / itemsPerPage);
+
+  const { data: usdtBalance } = useBalance({
+    address,
+    token: '0xe6Ad72C499ce626b10De645E25BbAb40C5A34C9f',
+  });
+
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -93,7 +109,7 @@ const DashboardPage = () => {
       const events = await tetherWave.publicClient.readContract({
         ...tetherWave,
         functionName: 'getRecentIncomeEvents',
-        args: [address] 
+        args: [address]
       }) as [string[], number[], bigint[], number[], number];
 
       const [userAddresses, levelNumbers, amounts, timestamps] = events;
@@ -127,7 +143,6 @@ const DashboardPage = () => {
         args: [address]
       }) as [number, number, bigint, bigint, bigint, number, boolean];
 
-      // Convert array to object
       const stats: UserStats = {
         currentLevel: Number(statsArray[0]),
         directReferrals: Number(statsArray[1]),
@@ -254,7 +269,7 @@ const DashboardPage = () => {
             <ProfileItem
               icon={Calendar}
               label="Activation Date"
-              value="2023-01-15"
+              value="2024-01-01"
             />
             <ProfileItem
               icon={Users}
@@ -285,42 +300,53 @@ const DashboardPage = () => {
                   <Copy className={`h-4 w-4 transition-colors ${isCopied ? 'text-green-500' : 'text-muted-foreground hover:text-black'}`} />
                 </button>
               </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium">Balance:</span>
-                <ConnectButton.Custom>
-                  {({
-                    account,
-                    chain,
-                    authenticationStatus,
-                    mounted,
-                  }) => {
-                    const ready = mounted && authenticationStatus !== 'loading';
-                    const connected = ready && account && chain &&
-                      (!authenticationStatus || authenticationStatus === 'authenticated');
+              <div className="flex flex-col space-y-1">
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm font-medium">Balance:</span>
+                  <ConnectButton.Custom>
+                    {({
+                      account,
+                      chain,
+                      authenticationStatus,
+                      mounted,
+                    }) => {
+                      const ready = mounted && authenticationStatus !== 'loading';
+                      const connected = ready && account && chain &&
+                        (!authenticationStatus || authenticationStatus === 'authenticated');
 
-                    return (
-                      <div
-                        {...(!ready && {
-                          'aria-hidden': true,
-                          'style': {
-                            opacity: 0,
-                            pointerEvents: 'none',
-                            userSelect: 'none',
-                          },
-                        })}
-                      >
-                        <span className="font-bold">
-                          {!connected
-                            ? 'Not Connected'
-                            : account?.displayBalance
-                              ? ` ${account.balanceFormatted}`
-                              : `0.0000 ${chain?.name || 'BNB'}`
-                          }
-                        </span>
-                      </div>
-                    );
-                  }}
-                </ConnectButton.Custom>
+                      return (
+                        <div
+                          {...(!ready && {
+                            'aria-hidden': true,
+                            'style': {
+                              opacity: 0,
+                              pointerEvents: 'none',
+                              userSelect: 'none',
+                            },
+                          })}
+                        >
+                          <span className="font-bold">
+                            {!connected
+                              ? 'Not Connected'
+                              : account?.displayBalance
+                                ? ` ${account.balanceFormatted}`
+                                : `0.0000 ${chain?.name || 'BNB'}`
+                            }
+                          </span>
+                        </div>
+                      );
+                    }}
+                  </ConnectButton.Custom>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm font-medium">USDT Balance:</span>
+                  <span className="font-bold">
+                    {usdtBalance
+                      ? `${formatUnits(usdtBalance.value, usdtBalance.decimals)} USDT`
+                      : '0.0000 USDT'
+                    }
+                  </span>
+                </div>
               </div>
             </div>
           </section>
@@ -478,8 +504,8 @@ const DashboardPage = () => {
               </tr>
             </thead>
             <tbody>
-              {recentIncomes.map((item, index) => (
-                <tr key={`${index + 1}`} className="hover:bg-gray-50 border-b">
+              {currentItems.map((item, index) => (
+                <tr key={`${indexOfFirstItem + index + 1}`} className="hover:bg-gray-50 border-b">
                   <td className="py-2 px-4">{truncateAddress(item.from)}</td>
                   <td className="py-2 px-4">{formatUnits(item.amount, 6)} USDT</td>
                   <td className="py-2 px-4">{LEVELS[item.levelNumber - 1]?.name || `Level ${item.levelNumber}`}</td>
@@ -491,6 +517,40 @@ const DashboardPage = () => {
               ))}
             </tbody>
           </table>
+
+          {/* Pagination Controls */}
+          <div className="flex justify-between items-center mt-4">
+            <div className="text-sm text-gray-500">
+              Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, recentIncomes.length)} of {recentIncomes.length} entries
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 rounded ${currentPage === 1
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-yellow-200 hover:bg-yellow-300'
+                  }`}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <div className="px-3 py-1 rounded bg-yellow-300">
+                {currentPage} of {totalPages}
+              </div>
+              <button
+                type="button"
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className={`px-3 py-1 rounded ${currentPage === totalPages
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-yellow-200 hover:bg-yellow-300'
+                  }`}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
