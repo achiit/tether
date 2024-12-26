@@ -23,7 +23,7 @@ import { useContract } from "@/lib/hooks/useContract";
 import { truncateAddress } from "@/lib/utils/format";
 import { LEVELS } from "@/lib/constants/levels";
 import SocialLinks from "./SocialLinks";
-import type { UserStats, RecentIncome } from "@/types/contract";
+import type { UserStats, RecentIncomeEvents } from "@/types/contract";
 
 function ProfileItem({
   icon: Icon,
@@ -41,11 +41,11 @@ function ProfileItem({
       <span className="font-bold">{value}</span>
     </div>
   );
-} 
+}
 
 const DashboardPage = () => {
   const { address, balances } = useWallet();
-  const { getUserStats, getLevelIncomes, getRecentIncomes, register, upgrade } = useContract();
+  const { getUserStats, getLevelIncomes, getRecentIncomeEventsPaginated, register, upgrade } = useContract();
 
   const [isCopied, setIsCopied] = useState(false);
   const [referrerAddress, setReferrerAddress] = useState('');
@@ -53,14 +53,15 @@ const DashboardPage = () => {
   const [currentLevel, setCurrentLevel] = useState(0);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [levelIncomes, setLevelIncomes] = useState<bigint[]>([]);
-  const [recentIncomes, setRecentIncomes] = useState<RecentIncome[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = recentIncomes.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(recentIncomes.length / itemsPerPage);
+  const [recentIncomes, setRecentIncomes] = useState<RecentIncomeEvents>({
+    userAddresses: [],
+    levelNumbers: [],
+    amounts: [],
+    timestamps: [],
+    totalCount: 0
+  });
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -87,15 +88,19 @@ const DashboardPage = () => {
         const incomes = await getLevelIncomes();
         setLevelIncomes(incomes);
 
-        const recentInc = await getRecentIncomes();
-        setRecentIncomes(recentInc);
+        const resultInc = await getRecentIncomeEventsPaginated(
+          address,
+          BigInt((currentPage - 1) * itemsPerPage),
+          BigInt(itemsPerPage)
+        );
+        setRecentIncomes(resultInc);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
 
     fetchData();
-  }, [address, getUserStats, getLevelIncomes, getRecentIncomes]);
+  }, [address, getUserStats, getLevelIncomes, getRecentIncomeEventsPaginated, currentPage]);
 
   const handleRegister = async () => {
     if (!address || !referrerAddress) return;
@@ -343,15 +348,23 @@ const DashboardPage = () => {
             <span>Rank Income</span>
           </div>
           <div className="grid gap-4 md:grid-cols-2 mt-4">
-            {LEVELS.map((level, index) => (
+            <div className="rounded-lg px-4 py-3 bg-gradient-to-r border from-yellow-100 to-blue-50">
+              <div className="flex justify-between items-center">
+                <span>{LEVELS[0].name}</span>
+                <span className="bg-yellow-300 px-2 py-1 rounded font-medium">
+                  {userStats?.directCommissionEarned ? formatUnits(userStats.directCommissionEarned, 18) : '0'} USDT
+                </span>
+              </div>
+            </div>
+            {LEVELS.slice(1).map((level, index) => (
               <div
                 key={level.id}
                 className="rounded-lg px-4 py-3 bg-gradient-to-r border from-yellow-100 to-blue-50"
               >
                 <div className="flex justify-between items-center">
-                  <span className="">{level.name}</span>
+                  <span>{level.name}</span>
                   <span className="bg-yellow-300 px-2 py-1 rounded font-medium">
-                    {levelIncomes[index] ? formatUnits(levelIncomes[index], 18) : '0'} USDT
+                    {levelIncomes[index + 1] ? formatUnits(levelIncomes[index + 1], 18) : '0'} USDT
                   </span>
                 </div>
               </div>
@@ -377,14 +390,21 @@ const DashboardPage = () => {
               </tr>
             </thead>
             <tbody>
-              {currentItems.map((item, index) => (
-                <tr key={`${indexOfFirstItem + index + 1}`} className="hover:bg-gray-50 border-b">
-                  <td className="py-2 px-4">{truncateAddress(item.from)}</td>
-                  <td className="py-2 px-4">{formatUnits(item.amount, 6)} USDT</td>
-                  <td className="py-2 px-4">{LEVELS[item.levelNumber - 1]?.name || `Level ${item.levelNumber}`}</td>
-                  <td className="py-2 px-4">Layer {item.levelNumber}</td>
+              {recentIncomes.userAddresses.map((address, index) => (
+                <tr key={`${index + 1}`} className="hover:bg-gray-50 border-b">
+                  <td className="py-2 px-4">{truncateAddress(address)}</td>
                   <td className="py-2 px-4">
-                    {new Date(item.timestamp * 1000).toLocaleDateString()}
+                    {formatUnits(recentIncomes.amounts[index], 18)} USDT
+                  </td>
+                  <td className="py-2 px-4">
+                    {LEVELS[recentIncomes.levelNumbers[index] - 1]?.name ||
+                      `Level ${recentIncomes.levelNumbers[index]}`}
+                  </td>
+                  <td className="py-2 px-4">
+                    Level {recentIncomes.levelNumbers[index]}
+                  </td>
+                  <td className="py-2 px-4">
+                    {new Date(recentIncomes.timestamps[index] * 1000).toLocaleDateString()}
                   </td>
                 </tr>
               ))}
@@ -393,7 +413,9 @@ const DashboardPage = () => {
 
           <div className="flex justify-between items-center mt-4">
             <div className="text-sm text-gray-500">
-              Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, recentIncomes.length)} of {recentIncomes.length} entries
+              Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
+              {Math.min(currentPage * itemsPerPage, recentIncomes.totalCount)} of{' '}
+              {recentIncomes.totalCount} entries
             </div>
             <div className="flex gap-2">
               <button
@@ -408,13 +430,15 @@ const DashboardPage = () => {
                 <ChevronLeft className="h-4 w-4" />
               </button>
               <div className="px-3 py-1 rounded bg-yellow-300">
-                {currentPage} of {totalPages}
+                {currentPage} of {Math.ceil(recentIncomes.totalCount / itemsPerPage)}
               </div>
               <button
                 type="button"
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
-                className={`px-3 py-1 rounded ${currentPage === totalPages
+                onClick={() => setCurrentPage(prev =>
+                  Math.min(prev + 1, Math.ceil(recentIncomes.totalCount / itemsPerPage))
+                )}
+                disabled={currentPage === Math.ceil(recentIncomes.totalCount / itemsPerPage)}
+                className={`px-3 py-1 rounded ${currentPage === Math.ceil(recentIncomes.totalCount / itemsPerPage)
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                   : 'bg-yellow-200 hover:bg-yellow-300'
                   }`}

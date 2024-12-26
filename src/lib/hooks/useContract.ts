@@ -2,7 +2,8 @@ import { useCallback } from 'react'
 import { getContracts } from '../constants/contracts'
 import { useAccount } from 'wagmi'
 import { publicClient } from '../constants/contracts'
-import type { UserStats, RecentIncome, ReferralData } from '@/types/contract'
+import type { UserStats, ReferralData } from '@/types/contract'
+import type { Address } from 'viem'
 
 export function useContract() {
     const { address } = useAccount()
@@ -49,29 +50,51 @@ export function useContract() {
         }
     }, [address])
 
-    const getRecentIncomes = useCallback(async (): Promise<RecentIncome[]> => {
-        if (!address) return []
+    const getRecentIncomeEventsPaginated = useCallback(async (
+        userAddress: Address,
+        startIndex: bigint,
+        limit: bigint
+    ) => {
         try {
-            const { tetherWave } = getContracts()
-            const events = await tetherWave.publicClient.readContract({
+            const { tetherWave } = getContracts();
+            
+            // First get total count
+            const totalData = await tetherWave.publicClient.readContract({
                 ...tetherWave,
-                functionName: 'getRecentIncomeEvents',
-                args: [address]
-            }) as [string[], number[], bigint[], number[], number]
+                functionName: 'getRecentIncomeEventsPaginated',
+                args: [userAddress, BigInt(0), BigInt(1)],
+            }) as [Address[], number[], bigint[], number[], number];
+            
+            const totalCount = Number(totalData[4]);
+            const newStartIndex = BigInt(Math.max(totalCount - Number(startIndex) - Number(limit), 0));
 
-            const [userAddresses, levelNumbers, amounts, timestamps] = events
+            // Get data with reversed index
+            const data = await tetherWave.publicClient.readContract({
+                ...tetherWave,
+                functionName: 'getRecentIncomeEventsPaginated',
+                args: [userAddress, newStartIndex, limit],
+            }) as [Address[], number[], bigint[], number[], number];
 
-            return userAddresses.map((from, index) => ({
-                from,
-                amount: amounts[index],
-                levelNumber: levelNumbers[index],
-                timestamp: timestamps[index]
-            }))
+            const [userAddresses, levelNumbers, amounts, timestamps, _totalCount] = data;
+
+            return {
+                userAddresses,
+                levelNumbers: levelNumbers.map(Number),
+                amounts,
+                timestamps: timestamps.map(Number),
+                totalCount
+            };
         } catch (error) {
-            console.error('Error fetching recent incomes:', error)
-            return []
+            console.error('Error fetching recent income events:', error);
+            return {
+                userAddresses: [],
+                levelNumbers: [],
+                amounts: [],
+                timestamps: [],
+                totalCount: 0
+            };
         }
-    }, [address])
+    }, []);
 
     const register = useCallback(async (referrerAddress: string): Promise<void> => {
         if (!address || !referrerAddress) return
@@ -131,29 +154,74 @@ export function useContract() {
         }
     }, [address])
 
-    const getReferralData = useCallback(async (): Promise<ReferralData[]> => {
-        if (!address) return [];
+    const getDirectReferralDataPaginated = useCallback(async (
+        userAddress: Address,
+        startIndex: bigint,
+        limit: bigint
+    ) => {
         try {
             const { tetherWave } = getContracts();
+            
             const data = await tetherWave.publicClient.readContract({
                 ...tetherWave,
-                functionName: 'getDirectReferralData',
-                args: [address]
-            }) as ReferralData[];
-
-            return data;
+                functionName: 'getDirectReferralDataPaginated',
+                args: [userAddress, startIndex, limit],
+            }) as [ReferralData[], bigint];
+    
+            const [referralData, totalCount] = data;
+    
+            return {
+                referralData,
+                totalCount: Number(totalCount)
+            };
         } catch (error) {
             console.error('Error fetching referral data:', error);
-            return [];
+            return {
+                referralData: [],
+                totalCount: 0
+            };
         }
-    }, [address]);
+    }, []);
+
+    const getDownlineByDepthPaginated = useCallback(async (
+        userAddress: Address,
+        depth: number,
+        startIndex: bigint,
+        limit: bigint
+    ) => {
+        try {
+            const { tetherWave } = getContracts();
+            
+            const data = await tetherWave.publicClient.readContract({
+                ...tetherWave,
+                functionName: 'getDownlineByDepthPaginated',
+                args: [userAddress, depth, startIndex, limit],
+            }) as [Address[], Address[], bigint];
+    
+            const [downlineAddresses, sponsorAddresses, totalCount] = data;
+    
+            return {
+                downlineAddresses,
+                sponsorAddresses,
+                totalCount: Number(totalCount)
+            };
+        } catch (error) {
+            console.error('Error fetching downline data:', error);
+            return {
+                downlineAddresses: [],
+                sponsorAddresses: [],
+                totalCount: 0
+            };
+        }
+    }, []);
 
     return {
         getUserStats,
         getLevelIncomes,
-        getRecentIncomes,
+        getRecentIncomeEventsPaginated,
         register,
         upgrade,
-        getReferralData
+        getDirectReferralDataPaginated,
+        getDownlineByDepthPaginated
     }
 }

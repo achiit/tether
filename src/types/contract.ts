@@ -16,16 +16,23 @@ export interface UserStats {
     isActive: boolean
 }
 
-export interface RecentIncome {
-    from: string
-    amount: bigint
-    levelNumber: number
-    timestamp: number
+export interface RecentIncomeEvents {
+    userAddresses: `0x${string}`[];
+    levelNumbers: number[];
+    amounts: bigint[];
+    timestamps: number[];
+    totalCount: number;
 }
 
 export interface ReferralData {
-    userAddress: string
-    activationTime: number
-    currentLevel: number
-    directReferrals: number
+    userAddress: string;
+    activationTime: number;
+    currentLevel: number;
+    directReferrals: number;
+}
+
+export interface DownlineData {
+    downlineAddresses: `0x${string}`[];
+    sponsorAddresses: `0x${string}`[];
+    totalCount: number;
 }
