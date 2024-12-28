@@ -36,3 +36,12 @@ export interface DownlineData {
     sponsorAddresses: `0x${string}`[];
     totalCount: number;
 }
+
+export interface RoyaltyInfo {
+    achievedTiers: boolean[];
+    paidDays: bigint[];
+    daysRemaining: bigint[];
+    nextClaimTime: bigint[];
+    totalEarned: bigint;
+    qualifiedNewTiers: boolean[];
+}
