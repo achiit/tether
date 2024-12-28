@@ -26,7 +26,7 @@ import { useContract } from "@/lib/hooks/useContract";
 import { truncateAddress } from "@/lib/utils/format";
 import { LEVELS } from "@/lib/constants/levels";
 import SocialLinks from "./SocialLinks";
-import { RoyaltySlab } from "./RoyaltySlab"; 
+import RoyaltySlab from "./RoyaltySlab";
 import type { UserStats, RecentIncomeEvents } from "@/types/contract";
 
 function ProfileItem({
@@ -466,8 +466,8 @@ const DashboardPage = () => {
 
       <div className="text-center text-sm font-semibold mt-4">
         <p>TetherWave Contract opbnb.bscscan</p>
-        <Link href="https://opbnb-testnet.bscscan.com/address/0xc3ea8e34b056fa334244ab4c6c5dfca80c490f93" className="text-yellow-700 hover:underline">
-          (0xC3eA8E34B056fa334244AB4c6c5DfCa80C490f93)
+        <Link href="https://opbnb-testnet.bscscan.com/address/0xad7284Bf6fB1c725a7500C51b71847fEf2D2d17C" className="text-yellow-700 hover:underline">
+          (0xad7284Bf6fB1c725a7500C51b71847fEf2D2d17C)
         </Link>
       </div>
     </div>

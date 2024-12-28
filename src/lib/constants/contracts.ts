@@ -3,7 +3,7 @@ import type { Chain } from 'viem';
 import { siteConfig } from '../../config/site';
 import TetherWaveABI from '../abi/Tether.json';
 import USDTABI from '../abi/USDT.json';
-
+import RoyaltyABI from '../abi/Royalty.json';
 // Define opBNB testnet chain
 export const opBNBTestnet: Chain = {
     id: 5611,
@@ -53,6 +53,12 @@ export const getContracts = () => {
         usdt: {
             address: siteConfig.contracts.USDT as `0x${string}`,
             abi: USDTABI,
+            publicClient,
+            walletClient
+        },
+        royalty: {
+            address: siteConfig.contracts.Royalty as `0x${string}`,
+            abi: RoyaltyABI,
             publicClient,
             walletClient
         }
