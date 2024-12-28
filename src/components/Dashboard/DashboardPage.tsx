@@ -11,7 +11,10 @@ import {
   Boxes,
   Link2,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Key,
+  Landmark,
+  BadgeDollarSign,
 } from "lucide-react";
 import { useState, useEffect } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
@@ -23,6 +26,7 @@ import { useContract } from "@/lib/hooks/useContract";
 import { truncateAddress } from "@/lib/utils/format";
 import { LEVELS } from "@/lib/constants/levels";
 import SocialLinks from "./SocialLinks";
+import { RoyaltySlab } from "./RoyaltySlab"; 
 import type { UserStats, RecentIncomeEvents } from "@/types/contract";
 
 function ProfileItem({
@@ -260,7 +264,10 @@ const DashboardPage = () => {
       {!isRegistered && (
         <section className="mt-4">
           <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-2xl font-semibold mb-4 text-black">Registration</h2>
+            <div className="flex items-center space-x-2 text-lg font-bold mb-4">
+             <Key className="h-5 w-5" />
+             <span>Registration</span>
+          </div>
             <input
               type="text"
               placeholder="Referrer Address"
@@ -285,7 +292,7 @@ const DashboardPage = () => {
             <Boxes className="h-5 w-5" />
             <span>Packages (Current Level: {currentLevel})</span>
           </div>
-          <div className="grid grid-cols-5 gap-4 mt-4">
+          <div className="flex lg:grid lg:grid-cols-5 gap-4 mt-4 overflow-auto text-nowrap">
             {LEVELS.map((levelInfo) => {
               const currentLevelNum = Number(currentLevel);
               const levelNum = Number(levelInfo.level);
@@ -299,20 +306,23 @@ const DashboardPage = () => {
                     onClick={() => handleUpgrade(levelNum, levelInfo.amount)}
                     disabled={!isNextLevel}
                     className={`
-                flex flex-col justify-center items-center p-1 rounded-full w-24 h-24
-                transition-all duration-300
-                ${isCompleted ? 'bg-green-200' : 'bg-yellow-200'}
+                flex flex-col justify-center items-center gap-2 min-w-48 px-4 py-2 rounded-md w-full
+                transition-all duration-300 bg-gradient-to-tr shadow-md drop-shadow-md
+                ${isCompleted ? 'from-green-400 via-green-300 to-green-400' : 'from-yellow-300 via-yellow-200 to-yellow-300'}
                 ${isNextLevel ? 'hover:scale-105 cursor-pointer' : 'opacity-50 cursor-not-allowed'}
               `}
                   >
+                    <div className="flex justify-between items-center gap-2 w-full" >
                     <p className="text-sm font-bold">Level {levelInfo.level}</p>
-                    <p className="text-xs font-bold">{levelInfo.name}</p>
-                    <p className="text-sm font-bold">{levelInfo.amount} USD</p>
+                    {isCompleted && (
+                    <span className="text-xs lg:text-sm font-bold text-green-800">✓ Completed</span>
+                   )}
+                    </div>
+                   <p className="text-lg lg:text-xl font-semibold">{levelInfo.name}</p>
+                      <p className="text-sm font-bold text-end w-full">{levelInfo.amount} USD</p>
                   </button>
 
-                  {isCompleted && (
-                    <span className="mt-2 text-green-500">✓ Completed</span>
-                  )}
+                  
                 </div>
               );
             })}
@@ -322,36 +332,36 @@ const DashboardPage = () => {
 
       {isRegistered && userStats && (
         <section className="flex flex-col lg:flex-row justify-between items-start gap-4 w-full mt-4">
-          <div className="drop-shadow-lg p-4 bg-white lg:rounded-lg w-full">
+          <div className="drop-shadow-lg p-4 lg:rounded-lg w-full border-l-4 border-green-900 bg-gradient-to-r from-green-300  to-green-500">
             <p className="text-lg font-bold">Total Income</p>
-            <p>{userStats?.totalEarnings ? formatUnits(userStats.totalEarnings, 18) : '0'} USDT</p>
+            <p className="font-bold">{userStats?.totalEarnings ? formatUnits(userStats.totalEarnings, 18) : '0'} USDT</p>
           </div>
-          <div className="drop-shadow-lg p-4 bg-white lg:rounded-lg w-full">
+          <div className="drop-shadow-lg p-4 lg:rounded-lg w-full border-l-4 border-pink-900 bg-gradient-to-r from-pink-300  to-pink-500">
             <p className="text-lg font-bold">Referral Income</p>
-            <p>{userStats?.directCommissionEarned ? formatUnits(userStats.directCommissionEarned, 18) : '0'} USDT</p>
+            <p className="font-bold">{userStats?.directCommissionEarned ? formatUnits(userStats.directCommissionEarned, 18) : '0'} USDT</p>
           </div>
-          <div className="drop-shadow-lg p-4 bg-white lg:rounded-lg w-full">
+          <div className="drop-shadow-lg p-4 lg:rounded-lg w-full border-l-4 border-orange-900 bg-gradient-to-r from-orange-300  to-orange-500">
             <p className="text-lg font-bold">Level Income</p>
-            <p>{userStats?.levelIncomeEarned ? formatUnits(userStats.levelIncomeEarned, 18) : '0'} USDT</p>
+            <p className="font-bold">{userStats?.levelIncomeEarned ? formatUnits(userStats.levelIncomeEarned, 18) : '0'} USDT</p>
           </div>
-          <div className="drop-shadow-lg p-4 bg-white lg:rounded-lg w-full">
+          <div className="drop-shadow-lg p-4 lg:rounded-lg w-full border-l-4 border-indigo-900 bg-gradient-to-r from-indigo-300  to-indigo-500">
             <p className="text-lg font-bold">Direct Referral</p>
-            <p>{userStats?.directReferrals?.toString() || '0'}</p>
+            <p className="font-bold">{userStats?.directReferrals?.toString() || '0'}</p>
           </div>
         </section>
       )}
 
       <section className="mt-4">
-        <div className="drop-shadow-lg p-4 bg-white lg:rounded-lg ">
+        <div className="drop-shadow-lg p-4 pb-6 bg-white lg:rounded-lg ">
           <div className="flex items-center space-x-2 text-lg font-bold">
-            <Boxes className="h-5 w-5" />
+            <Landmark className="h-5 w-5" />
             <span>Rank Income</span>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 mt-4">
-            <div className="rounded-lg px-4 py-3 bg-gradient-to-r border from-yellow-100 to-blue-50">
+          <div className="grid gap-4 md:grid-cols-2 mt-4 h-80 lg:h-auto overflow-auto">
+            <div className="rounded-lg px-4 py-3 drop-shadow-md shadow-inner bg-gradient-to-r border from-yellow-100 to-blue-50">
               <div className="flex justify-between items-center">
-                <span>{LEVELS[0].name}</span>
-                <span className="bg-yellow-300 px-2 py-1 rounded font-medium">
+                <span className="font-semibold">{LEVELS[0].name}</span>
+                <span className="bg-gradient-to-br from-yellow-500 via-yellow-300 to-yellow-500 border border-dashed px-2 py-1 rounded font-medium">
                   {userStats?.directCommissionEarned ? formatUnits(userStats.directCommissionEarned, 18) : '0'} USDT
                 </span>
               </div>
@@ -359,11 +369,11 @@ const DashboardPage = () => {
             {LEVELS.slice(1).map((level, index) => (
               <div
                 key={level.id}
-                className="rounded-lg px-4 py-3 bg-gradient-to-r border from-yellow-100 to-blue-50"
+                className="rounded-lg px-4 py-3 drop-shadow-md shadow-inner bg-gradient-to-r border from-yellow-100 to-blue-50"
               >
                 <div className="flex justify-between items-center">
-                  <span>{level.name}</span>
-                  <span className="bg-yellow-300 px-2 py-1 rounded font-medium">
+                  <span className="font-semibold">{level.name}</span>
+                  <span className="bg-gradient-to-br from-yellow-500 via-yellow-300 to-yellow-500 border border-dashed px-2 py-1 rounded font-medium">
                     {levelIncomes[index + 1] ? formatUnits(levelIncomes[index + 1], 18) : '0'} USDT
                   </span>
                 </div>
@@ -373,9 +383,13 @@ const DashboardPage = () => {
         </div>
       </section>
 
+      <section className="mt-4">
+        <RoyaltySlab/>
+      </section>
+
       <section className="drop-shadow-lg p-4 bg-white rounded-lg mt-4">
         <div className="flex items-center space-x-2 text-lg font-bold">
-          <Boxes className="h-5 w-5" />
+          <BadgeDollarSign className="h-5 w-5" />
           <span>Recent Income</span>
         </div>
         <div className="overflow-y-auto text-nowrap">
