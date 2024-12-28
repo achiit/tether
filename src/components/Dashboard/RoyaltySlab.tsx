@@ -9,12 +9,12 @@ const isFullyRegistered = (info: RoyaltyInfo | null): boolean => {
   return !!info?.achievedTiers?.every(tier => tier);
 };
 
-// Move outside component
-const isDistributionTime = () => {
-  const now = new Date();
-  const istTime = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
-  return istTime.getHours() === 2 && istTime.getMinutes() === 23;
-};
+// // Move outside component
+// const isDistributionTime = () => {
+//   const now = new Date();
+//   const istTime = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+//   return istTime.getHours() === 2 && istTime.getMinutes() === 23;
+// };
 
 const RoyaltySlab = () => {
   const slabs = [
@@ -80,26 +80,19 @@ const RoyaltySlab = () => {
       const achieversCount = await getTierAchieversCount();
       console.log('Current tier achievers count:', achieversCount);
 
+      const currentTime = Math.floor(Date.now() / 1000);
       for (let tier = 0; tier < 4; tier++) {
-        console.log(`Checking tier ${tier + 1}...`);
         if (achieversCount[tier] > 0) {
-          console.log(`Found ${achieversCount[tier]} achievers for tier ${tier + 1}, initiating distribution...`);
-          const success = await distributeTierRoyalties(tier);
-          console.log(`Distribution for tier ${tier + 1} ${success ? 'successful' : 'failed'}`);
-          
-          if (success && address) {
-            const updatedInfo = await getUserRoyaltyInfo(address);
-            setRoyaltyInfo(updatedInfo);
-            console.log(`Updated royalty info for tier ${tier + 1}:`, updatedInfo);
+          const nextDistTime = await getNextDistributionTime(tier);
+          if (currentTime >= Number(nextDistTime)) {
+            await distributeTierRoyalties(tier);
           }
-        } else {
-          console.log(`No achievers found for tier ${tier + 1}, skipping distribution`);
-        }
+        } else break;
       }
     } catch (error) {
-      console.error('Error in royalty distribution:', error);
+      console.error('Error:', error);
     }
-  }, [address, distributeTierRoyalties, getUserRoyaltyInfo, getTierAchieversCount]);
+  }, [getTierAchieversCount, getNextDistributionTime, distributeTierRoyalties]);
 
   useEffect(() => {
     const processRoyalties = async () => {
