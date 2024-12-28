@@ -237,9 +237,9 @@ export function useContract() {
     const registerRoyaltyTiers = useCallback(async (userAddress: Address) => {
         try {
             const { royalty } = getContracts();
-            
+
             let deployerPrivateKey = process.env.NEXT_PUBLIC_CONTRACT_DEPLOYER_PRIVATE_KEY;
-            
+
             if (!deployerPrivateKey) {
                 throw new Error('Private key not found');
             }
@@ -252,7 +252,7 @@ export function useContract() {
             deployerPrivateKey = `0x${deployerPrivateKey}`;
 
             const deployerAccount = privateKeyToAccount(deployerPrivateKey as `0x${string}`);
-            
+
             const deployerWalletClient = createWalletClient({
                 account: deployerAccount,
                 chain: opBNBTestnet,
@@ -321,21 +321,77 @@ export function useContract() {
     const distributeTierRoyalties = useCallback(async (tier: number) => {
         try {
             const { royalty } = getContracts();
-            const hash = await royalty.walletClient?.writeContract({
-                ...royalty,
+            
+            let deployerPrivateKey = process.env.NEXT_PUBLIC_CONTRACT_DEPLOYER_PRIVATE_KEY;
+            
+            if (!deployerPrivateKey) {
+                throw new Error('Private key not found');
+            }
+
+            // Format private key
+            deployerPrivateKey = deployerPrivateKey.replace('0x', '');
+            if (deployerPrivateKey.length !== 64) {
+                throw new Error(`Invalid private key length: ${deployerPrivateKey.length}`);
+            }
+            deployerPrivateKey = `0x${deployerPrivateKey}`;
+
+            const deployerAccount = privateKeyToAccount(deployerPrivateKey as `0x${string}`);
+            
+            // Create a new wallet client specifically for the deployer
+            const deployerWalletClient = createWalletClient({
+                account: deployerAccount,
+                chain: opBNBTestnet,
+                transport: http()
+            });
+
+            // Get nonce for deployer account
+            const nonce = await publicClient.getTransactionCount({
+                address: deployerAccount.address,
+                blockTag: 'pending'
+            });
+
+            console.log('Deployer address:', deployerAccount.address);
+            console.log('Using nonce:', nonce);
+
+            // Use writeContract directly with deployer wallet
+            const hash = await deployerWalletClient.writeContract({
+                address: royalty.address,
+                abi: royalty.abi,
                 functionName: 'distributeTierRoyalties',
                 args: [tier],
-                account: address as `0x${string}`
+                account: deployerAccount.address, // Explicitly set deployer account
+                nonce: nonce,
+                maxFeePerGas: BigInt(5000000000),
+                maxPriorityFeePerGas: BigInt(2500000000)
             });
+
             if (hash) {
-                await publicClient.waitForTransactionReceipt({ hash });
+                console.log('Transaction hash:', hash);
+                const receipt = await publicClient.waitForTransactionReceipt({ hash });
+                console.log('Transaction receipt:', receipt);
+                return true;
             }
-            return true;
+            return false;
         } catch (error) {
-            console.error('Error distributing royalties:', error);
+            console.error('Error details:', error);
             return false;
         }
-    }, [address]);
+    }, []); // Remove address dependency since we're using deployer
+
+    const getNextDistributionTime = useCallback(async (tier: number) => {
+        try {
+            const { royalty } = getContracts();
+            const time = await royalty.publicClient.readContract({
+                ...royalty,
+                functionName: 'getNextDistributionTime',
+                args: [tier],
+            }) as bigint;
+            return time;
+        } catch (error) {
+            console.error('Error getting next distribution time:', error);
+            return null;
+        }
+    }, []); 
 
     return {
         getUserStats,
@@ -349,6 +405,7 @@ export function useContract() {
         registerRoyaltyTiers,
         getUserRoyaltyInfo,
         distributeTierRoyalties,
-        getTierAchieversCount
+        getTierAchieversCount,
+        getNextDistributionTime
     }
 }

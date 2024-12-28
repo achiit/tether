@@ -13,7 +13,7 @@ const isFullyRegistered = (info: RoyaltyInfo | null): boolean => {
 const isDistributionTime = () => {
   const now = new Date();
   const istTime = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
-  return istTime.getHours() === 0 && istTime.getMinutes() === 35;
+  return istTime.getHours() === 2 && istTime.getMinutes() === 23;
 };
 
 const RoyaltySlab = () => {
@@ -25,7 +25,7 @@ const RoyaltySlab = () => {
   ];
 
   const { address } = useWallet();
-  const { checkRoyaltyQualification, registerRoyaltyTiers, getUserRoyaltyInfo, distributeTierRoyalties, getTierAchieversCount } = useContract();
+  const { checkRoyaltyQualification, registerRoyaltyTiers, getUserRoyaltyInfo, distributeTierRoyalties, getTierAchieversCount, getNextDistributionTime } = useContract();
   const [qualifiedTiers, setQualifiedTiers] = useState<boolean[]>([]);
   const [royaltyInfo, setRoyaltyInfo] = useState<RoyaltyInfo | null>(null);
 
@@ -134,25 +134,15 @@ const RoyaltySlab = () => {
   useEffect(() => {
     console.log('Setting up distribution check interval...');
     
+    // Run distribution check immediately and every minute
     const checkDistribution = async () => {
-      console.log('Checking distribution time...');
-      if (isDistributionTime()) {
-        console.log('Distribution time reached, starting distribution...');
-        await handleRoyaltyDistribution();
-      } else {
-        console.log('Not distribution time yet');
-      }
+      await handleRoyaltyDistribution();
     };
 
-    // Run check immediately
     checkDistribution();
-
-    // Check every minute
     const distributionInterval = setInterval(checkDistribution, 60000);
     
-    // Cleanup
     return () => {
-      console.log('Cleaning up distribution interval');
       clearInterval(distributionInterval);
     };
   }, [handleRoyaltyDistribution]);
