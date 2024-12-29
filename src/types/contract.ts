@@ -42,6 +42,6 @@ export interface RoyaltyInfo {
     paidDays: bigint[];
     daysRemaining: bigint[];
     nextClaimTime: bigint[];
-    totalEarned: bigint;
+    totalEarned: bigint[];
     qualifiedNewTiers: boolean[];
 }
