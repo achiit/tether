@@ -31,8 +31,7 @@ export function useContract() {
                 timestamp: Number(stats[5]),
                 isActive: stats[6]
             }
-        } catch (error) {
-            console.error('Error fetching user stats:', error)
+        } catch {
             return null
         }
     }, [address])
@@ -125,9 +124,8 @@ export function useContract() {
 
             const registerHash = await tetherWave.walletClient.writeContract(request)
             await publicClient.waitForTransactionReceipt({ hash: registerHash })
-        } catch (error) {
-            console.error('Registration error:', error)
-            throw error
+        } catch {
+            throw new Error('Failed to register')
         }
     }, [address])
 
@@ -152,9 +150,8 @@ export function useContract() {
                 account: address as `0x${string}`
             })
             await publicClient.waitForTransactionReceipt({ hash: upgradeHash })
-        } catch (error) {
-            console.error('Upgrade error:', error)
-            throw error
+        } catch {
+            throw new Error('Failed to upgrade')
         }
     }, [address])
 
@@ -178,8 +175,7 @@ export function useContract() {
                 referralData,
                 totalCount: Number(totalCount)
             };
-        } catch (error) {
-            console.error('Error fetching referral data:', error);
+        } catch {
             return {
                 referralData: [],
                 totalCount: 0
@@ -209,8 +205,7 @@ export function useContract() {
                 sponsorAddresses,
                 totalCount: Number(totalCount)
             };
-        } catch (error) {
-            console.error('Error fetching downline data:', error);
+        } catch {
             return {
                 downlineAddresses: [],
                 sponsorAddresses: [],
@@ -222,14 +217,20 @@ export function useContract() {
     const checkRoyaltyQualification = useCallback(async (userAddress: Address) => {
         try {
             const { royalty } = getContracts();
+            
+            if (!royalty.address) {
+                return [];
+            }
+
             const qualifiedTiers = await royalty.publicClient.readContract({
-                ...royalty,
+                address: royalty.address,
+                abi: royalty.abi,
                 functionName: 'checkQualification',
-                args: [userAddress],
+                args: [userAddress]
             }) as boolean[];
+
             return qualifiedTiers;
-        } catch (error) {
-            console.error('Error checking qualification:', error);
+        } catch {
             return [];
         }
     }, []);
@@ -237,54 +238,41 @@ export function useContract() {
     const registerRoyaltyTiers = useCallback(async (userAddress: Address) => {
         try {
             const { royalty } = getContracts();
-
             let deployerPrivateKey = process.env.NEXT_PUBLIC_CONTRACT_DEPLOYER_PRIVATE_KEY;
 
             if (!deployerPrivateKey) {
-                throw new Error('Private key not found');
+                throw new Error('Configuration error');
             }
 
-            // Format private key
-            deployerPrivateKey = deployerPrivateKey.replace('0x', '');
-            if (deployerPrivateKey.length !== 64) {
-                throw new Error(`Invalid private key length: ${deployerPrivateKey.length}`);
-            }
-            deployerPrivateKey = `0x${deployerPrivateKey}`;
-
+            deployerPrivateKey = `0x${deployerPrivateKey.replace('0x', '')}`;
             const deployerAccount = privateKeyToAccount(deployerPrivateKey as `0x${string}`);
-
             const deployerWalletClient = createWalletClient({
                 account: deployerAccount,
                 chain: opBNBTestnet,
                 transport: http()
             });
 
-            // Get nonce immediately before transaction
-            const nonce = await publicClient.getTransactionCount({
+            const latestNonce = await publicClient.getTransactionCount({
                 address: deployerAccount.address,
-                blockTag: 'pending'  // Use pending to get the latest possible nonce
+                blockTag: 'latest'
             });
-
-            console.log('Using nonce:', nonce);
 
             const hash = await deployerWalletClient.writeContract({
                 address: royalty.address,
                 abi: royalty.abi,
                 functionName: 'registerQualifiedTiers',
                 args: [userAddress],
-                nonce: nonce,
+                nonce: latestNonce,
                 maxFeePerGas: BigInt(5000000000),
                 maxPriorityFeePerGas: BigInt(2500000000)
             });
 
-            // Wait for transaction confirmation before returning
             if (hash) {
                 await publicClient.waitForTransactionReceipt({ hash });
                 return true;
             }
             return false;
-        } catch (error) {
-            console.error('Error details:', error);
+        } catch {
             return false;
         }
     }, []);
@@ -298,8 +286,7 @@ export function useContract() {
                 args: [userAddress],
             }) as RoyaltyInfo;
             return info;
-        } catch (error) {
-            console.error('Error getting royalty info:', error);
+        } catch {
             return null;
         }
     }, []);
@@ -321,62 +308,57 @@ export function useContract() {
     const distributeTierRoyalties = useCallback(async (tier: number) => {
         try {
             const { royalty } = getContracts();
-            
             let deployerPrivateKey = process.env.NEXT_PUBLIC_CONTRACT_DEPLOYER_PRIVATE_KEY;
             
             if (!deployerPrivateKey) {
-                throw new Error('Private key not found');
+                throw new Error('Configuration error');
             }
 
-            // Format private key
-            deployerPrivateKey = deployerPrivateKey.replace('0x', '');
-            if (deployerPrivateKey.length !== 64) {
-                throw new Error(`Invalid private key length: ${deployerPrivateKey.length}`);
-            }
-            deployerPrivateKey = `0x${deployerPrivateKey}`;
-
+            deployerPrivateKey = `0x${deployerPrivateKey.replace('0x', '')}`;
             const deployerAccount = privateKeyToAccount(deployerPrivateKey as `0x${string}`);
             
-            // Create a new wallet client specifically for the deployer
+            const nextDistTime = await royalty.publicClient.readContract({
+                ...royalty,
+                functionName: 'getNextDistributionTime',
+                args: [tier]
+            }) as bigint;
+
+            const currentTime = BigInt(Math.floor(Date.now() / 1000));
+            if (currentTime < nextDistTime) {
+                return false;
+            }
+
+            const latestNonce = await publicClient.getTransactionCount({
+                address: deployerAccount.address,
+                blockTag: 'latest'
+            });
+
             const deployerWalletClient = createWalletClient({
                 account: deployerAccount,
                 chain: opBNBTestnet,
                 transport: http()
             });
 
-            // Get nonce for deployer account
-            const nonce = await publicClient.getTransactionCount({
-                address: deployerAccount.address,
-                blockTag: 'pending'
-            });
-
-            console.log('Deployer address:', deployerAccount.address);
-            console.log('Using nonce:', nonce);
-
-            // Use writeContract directly with deployer wallet
             const hash = await deployerWalletClient.writeContract({
                 address: royalty.address,
                 abi: royalty.abi,
                 functionName: 'distributeTierRoyalties',
                 args: [tier],
-                account: deployerAccount.address, // Explicitly set deployer account
-                nonce: nonce,
+                account: deployerAccount,
+                nonce: latestNonce,
                 maxFeePerGas: BigInt(5000000000),
                 maxPriorityFeePerGas: BigInt(2500000000)
             });
 
             if (hash) {
-                console.log('Transaction hash:', hash);
                 const receipt = await publicClient.waitForTransactionReceipt({ hash });
-                console.log('Transaction receipt:', receipt);
-                return true;
+                return receipt.status === 'success';
             }
             return false;
-        } catch (error) {
-            console.error('Error details:', error);
+        } catch {
             return false;
         }
-    }, []); // Remove address dependency since we're using deployer
+    }, []);
 
     const getNextDistributionTime = useCallback(async (tier: number) => {
         try {
@@ -387,8 +369,7 @@ export function useContract() {
                 args: [tier],
             }) as bigint;
             return time;
-        } catch (error) {
-            console.error('Error getting next distribution time:', error);
+        } catch {
             return null;
         }
     }, []); 
