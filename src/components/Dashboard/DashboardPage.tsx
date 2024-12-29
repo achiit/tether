@@ -264,7 +264,7 @@ const DashboardPage = () => {
         </section>
       )}
 
-      {!isRegistered && (
+      {isRegistered && (
         <div
            data-aos="fade-up"
            data-aos-duration={1000}
@@ -323,7 +323,7 @@ const DashboardPage = () => {
         </div>
       )}
 
-      {!isRegistered && userStats && (
+      {isRegistered && userStats && (
         <section className="flex flex-col lg:flex-row justify-between items-start gap-4 w-full mt-4 lg:mt-8">
           <div
           data-aos="fade-up"
