@@ -11,10 +11,10 @@ const isFullyRegistered = (info: RoyaltyInfo | null): boolean => {
 
 const RoyaltySlab = () => {
   const slabs = [
-    { title: 'R1', description: 'Royalty Slab 1' },
-    { title: 'R2', description: 'Royalty Slab 2' },
-    { title: 'R3', description: 'Royalty Slab 3' },
-    { title: 'R4', description: 'Royalty Slab 4' },
+    { title: 'R1', description: 'Royalty Slab 1', bg:"bg-[radial-gradient(130%_120%_at_50%_50%,_#ffcc8033_0,_#ff006633_100%)]" },
+    { title: 'R2', description: 'Royalty Slab 2', bg:"bg-[radial-gradient(130%_120%_at_50%_50%,_#00c1d433_0,_#001f3f33_100%)]" },
+    { title: 'R3', description: 'Royalty Slab 3', bg:"bg-[radial-gradient(130%_120%_at_50%_50%,_#a4f8b544_0,_#054a2922_100%)]" },
+    { title: 'R4', description: 'Royalty Slab 4', bg:"bg-[radial-gradient(130%_120%_at_50%_50%,_#d084ff44_0,_#20004d44_100%)]" },
   ];
 
   const { address } = useWallet();
@@ -177,10 +177,13 @@ const RoyaltySlab = () => {
       )}
       <div className="grid gap-4 md:grid-cols-2">
         {slabs.map((slab, index) => (
-          <div
-            key={`${index + 1}`}
-            className="overflow-hidden transition-all duration-300 drop-shadow-lg px-4 py-2.5 min-h-32 rounded-md bg-white border border-gray-200"
-          >
+        <div
+          key={`${index + 1}`}
+          data-aos="fade-up"
+          data-aos-duration={1000}
+          data-aos-anchor-placement="center-bottom"
+          className={`relative drop-shadow shadow-md px-4 lg:px-8 py-4 min-h-32 rounded-md overflow-hidden transition-all duration-300 ${slab.bg}`}
+        >
             <div className="flex justify-between items-center mb-3">
               <h3 className="text-lg font-semibold">{slab.title}</h3>
               <div className="flex gap-2">
@@ -232,6 +235,10 @@ const RoyaltySlab = () => {
                     }
                   </p>
                 </div>
+                <div className="flex justify-between items-center bg-white/50 backdrop-blur rounded-lg p-3 lg:p-4 drop-shadow-lg shadow-inner">
+                <h3 className="lg:text-xl font-bold">Total Earned</h3>
+                <p className="text-lg lg:text-2xl font-bold">{parsedRoyaltyInfo?.totalEarned?.toString() || '0'} USDT</p>
+              </div>
               </div>
             )}
 
