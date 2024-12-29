@@ -40,7 +40,11 @@ const DownLine = () => {
 
   return (
     <div>
-      <div className="drop-shadow-lg p-4 rounded-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#c2e9fb33_0,_#ffffff_100%)]">
+      <div 
+       data-aos="fade-up"
+      data-aos-duration={1000}
+      data-aos-anchor-placement="top-bottom"
+      className="drop-shadow-lg p-4 rounded-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#c2e9fb33_0,_#ffffff_100%)]">
         <div className="flex justify-start gap-4 overflow-x-auto">
           {Array.from({ length: 10 }, (_, i) => i + 1).map((level) => (
             <button
@@ -62,7 +66,11 @@ const DownLine = () => {
         </div>
       </div>
 
-      <section className="mt-4 drop-shadow-lg p-4 rounded-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#b3e5fc33_0,_#ffffff_100%)]">
+      <section 
+       data-aos="fade-up"
+      data-aos-duration={1200}
+      data-aos-anchor-placement="top-bottom"
+      className="mt-4 drop-shadow-lg p-4 rounded-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#b3e5fc33_0,_#ffffff_100%)]">
         <div className="overflow-y-auto text-nowrap">
           <table className="w-full mt-4 border-collapse">
             <thead className='overflow-y-auto drop-shadow-lg shadow-inner bg-white/40 backdrop-blur-lg'>

@@ -160,6 +160,9 @@ const RoyaltySlab = () => {
       {slabs.map((slab, index) => (
         <div
           key={`${index + 1}`}
+          data-aos="fade-up"
+          data-aos-duration={1000}
+          data-aos-anchor-placement="center-bottom"
           className={`relative drop-shadow shadow-md px-4 lg:px-8 py-4 min-h-32 rounded-md overflow-hidden transition-all duration-300 ${slab.bg}`}
         >
           <div className="flex justify-between items-center mb-3">

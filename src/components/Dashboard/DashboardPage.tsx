@@ -116,12 +116,20 @@ const DashboardPage = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <section className="lg:hidden flex justify-between items-center w-full overflow-y-auto drop-shadow-lg lg:p-4 py-4">
+      <section
+      data-aos="fade-up"
+      data-aos-duration={1000}
+      data-aos-anchor-placement="center-bottom"
+      className="lg:hidden flex justify-between items-center w-full overflow-y-auto drop-shadow-lg lg:p-4 py-4">
         <SocialLinks />
       </section>
 
       <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 text-nowrap">
-        <section className="relative drop-shadow-lg p-4 rounded-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#e0f7fa55_0,_#ffffff_100%)]">
+        <section 
+            data-aos="fade-up"
+            data-aos-duration="1200"
+            data-aos-anchor-placement="top-bottom"
+            className="relative drop-shadow-lg p-4 rounded-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#e0f7fa55_0,_#ffffff_100%)]">
           <div className="flex items-center space-x-2 text-lg font-bold">
             <User className="h-5 w-5" />
             <span>Profile Details</span>
@@ -134,7 +142,11 @@ const DashboardPage = () => {
           </div>
         </section>
 
-        <section className="relative drop-shadow-lg p-4 rounded-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#b3e5fc33_0,_#ffffff_100%)]">
+        <section 
+          data-aos="fade-up"
+          data-aos-duration="1400"
+          data-aos-anchor-placement="top-bottom"
+          className="relative drop-shadow-lg p-4 rounded-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#b3e5fc33_0,_#ffffff_100%)]">
           <div>
             <div className="flex items-center space-x-2 text-lg font-bold">
               <Wallet className="h-5 w-5" />
@@ -224,7 +236,11 @@ const DashboardPage = () => {
       </div>
 
       {!isRegistered && (
-        <section className="mt-4 lg:mt-8">
+        <section 
+          data-aos="fade-up"
+          data-aos-duration="1200"
+          data-aos-anchor-placement="center-bottom"
+          className="mt-4 lg:mt-8">
           <div className="p-4 lg:p-6 rounded-lg drop-shadow-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#ff9b8d33_0,_#ffffff_100%)]">
             <div className="flex items-center space-x-2 text-lg font-bold mb-4">
              <Key className="h-5 w-5" />
@@ -248,23 +264,28 @@ const DashboardPage = () => {
         </section>
       )}
 
-      {isRegistered && (
-        <div className="mt-4 lg:mt-8 rounded-lg drop-shadow-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#c2e9fb83_0,_#ffffff80_100%)]">
+      {!isRegistered && (
+        <div
+           data-aos="fade-up"
+           data-aos-duration={1000}
+           data-aos-anchor-placement="center-bottom"
+           className="mt-4 lg:mt-8 rounded-lg drop-shadow-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#c2e9fb83_0,_#ffffff80_100%)]">
           <div className="flex items-center space-x-2 text-lg font-bold px-4 lg:px-6 pt-4 lg:pt-6">
             <Boxes className="h-5 w-5" />
             <span>Packages (Current Level: {currentLevel})</span>
           </div>
           <div className="p-4 lg:px-6 lg:pb-6 flex lg:grid lg:grid-cols-5 gap-4 lg:gap-6 overflow-auto text-nowrap">
-            {LEVELS.map((levelInfo) => {
+            {LEVELS.map((levelInfo, index) => {
               const currentLevelNum = Number(currentLevel);
               const levelNum = Number(levelInfo.level);
               const isNextLevel = levelNum === (currentLevelNum + 1);
               const isCompleted = levelNum <= currentLevelNum;
 
               return (
-                <div key={levelInfo.id} className={`flex flex-col items-center rounded-md  transition-all duration-300
-                  ${!isCompleted ? 'border-animation-card' : 'border-animation-card-completed'}
-                  ${isNextLevel ? 'hover:scale-105  opacity-100 cursor-pointer' : 'opacity-50 cursor-not-allowed'}
+                <div key={levelInfo.id}
+                className={`flex flex-col items-center rounded-md  transition-all duration-300
+                ${!isCompleted ? 'border-animation-card' : 'border-animation-card-completed'}
+                ${isNextLevel ? 'hover:scale-105  opacity-100 cursor-pointer' : 'opacity-50 cursor-not-allowed'}
                 `}>
                <div className="flex justify-center items-center w-full z-50">
                <button
@@ -302,28 +323,48 @@ const DashboardPage = () => {
         </div>
       )}
 
-      {isRegistered && userStats && (
+      {!isRegistered && userStats && (
         <section className="flex flex-col lg:flex-row justify-between items-start gap-4 w-full mt-4 lg:mt-8">
-          <div className="flex flex-col justify-center items-center drop-shadow-lg px-4 py-4 lg:px-10 w-full border-x-4 border-green-400 rounded-bl-full rounded-tr-full bg-gradient-to-r from-green-200  to-green-300">
+          <div
+          data-aos="fade-up"
+          data-aos-duration={1000}
+          data-aos-anchor-placement="center-bottom"
+          className="flex flex-col justify-center items-center drop-shadow-lg px-4 py-4 lg:px-10 w-full border-x-4 border-green-400 rounded-bl-full rounded-tr-full bg-gradient-to-r from-green-200  to-green-300">
             <p className="text-lg font-bold">Total Income</p>
             <p className="font-bold">{userStats?.totalEarnings ? formatUnits(userStats.totalEarnings, 18) : '0'} USDT</p>
           </div>
-          <div className="flex flex-col justify-center items-center drop-shadow-lg px-4 py-4 lg:px-10 w-full border-x-4 border-pink-400 rounded-bl-full rounded-tr-full bg-gradient-to-r from-pink-200  to-pink-300">
+          <div
+          data-aos="fade-up"
+          data-aos-duration={1000}
+          data-aos-anchor-placement="center-bottom"
+          className="flex flex-col justify-center items-center drop-shadow-lg px-4 py-4 lg:px-10 w-full border-x-4 border-pink-400 rounded-bl-full rounded-tr-full bg-gradient-to-r from-pink-200  to-pink-300">
             <p className="text-lg font-bold">Referral Income</p>
             <p className="font-bold">{userStats?.directCommissionEarned ? formatUnits(userStats.directCommissionEarned, 18) : '0'} USDT</p>
           </div>
-          <div className="flex flex-col justify-center items-center drop-shadow-lg px-4 py-4 lg:px-10 w-full border-x-4 border-orange-400 rounded-bl-full rounded-tr-full bg-gradient-to-r from-orange-200  to-orange-300">
+          <div
+          data-aos="fade-up"
+          data-aos-duration={1000}
+          data-aos-anchor-placement="center-bottom"
+          className="flex flex-col justify-center items-center drop-shadow-lg px-4 py-4 lg:px-10 w-full border-x-4 border-orange-400 rounded-bl-full rounded-tr-full bg-gradient-to-r from-orange-200  to-orange-300">
             <p className="text-lg font-bold">Level Income</p>
             <p className="font-bold">{userStats?.levelIncomeEarned ? formatUnits(userStats.levelIncomeEarned, 18) : '0'} USDT</p>
           </div>
-          <div className="flex flex-col justify-center items-center drop-shadow-lg px-4 py-4 lg:px-10 w-full border-x-4 border-indigo-400 rounded-bl-full rounded-tr-full bg-gradient-to-r from-indigo-200  to-indigo-300">
+          <div
+          data-aos="fade-up"
+          data-aos-duration={1000}
+          data-aos-anchor-placement="center-bottom"
+          className="flex flex-col justify-center items-center drop-shadow-lg px-4 py-4 lg:px-10 w-full border-x-4 border-indigo-400 rounded-bl-full rounded-tr-full bg-gradient-to-r from-indigo-200  to-indigo-300">
             <p className="text-lg font-bold">Direct Referral</p>
             <p className="font-bold">{userStats?.directReferrals?.toString() || '0'}</p>
           </div>
         </section>
       )}
 
-      <section className="mt-4 lg:mt-8">
+      <section
+      data-aos="fade-up"
+      data-aos-duration={1000}
+      data-aos-anchor-placement="center-bottom"
+      className="mt-4 lg:mt-8">
         <div className="rounded-lg drop-shadow-lg shadow-inner bg-[radial-gradient(130%_120%_at_50%_50%,_#b3e5fc33_0,_#ffffff50_100%)]">
           <div className="flex items-center space-x-2 text-lg font-bold px-4 lg:px-6 pt-4 lg:pt-6 ">
             <Landmark className="h-5 w-5" />
@@ -355,11 +396,19 @@ const DashboardPage = () => {
         </div>
       </section>
 
-      <section className="mt-4 lg:mt-8">
+      <section
+      data-aos="fade-up"
+      data-aos-duration={1000}
+      data-aos-anchor-placement="center-bottom"
+      className="mt-4 lg:mt-8">
         <RoyaltySlab/>
       </section>
 
-      <section className="mt-4 lg:mt-8 drop-shadow-lg p-4 rounded-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#b3e5fc33_0,_#ffffff_100%)]">
+      <section
+      data-aos="fade-up"
+      data-aos-duration={1000}
+      data-aos-anchor-placement="top-bottom"
+      className="mt-4 lg:mt-8 drop-shadow-lg p-4 rounded-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#b3e5fc33_0,_#ffffff_100%)]">
         <div className="flex items-center space-x-2 text-lg font-bold">
           <BadgeDollarSign className="h-5 w-5" />
           <span>Recent Income</span>
@@ -436,7 +485,11 @@ const DashboardPage = () => {
         </div>
       </section>
 
-      <div className="text-center text-sm font-bold mt-4 lg:mt-8 mb-2">
+      <div
+      data-aos="fade-up"
+      data-aos-duration={1000}
+      data-aos-anchor-placement="top-bottom"
+      className="text-center text-xs lg:text-sm font-bold mt-4 lg:mt-8 mb-2">
         <p>TetherWave Contract opbnb.bscscan</p>
         <Link href="https://opbnb-testnet.bscscan.com/address/0xad7284Bf6fB1c725a7500C51b71847fEf2D2d17C" className="text-yellow-600 hover:underline">
           (0xad7284Bf6fB1c725a7500C51b71847fEf2D2d17C)
