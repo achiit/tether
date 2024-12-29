@@ -36,18 +36,18 @@ const Referrals = () => {
 }, [address, currentPage, getDirectReferralDataPaginated]);
 
   return (
-    <div className="drop-shadow-lg p-4 bg-white lg:rounded-lg">
-      <div className="overflow-x-auto text-nowrap">
+    <div className="drop-shadow-lg p-4 rounded-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#b3e5fc33_0,_#ffffff_100%)]">
+      <div className="overflow-y-auto text-nowrap">
         <table className="w-full">
-          <thead>
+          <thead className="overflow-y-auto drop-shadow-lg shadow-inner bg-white/40 backdrop-blur-lg">
             <tr>
-              <th className="bg-yellow-200 py-2 px-4 text-left">S.No</th>
-              <th className="bg-yellow-200 py-2 px-4 text-left">Address</th>
-              <th className="bg-yellow-200 py-2 px-4 text-left">
+              <th className="py-2 px-4 text-left">S.No</th>
+              <th className="py-2 px-4 text-left">Address</th>
+              <th className="py-2 px-4 text-left">
                 Activation Date
               </th>
-              <th className="bg-yellow-200 py-2 px-4 text-left">Level</th>
-              <th className="bg-yellow-200 py-2 px-4 text-left">
+              <th className="py-2 px-4 text-left">Level</th>
+              <th className="py-2 px-4 text-left">
                 Direct Team
               </th>
             </tr>
@@ -56,7 +56,7 @@ const Referrals = () => {
             {referralData.referralData.map((referral, index) => (
               <tr
                 key={`referral-${index + 1}`}
-                className="hover:bg-gray-50 border-b"
+                className="border-b hover:bg-white/10  backdrop-blur-lg"
               >
                 <td className="py-2 px-4">{index + 1}</td>
                 <td className="py-2 px-4">{truncateAddress(referral.userAddress)}</td>
@@ -78,14 +78,13 @@ const Referrals = () => {
             No referral data available.
           </p>
         )}
-      </div>
-      <div className="flex justify-between items-center mt-4">
+      <div className="flex justify-between items-center gap-8 mt-4 w-full text-nowrap">
         <div className="text-sm text-gray-500">
           Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
           {Math.min(currentPage * itemsPerPage, referralData.totalCount)} of{' '}
           {referralData.totalCount} entries
         </div>
-        <div className="flex gap-2">
+        <div className="flex justify-end gap-2">
           <button
             type="button"
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
@@ -98,7 +97,7 @@ const Referrals = () => {
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <div className="px-3 py-1 rounded bg-yellow-300">
+          <div className="px-3 py-1 rounded bg-gradient-to-br from-yellow-500 via-yellow-300 to-yellow-500">
             {currentPage} of {Math.ceil(referralData.totalCount / itemsPerPage)}
           </div>
           <button
@@ -116,6 +115,7 @@ const Referrals = () => {
             <ChevronRight className="h-4 w-4" />
           </button>
         </div>
+      </div>
       </div>
     </div>
   );

@@ -40,7 +40,7 @@ const DownLine = () => {
 
   return (
     <div>
-      <div className="drop-shadow-lg p-4 bg-white lg:rounded-lg">
+      <div className="drop-shadow-lg p-4 rounded-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#c2e9fb33_0,_#ffffff_100%)]">
         <div className="flex justify-start gap-4 overflow-x-auto">
           {Array.from({ length: 10 }, (_, i) => i + 1).map((level) => (
             <button
@@ -50,10 +50,10 @@ const DownLine = () => {
                 setSelectedLevel(level);
                 setCurrentPage(1);
               }}
-              className={`py-2 px-4 rounded ${
+              className={`py-2 px-4 rounded bg-gradient-to-br from-yellow-500 via-yellow-300 to-yellow-500 ${
                 selectedLevel === level
-                  ? "bg-yellow-700 text-white"
-                  : "bg-yellow-500"
+                  ? "opacity-100 "
+                  : "opacity-50"
               }`}
             >
               {level}
@@ -62,19 +62,19 @@ const DownLine = () => {
         </div>
       </div>
 
-      <section className="drop-shadow-lg p-4 bg-white lg:rounded-lg mt-4">
+      <section className="mt-4 drop-shadow-lg p-4 rounded-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#b3e5fc33_0,_#ffffff_100%)]">
         <div className="overflow-y-auto text-nowrap">
           <table className="w-full mt-4 border-collapse">
-            <thead>
+            <thead className='overflow-y-auto drop-shadow-lg shadow-inner bg-white/40 backdrop-blur-lg'>
               <tr>
-                <th className="bg-yellow-200 py-2 px-4 text-left">S.No.</th>
-                <th className="bg-yellow-200 py-2 px-4 text-left">Address</th>
-                <th className="bg-yellow-200 py-2 px-4 text-left">Sponsor</th>
+                <th className="py-2 px-4 text-left">S.No.</th>
+                <th className="py-2 px-4 text-left">Address</th>
+                <th className="py-2 px-4 text-left">Sponsor</th>
               </tr>
             </thead>
             <tbody>
               {downlineData.downlineAddresses.map((address, index) => (
-                <tr key={address} className="hover:bg-gray-50 border-b">
+                <tr key={address} className="border-b hover:bg-white/10 backdrop-blur-lg">
                   <td className="py-2 px-4">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                   <td className="py-2 px-4">{truncateAddress(address)}</td>
                   <td className="py-2 px-4">{truncateAddress(downlineData.sponsorAddresses[index])}</td>
@@ -89,13 +89,13 @@ const DownLine = () => {
             </p>
           )}
 
-          <div className="flex justify-between items-center mt-4">
-            <div className="text-sm text-gray-500">
+          <div className="flex justify-between items-center mt-4 gap-4 w-full">
+            <div className="text-sm text-gray-500 w-full">
               Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
               {Math.min(currentPage * itemsPerPage, downlineData.totalCount)} of{' '}
               {downlineData.totalCount} entries
             </div>
-            <div className="flex gap-2">
+            <div className="flex justify-end gap-1 lg:gap-2">
               <button
                 type="button"
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
@@ -108,7 +108,7 @@ const DownLine = () => {
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
-              <div className="px-3 py-1 rounded bg-yellow-300">
+              <div className="px-3 py-1 rounded bg-gradient-to-br from-yellow-500 via-yellow-300 to-yellow-500">
                 {currentPage} of {Math.ceil(downlineData.totalCount / itemsPerPage)}
               </div>
               <button

@@ -18,10 +18,10 @@ const isFullyRegistered = (info: RoyaltyInfo | null): boolean => {
 
 const RoyaltySlab = () => {
   const slabs = [
-    { title: 'R1', description: 'Royalty Slab 1' },
-    { title: 'R2', description: 'Royalty Slab 2' },
-    { title: 'R3', description: 'Royalty Slab 3' },
-    { title: 'R4', description: 'Royalty Slab 4' },
+    { title: 'R1', description: 'Royalty Slab 1', bg:"bg-[radial-gradient(130%_120%_at_50%_50%,_#ffcc8033_0,_#ff006633_100%)]" },
+    { title: 'R2', description: 'Royalty Slab 2', bg:"bg-[radial-gradient(130%_120%_at_50%_50%,_#00c1d433_0,_#001f3f33_100%)]" },
+    { title: 'R3', description: 'Royalty Slab 3', bg:"bg-[radial-gradient(130%_120%_at_50%_50%,_#a4f8b544_0,_#054a2922_100%)]" },
+    { title: 'R4', description: 'Royalty Slab 4', bg:"bg-[radial-gradient(130%_120%_at_50%_50%,_#d084ff44_0,_#20004d44_100%)]" },
   ];
 
   const { address } = useWallet();
@@ -156,22 +156,22 @@ const RoyaltySlab = () => {
   const parsedRoyaltyInfo = parseRoyaltyInfo(royaltyInfo);
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="grid md:grid-cols-2 gap-4 lg:gap-8">
       {slabs.map((slab, index) => (
         <div
           key={`${index + 1}`}
-          className="overflow-hidden transition-all duration-300 drop-shadow-lg px-4 py-2.5 min-h-32 rounded-md bg-white border border-gray-200"
+          className={`relative drop-shadow shadow-md px-4 lg:px-8 py-4 min-h-32 rounded-md overflow-hidden transition-all duration-300 ${slab.bg}`}
         >
           <div className="flex justify-between items-center mb-3">
             <h3 className="text-lg font-semibold">{slab.title}</h3>
             <div className="flex gap-2">
               {qualifiedTiers[index] && !parsedRoyaltyInfo?.achievedTiers[index] && (
-                <span className="bg-green-500 text-white px-2 py-1 rounded text-sm">
+                <span className="bg-green-500 drop-shadow shadow-sm text-white px-2 py-1 rounded text-sm font-semibold">
                   Qualified
                 </span>
               )}
               {parsedRoyaltyInfo?.achievedTiers[index] && (
-                <span className="bg-blue-500 text-white px-2 py-1 rounded text-sm">
+                <span className="bg-blue-500 drop-shadow shadow-sm text-white px-2 py-1 rounded text-sm font-semibold">
                   Registered
                 </span>
               )}
@@ -179,7 +179,7 @@ const RoyaltySlab = () => {
           </div>
 
           {/* Always show tier status */}
-          <div className="text-sm text-gray-600 mb-2">
+          <div className="text-sm mb-2">
             Status: {parsedRoyaltyInfo?.achievedTiers[index] ? 'Active' : 'Inactive'}
           </div>
 
@@ -187,19 +187,19 @@ const RoyaltySlab = () => {
           {parsedRoyaltyInfo?.achievedTiers[index] && (
             <div className="mt-2 space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Paid Days:</span>
+                <span className="text-sm">Paid Days:</span>
                 <span className="font-medium">
                   {Number(parsedRoyaltyInfo.paidDays[index])}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Days Remaining:</span>
+                <span className="text-sm">Days Remaining:</span>
                 <span className="font-medium">
                   {Number(parsedRoyaltyInfo.daysRemaining[index])}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Next Claim:</span>
+                <span className="text-sm">Next Claim:</span>
                 <span className="font-medium">
                   {parsedRoyaltyInfo.nextClaimTime[index]
                     ? new Date(Number(parsedRoyaltyInfo.nextClaimTime[index]) * 1000).toLocaleDateString()
@@ -208,14 +208,14 @@ const RoyaltySlab = () => {
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Claimable:</span>
+                <span className="text-sm">Claimable:</span>
                 <span className="font-medium">
                   {parsedRoyaltyInfo.qualifiedNewTiers[index] ? 'Yes' : 'No'}
                 </span>
               </div>
-              <div className="bg-white rounded-lg p-4 shadow">
-                <h3 className="text-lg font-semibold">Total Earned</h3>
-                <p className="text-2xl font-bold">{parsedRoyaltyInfo?.totalEarned?.toString() || '0'} USDT</p>
+              <div className="flex justify-between items-center bg-white/50 backdrop-blur rounded-lg p-3 lg:p-4 drop-shadow-lg shadow-inner">
+                <h3 className="lg:text-xl font-bold">Total Earned</h3>
+                <p className="text-lg lg:text-2xl font-bold">{parsedRoyaltyInfo?.totalEarned?.toString() || '0'} USDT</p>
               </div>
             </div>
           )}

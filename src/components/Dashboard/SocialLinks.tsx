@@ -8,7 +8,7 @@ const SocialLinks = () => {
         <Link
           key={link.id}
           href={link.href}
-          className=" rounded-full p-2 text-gray-600 bg-gray-200 hover:bg-[#f3ba2f]"
+          className=" rounded-full p-2 drop-shadow shadow text-gray-600 bg-gray-200 hover:bg-[#f3ba2f] transition-all duration-300"
         >
           {link.icon}
         </Link>

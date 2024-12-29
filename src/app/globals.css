@@ -36,3 +36,56 @@ html {
   display: none !important;
 }
 
+@property --gradient-angle {
+  syntax: "<angle>";
+  initial-value: 0turn;
+  inherits: false;
+}
+
+.border-animation-card {
+  animation: 2s gradient-angle infinite linear;
+  border: 2px solid transparent;
+  background-image: linear-gradient(#f3ba2f00, #f3ba2f00),
+    conic-gradient(
+      from var(--gradient-angle),
+      #f3ba2f00 0%,
+      #f3ba2f 37%,
+      #f3ba2f90 30%,
+      #f3ba2f 33%,
+      #f3ba2f00 40%,
+      #f3ba2f00 50%,
+      #f3ba2f 77%,
+      #f3ba2f90 80%,
+      #f3ba2f 83%,
+      #f3ba2f00 90%
+    );
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+}
+
+.border-animation-card-completed {
+  animation: 2s gradient-angle infinite linear;
+  border: 2px solid transparent;
+  background-image: linear-gradient(#4ade8000, #4ade8000),
+    conic-gradient(
+      from var(--gradient-angle),
+      #4ade8000 0%,
+      #4ade80 37%,
+      #4ade8090 30%,
+      #4ade80 33%,
+      #4ade8000 40%,
+      #4ade8000 50%,
+      #4ade80 77%,
+      #4ade8090 80%,
+      #4ade80 83%,
+      #4ade8000 90%
+    );
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+}
+
+@keyframes gradient-angle {
+  to {
+    --gradient-angle: 1turn;
+  }
+}
