@@ -275,7 +275,7 @@ const DashboardPage = () => {
             <span>Packages (Current Level: {currentLevel})</span>
           </div>
           <div className="p-4 lg:px-6 lg:pb-6 flex lg:grid lg:grid-cols-5 gap-4 lg:gap-6 overflow-auto text-nowrap">
-            {LEVELS.map((levelInfo, index) => {
+            {LEVELS.map((levelInfo) => {
               const currentLevelNum = Number(currentLevel);
               const levelNum = Number(levelInfo.level);
               const isNextLevel = levelNum === (currentLevelNum + 1);
