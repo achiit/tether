@@ -12,10 +12,10 @@ const isFullyRegistered = (info: RoyaltyInfo | null): boolean => {
 
 const RoyaltySlab = () => {
   const slabs = [
-    { title: 'R1', description: 'Royalty Slab 1', bg:"bg-light-gradient dark:bg-dark-gradient" },
-    { title: 'R2', description: 'Royalty Slab 2', bg:"bg-light-gradient dark:bg-dark-gradient" },
-    { title: 'R3', description: 'Royalty Slab 3', bg:"bg-light-gradient dark:bg-dark-gradient" },
-    { title: 'R4', description: 'Royalty Slab 4', bg:"bg-light-gradient dark:bg-dark-gradient" },
+    { title: 'R1', description: 'Royalty Slab 1', bg: "bg-light-gradient dark:bg-dark-gradient" },
+    { title: 'R2', description: 'Royalty Slab 2', bg: "bg-light-gradient dark:bg-dark-gradient" },
+    { title: 'R3', description: 'Royalty Slab 3', bg: "bg-light-gradient dark:bg-dark-gradient" },
+    { title: 'R4', description: 'Royalty Slab 4', bg: "bg-light-gradient dark:bg-dark-gradient" },
   ];
 
   const { address } = useWallet();
@@ -71,7 +71,7 @@ const RoyaltySlab = () => {
         }
       }
     } catch {
-      throw new Error('Failed to register tiers') 
+      throw new Error('Failed to register tiers')
     }
   }, [getUserRoyaltyInfo, registerRoyaltyTiers]);
 
@@ -83,10 +83,10 @@ const RoyaltySlab = () => {
       for (let tier = 0; tier < 4; tier++) {
         if (achieversCount[tier] > 0) {
           const nextDistTime = await getNextDistributionTime(tier);
-          
+
           if (currentTime >= Number(nextDistTime)) {
             const success = await distributeTierRoyalties(tier);
-            
+
             if (success && address) {
               await new Promise(resolve => setTimeout(resolve, 3000));
               const updatedInfo = await getUserRoyaltyInfo(address);
@@ -140,18 +140,18 @@ const RoyaltySlab = () => {
     };
   }, [handleRoyaltyDistribution]);
 
+  const tierAmounts = [
+    BigInt('5000000000000000000'),   // $5 USDT for tier 1
+    BigInt('10000000000000000000'),  // $10 USDT for tier 2
+    BigInt('25000000000000000000'),  // $25 USDT for tier 3
+    BigInt('50000000000000000000')   // $50 USDT for tier 4
+  ];
+
   const parseRoyaltyInfo = (info: RoyaltyInfo | [boolean[], bigint[], bigint[], bigint[], bigint[], boolean[]] | null) => {
     if (!info || !Array.isArray(info)) return null;
 
-    const tierAmounts = [
-      BigInt('5000000000000000000'),   // $5 USDT for tier 1
-      BigInt('10000000000000000000'),  // $10 USDT for tier 2
-      BigInt('25000000000000000000'),  // $25 USDT for tier 3
-      BigInt('50000000000000000000')   // $50 USDT for tier 4
-    ];
-
     try {
-      const calculatedTotalEarned = (info[1] as bigint[]).map((days, index) => 
+      const calculatedTotalEarned = (info[1] as bigint[]).map((days, index) =>
         (info[0] as boolean[])[index] ? days * tierAmounts[index] : BigInt(0)
       );
 
@@ -168,6 +168,11 @@ const RoyaltySlab = () => {
     }
   };
   const parsedRoyaltyInfo = parseRoyaltyInfo(royaltyInfo);
+  const calculateTotalPoolAmount = (tierIndex: number): string => {
+    const totalDays = BigInt(500);
+    const poolAmount = tierAmounts[tierIndex] * totalDays;
+    return formatUnits(poolAmount, 18);
+  };
 
   return (
     <>
@@ -178,14 +183,14 @@ const RoyaltySlab = () => {
       )}
       <div className="grid gap-4 md:grid-cols-2">
         {slabs.map((slab, index) => (
-        <div
-          key={`${index + 1}`}
-          className={`relative drop-shadow shadow-md px-4 lg:px-8 py-4 min-h-32 rounded-md overflow-hidden transition-all duration-300 ${slab.bg}`}
-        >
+          <div
+            key={`${index + 1}`}
+            className={`relative drop-shadow shadow-md px-4 lg:px-8 py-4 min-h-32 rounded-md overflow-hidden transition-all duration-300 ${slab.bg}`}
+          >
             <div className="flex justify-between items-center mb-3">
               <div className='flex justify-center items-center gap-2'>
-              <h3 className="text-lg font-semibold">{slab.title}</h3>
-              <div className={`w-3 h-3 rounded-full animate-pulse ${parsedRoyaltyInfo?.achievedTiers[index] ? "bg-green-400" :"bg-red-500"}`}></div>
+                <h3 className="text-lg font-semibold">{slab.title}</h3>
+                <div className={`w-3 h-3 rounded-full animate-pulse ${parsedRoyaltyInfo?.achievedTiers[index] ? "bg-green-400" : "bg-red-500"}`} />
               </div>
               <div className="flex gap-2">
                 {qualifiedTiers[index] && !parsedRoyaltyInfo?.achievedTiers[index] && (
@@ -208,7 +213,7 @@ const RoyaltySlab = () => {
               <div className="mt-2 space-y-2">
                 <div className="flex justify-between items-center">
                   <div className='flex justify-start items-center gap-1 text-gray-600 dark:text-gray-400'>
-                    <HandCoins className="w-4 h-4"/>
+                    <HandCoins className="w-4 h-4" />
                     <span className="text-sm">Paid Days:</span>
                   </div>
                   <span className="font-medium">
@@ -216,17 +221,17 @@ const RoyaltySlab = () => {
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                <div className='flex justify-start items-center gap-1 text-gray-600 dark:text-gray-400'>
-                    <BookmarkPlus className="w-4 h-4"/>
+                  <div className='flex justify-start items-center gap-1 text-gray-600 dark:text-gray-400'>
+                    <BookmarkPlus className="w-4 h-4" />
                     <span className="text-sm">Days Remaining:</span>
                   </div>
-                  <span className="font-medium">
+                  <span className="font-semibold text-red-500 ">
                     {Number(parsedRoyaltyInfo.daysRemaining[index])}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                <div className='flex justify-start items-center gap-1 text-gray-600 dark:text-gray-400'>
-                    <SquareArrowRight className="w-4 h-4"/>
+                  <div className='flex justify-start items-center gap-1 text-gray-600 dark:text-gray-400'>
+                    <SquareArrowRight className="w-4 h-4" />
                     <span className="text-sm">Next Claim:</span>
                   </div>
                   <span className="font-medium">
@@ -236,38 +241,42 @@ const RoyaltySlab = () => {
                     }
                   </span>
                 </div>
-                <div className="bg-white/40 dark:bg-white/5 backdrop-blur-md rounded-lg p-3 lg:p-4 drop-shadow-lg shadow">
-                  <h3 className="text-lg font-semibold">Total Earned</h3>
-                  <p className="text-2xl font-bold">
-                    {parsedRoyaltyInfo?.totalEarned[index] ?
-                      `${formatUnits(parsedRoyaltyInfo.totalEarned[index], 18)} USDT` :
-                      '0.00 USDT'
-                    }
-                  </p>
-                </div>
                 <div className="flex justify-between items-center bg-white/40 dark:bg-white/5 backdrop-blur-md rounded-lg p-3 lg:p-4 drop-shadow-lg shadow">
-                <h3 className="lg:text-xl font-bold">Total Earned</h3>
-                <p className="text-lg lg:text-2xl font-bold">{parsedRoyaltyInfo?.totalEarned?.toString() || '0'} USDT</p>
-              </div>
+                  <div className="flex flex-col justify-between items-center">
+                    <h3 className="text-lg font-semibold">Total Earned</h3>
+                    <p className="text-2xl font-bold text-green-600">
+                      {parsedRoyaltyInfo?.totalEarned[index] ?
+                        `+${formatUnits(parsedRoyaltyInfo.totalEarned[index], 18)} USDT` :
+                        '0.00 USDT'
+                      }
+                    </p>
+                  </div>
+                  <div className="flex flex-col justify-between items-end">
+                    <h3 className="text-lg font-semibold">Total Pool Amount</h3>
+                    <p className="text-2xl font-bold text-green-600">
+                      {`${calculateTotalPoolAmount(index)} USDT`}
+                    </p>
+                  </div>
+                </div>
               </div>
             )}
 
             {qualifiedTiers[index] && !parsedRoyaltyInfo?.achievedTiers[index] && (
               <div className="flex justify-start items-center gap-1 mt-2 text-sm text-gray-600 dark:text-gray-400">
-               <CircleCheck className="h-4 lg:h-5 w-4 lg:w-4" />  
-               <span>Qualified for registration</span>
+                <CircleCheck className="h-4 lg:h-5 w-4 lg:w-4" />
+                <span>Qualified for registration</span>
               </div>
             )}
 
             {!qualifiedTiers[index] && !parsedRoyaltyInfo?.achievedTiers[index] && (
               <div className="flex justify-start items-center gap-1 mt-2 text-sm text-gray-600 dark:text-gray-400">
-               <Ban className="h-4 lg:h-5 w-4 lg:w-4" />      
-               <span>Not qualified for this tier</span>
+                <Ban className="h-4 lg:h-5 w-4 lg:w-4" />
+                <span>Not qualified for this tier</span>
               </div>
             )}
           </div>
         ))}
-      </div>
+      </div >
     </>
   );
 };

@@ -49,7 +49,7 @@ export function SplitViewSection() {
 
           <div className="relative lg:ps-16 py-10 lg:py-20 space-y-12 lg:space-y-20 w-full border-t lg:border-l border-gray-200">
             {sections.map((section, index) => (
-              <div key={index} className="">
+              <div key={`${index + 1}`} className="">
                 <div className="space-y-2 lg:space-y-4 mb-6 lg:mb-10">
                   <h3 className="text-3xl lg:text-4xl font-bold">
                     {section.title}
@@ -60,7 +60,7 @@ export function SplitViewSection() {
                 </div>
                 <div className="space-y-6 lg:space-y-8">
                   {section.items.map((item, idx) => (
-                    <div key={idx} className="space-y-2 lg:space-y-4">
+                    <div key={`${idx+1}`} className="space-y-2 lg:space-y-4">
                       <div className="text-2xl lg:text-3xl font-semibold">
                         {item.heading}
                       </div>

@@ -11,7 +11,7 @@ const config: Config = {
     extend: {
       colors: {
         bgLight: "#f8f9fa",
-        bgDark: "#212529",
+        bgDark: "#000000", 
         text: "#E4E4E7",
         pink: "#FC2FA4",
         purple: "#902DFF",
@@ -28,8 +28,8 @@ const config: Config = {
       },
       animation: {
         "spin-slow": "spin 8s linear infinite",
-        "spin-slower": "spin 12s linear infinite",
-        "reverse-spin": "reverse-spin 10s linear infinite",
+        "spin-slower": "spin 5s linear infinite",
+        "reverse-spin": "reverse-spin 5s linear infinite",
       },
       keyframes: {
         "reverse-spin": {

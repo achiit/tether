@@ -17,7 +17,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 const tabs = [
   { id: "dashboard", label: "Dashboard" },
   { id: "referrals", label: "Referrals" },
-  { id: "downline", label: "Downline" },
+  { id: "downline", label: "Community" },
 ];
 
 const Dashboard = () => {

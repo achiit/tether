@@ -14,7 +14,7 @@ import SocialLinks from "./SocialLinks";
 import RoyaltySlab from "./RoyaltySlab";
 import type { UserStats, RecentIncomeEvents } from "@/types/contract";
 
-function ProfileItem({ icon: Icon, label, value,}: { icon: React.ElementType; label: string; value: string }) {
+function ProfileItem({ icon: Icon, label, value, }: { icon: React.ElementType; label: string; value: string }) {
   return (
     <div className="flex items-center space-x-2 px-4 py-4 drop-shadow-lg shadow-inner rounded-md bg-white/40 dark:bg-white/5 backdrop-blur-lg">
       <Icon className="h-4 lg:h-5 w-4 lg:w-4 text-muted-foreground" />
@@ -121,8 +121,8 @@ const DashboardPage = () => {
       </section>
 
       <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 text-nowrap">
-        <section 
-            className="relative p-4 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient">
+        <section
+          className="relative p-4 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient">
           <div className="flex items-center space-x-2 text-lg font-bold">
             <User className="h-5 w-5" />
             <span>Profile Details</span>
@@ -135,7 +135,7 @@ const DashboardPage = () => {
           </div>
         </section>
 
-        <section 
+        <section
           className="relative p-4 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient">
           <div>
             <div className="flex items-center space-x-2 text-lg font-bold">
@@ -158,81 +158,81 @@ const DashboardPage = () => {
                   <Copy className={`h-4 w-4 transition-colors ${isCopied ? 'text-green-500' : 'text-muted-foreground hover:text-black'}`} />
                 </button>
               </div>
-                <div className="flex items-center space-x-2 px-4 py-4 drop-shadow-lg shadow-inner rounded-md bg-white/40 dark:bg-white/5 backdrop-blur-lg">
-                  <Flame className="h-4 lg:h-5 w-4 lg:w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Balance:</span>
-                  <ConnectButton.Custom>
-                    {({
-                      account,
-                      chain,
-                      authenticationStatus,
-                      mounted,
-                    }) => {
-                      const ready = mounted && authenticationStatus !== 'loading';
-                      const connected = ready && account && chain &&
-                        (!authenticationStatus || authenticationStatus === 'authenticated');
+              <div className="flex items-center space-x-2 px-4 py-4 drop-shadow-lg shadow-inner rounded-md bg-white/40 dark:bg-white/5 backdrop-blur-lg">
+                <Flame className="h-4 lg:h-5 w-4 lg:w-4 text-muted-foreground" />
+                <span className="text-sm font-medium">Balance:</span>
+                <ConnectButton.Custom>
+                  {({
+                    account,
+                    chain,
+                    authenticationStatus,
+                    mounted,
+                  }) => {
+                    const ready = mounted && authenticationStatus !== 'loading';
+                    const connected = ready && account && chain &&
+                      (!authenticationStatus || authenticationStatus === 'authenticated');
 
-                      return (
-                        <div
-                          {...(!ready && {
-                            'aria-hidden': true,
-                            'style': {
-                              opacity: 0,
-                              pointerEvents: 'none',
-                              userSelect: 'none',
-                            },
-                          })}
-                        >
-                          <span className="font-bold">
-                            {!connected
-                              ? 'Not Connected'
-                              : account?.displayBalance
-                                ? ` ${account.balanceFormatted}`
-                                : `0.0000 ${chain?.name || 'BNB'}`
-                            }
-                          </span>
-                        </div>
-                      );
-                    }}
-                  </ConnectButton.Custom>
+                    return (
+                      <div
+                        {...(!ready && {
+                          'aria-hidden': true,
+                          'style': {
+                            opacity: 0,
+                            pointerEvents: 'none',
+                            userSelect: 'none',
+                          },
+                        })}
+                      >
+                        <span className="font-bold">
+                          {!connected
+                            ? 'Not Connected'
+                            : account?.displayBalance
+                              ? ` ${account.balanceFormatted}`
+                              : `0.0000 ${chain?.name || 'BNB'}`
+                          }
+                        </span>
+                      </div>
+                    );
+                  }}
+                </ConnectButton.Custom>
+              </div>
+              <div className="flex items-center space-x-2 px-4 py-4 drop-shadow-lg shadow-inner rounded-md bg-white/40 dark:bg-white/5 backdrop-blur-lg">
+                <CircleDollarSign className="h-4 lg:h-5 w-4 lg:w-4 text-muted-foreground" />
+                <span className="text-sm font-medium">USDT Balance:</span>
+                <span className="font-bold">
+                  {balances.usdt ? `${balances.usdt} USDT` : '0.0000 USDT'}
+                </span>
+              </div>
+              <div className="flex items-center space-x-2 px-4 py-3 drop-shadow-lg shadow-inner rounded-md bg-white/40 dark:bg-white/5 backdrop-blur-lg">
+                <Link2 className="h-4 lg:h-5 w-4 lg:w-4 text-muted-foreground" />
+                <span className="text-sm font-medium">Referral Link:</span>
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    className="flex items-center space-x-2 cursor-pointer"
+                    onClick={() => address && copyToClipboard(`${window.location.origin}?ref=${address}`)}
+                    onKeyDown={(e) => e.key === 'Enter' && address && copyToClipboard(`${window.location.origin}?ref=${address}`)}
+                  >
+                    <span className="bg-gradient-button px-2 py-1 rounded font-medium">
+                      {address ? truncateAddress(address) : 'Not Connected'}
+                    </span>
+                    <Copy className={`h-4 w-4 transition-colors ${isCopied ? 'text-green-500' : 'text-muted-foreground hover:text-black'}`} />
+                  </button>
                 </div>
-                <div className="flex items-center space-x-2 px-4 py-4 drop-shadow-lg shadow-inner rounded-md bg-white/40 dark:bg-white/5 backdrop-blur-lg">
-                  <CircleDollarSign className="h-4 lg:h-5 w-4 lg:w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">USDT Balance:</span>
-                  <span className="font-bold">
-                    {balances.usdt ? `${balances.usdt} USDT` : '0.0000 USDT'}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-2 px-4 py-3 drop-shadow-lg shadow-inner rounded-md bg-white/40 dark:bg-white/5 backdrop-blur-lg">
-                  <Link2 className="h-4 lg:h-5 w-4 lg:w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Referral Link:</span>
-                  <div className="flex items-center space-x-2">
-                <button
-                  type="button"
-                  className="flex items-center space-x-2 cursor-pointer"
-                  onClick={() => address && copyToClipboard(`${window.location.origin}?ref=${address}`)}
-                  onKeyDown={(e) => e.key === 'Enter' && address && copyToClipboard(`${window.location.origin}?ref=${address}`)}
-                >
-                  <span className="bg-gradient-button px-2 py-1 rounded font-medium">
-                    {address ? truncateAddress(address) : 'Not Connected'}
-                  </span>
-                  <Copy className={`h-4 w-4 transition-colors ${isCopied ? 'text-green-500' : 'text-muted-foreground hover:text-black'}`} />
-                </button>
-               </div>
-             </div>
+              </div>
             </div>
           </div>
         </section>
       </div>
 
       {!isRegistered && (
-        <section 
+        <section
           className="mt-4 lg:mt-8">
           <div className="p-4 lg:p-6 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient">
             <div className="flex items-center space-x-2 text-lg font-bold mb-4">
-             <Key className="h-5 w-5" />
-             <span>Registration</span>
-          </div>
+              <Key className="h-5 w-5" />
+              <span>Registration</span>
+            </div>
             <input
               type="text"
               placeholder="Referrer Address"
@@ -254,7 +254,7 @@ const DashboardPage = () => {
 
       {isRegistered && (
         <div
-           className="mt-4 lg:mt-8 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient">
+          className="mt-4 lg:mt-8 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient">
           <div className="flex items-center space-x-2 text-lg font-bold px-4 lg:px-6 pt-4 lg:pt-6">
             <Boxes className="h-5 w-5" />
             <span>Packages (Current Level: {currentLevel})</span>
@@ -265,35 +265,35 @@ const DashboardPage = () => {
               const levelNum = Number(levelInfo.level);
               const isNextLevel = levelNum === (currentLevelNum + 1);
               const isCompleted = levelNum <= currentLevelNum;
-              
+
               return (
                 <div key={levelInfo.id}
-                className={`flex flex-col items-center rounded-md transition-all duration-300
+                  className={`flex flex-col items-center rounded-md transition-all duration-300
                 ${!isCompleted ? 'border-animation-card' : 'border-animation-card-completed'}
                 ${isNextLevel ? 'hover:scale-105  opacity-100 cursor-pointer' : 'opacity-50 cursor-not-allowed'}
                 `}>
-               <div className="flex justify-center items-center w-full z-50 p-0.5">
-               <button
-                    type="button"
-                    onClick={() => handleUpgrade(levelNum, levelInfo.amount)}
-                    disabled={!isNextLevel}
-                    className={`relative flex flex-col justify-center items-center min-w-48 px-4 py-2.5 rounded-md w-full z-50
+                  <div className="flex justify-center items-center w-full z-50 p-0.5">
+                    <button
+                      type="button"
+                      onClick={() => handleUpgrade(levelNum, levelInfo.amount)}
+                      disabled={!isNextLevel}
+                      className={`relative flex flex-col justify-center items-center min-w-48 px-4 py-2.5 rounded-md w-full z-50
                     shadow-md drop-shadow-md overflow-hidden text-white 
                     ${isCompleted ? 'bg-[#7bc23d]' : 'bg-[#F72C5B]'}
                     ${isNextLevel ? 'cursor-pointer' : 'cursor-not-allowed text-opacity-50'}
-                 `}>
-                    <div className="flex justify-between items-center w-full z-20" >
-                      <p className=" font-bold text-3d dark:text-3d-dark">Level {levelInfo.level}</p>
-                      {isCompleted && (
-                        <span className="absolute top-2 right-2 flex justify-center items-center text-xs shadow drop-shadow lg:text-sm font-bold text-white bg-green-500 rounded-full p-1 w-6 lg:w-7 h-6 lg:h-7 z-20">✓</span>
-                      )}
-                    </div>
-                     <div className="z-20 pb-2 pt-2" >
-                     <p className="text-lg lg:text-2xl font-bold text-3d dark:text-3d-dark">{levelInfo.name}</p>
-                     <p className="text-sm  lg:text-lg font-bold text-center w-full text-3d dark:text-3d-dark">{levelInfo.amount} USD</p>
-                     </div>
-                  </button>
-               </div>
+                  `}>
+                      <div className="flex justify-between items-center w-full z-20" >
+                        <p className=" font-bold text-3d dark:text-3d-dark">Level {levelInfo.level}</p>
+                        {isCompleted && (
+                          <span className="absolute top-2 right-2 flex justify-center items-center text-xs shadow drop-shadow lg:text-sm font-bold text-white bg-green-500 rounded-full p-1 w-6 lg:w-7 h-6 lg:h-7 z-20">✓</span>
+                        )}
+                      </div>
+                      <div className="z-20 pb-2 pt-2" >
+                        <p className="text-lg lg:text-2xl font-bold text-3d dark:text-3d-dark">{levelInfo.name}</p>
+                        <p className="text-sm  lg:text-lg font-bold text-center w-full text-3d dark:text-3d-dark">${levelInfo.amount}</p>
+                      </div>
+                    </button>
+                  </div>
                 </div>
               );
             })}
@@ -363,7 +363,7 @@ const DashboardPage = () => {
       </section>
 
       <section className="mt-4 lg:mt-8">
-        <RoyaltySlab/>
+        <RoyaltySlab />
       </section>
 
       <section className="mt-4 lg:mt-8 p-4 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient">
@@ -386,8 +386,8 @@ const DashboardPage = () => {
               {recentIncomes.userAddresses.map((address, index) => (
                 <tr key={`${index + 1}`} className="border-b hover:bg-white/10 backdrop-blur-lg">
                   <td className="py-2 px-4">{truncateAddress(address)}</td>
-                  <td className="py-2 px-4">
-                    {formatUnits(recentIncomes.amounts[index], 18)} USDT
+                  <td className="py-2 px-4 text-green-600">
+                    +{formatUnits(recentIncomes.amounts[index], 18)} USDT
                   </td>
                   <td className="py-2 px-4">
                     {LEVELS[recentIncomes.levelNumbers[index] - 1]?.name ||
@@ -444,10 +444,10 @@ const DashboardPage = () => {
       </section>
 
       <div
-      data-aos="fade-up"
-      data-aos-duration={500}
-      data-aos-anchor-placement="top-bottom"
-      className="text-center text-xs lg:text-sm font-bold mt-4 lg:mt-8 mb-2">
+        data-aos="fade-up"
+        data-aos-duration={500}
+        data-aos-anchor-placement="top-bottom"
+        className="text-center text-xs lg:text-sm font-bold mt-4 lg:mt-8 mb-2">
         <p>TetherWave Contract opbnb.bscscan</p>
         <Link href="https://opbnb-testnet.bscscan.com/address/0xad7284Bf6fB1c725a7500C51b71847fEf2D2d17C" className="text-yellow-600 hover:underline">
           (0xad7284Bf6fB1c725a7500C51b71847fEf2D2d17C)
