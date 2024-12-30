@@ -83,33 +83,80 @@ const DashboardPage = () => {
   }, [address, getUserStats, getLevelIncomes, getRecentIncomeEventsPaginated, currentPage]);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const refId = params.get('ref');
+    
+    console.log('URL Params Check:', {
+      fullUrl: window.location.href,
+      searchParams: window.location.search,
+      refId
+    });
+
+    if (refId) {
+      localStorage.setItem('tetherwave_refId', refId);
+      console.log('RefID stored in localStorage:', refId);
+    } else {
+      console.log('No refId found in URL');
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchReferrerAddress = async () => {
       try {
-        // Get ref from URL parameters
-        const params = new URLSearchParams(window.location.search);
-        const refId = params.get('ref');
-        
-        if (!refId) return;
+        const storedRefId = localStorage.getItem('tetherwave_refId');
+        console.log('Checking stored refId:', storedRefId);
+        console.log('Current wallet address:', address);
 
-        const response = await fetch(`https://node-referral-system.onrender.com/referral/${refId}`);
-        if (!response.ok) throw new Error('Failed to fetch referrer');
+        if (!storedRefId || !address) {
+          console.log('Missing required data:', {
+            hasStoredRefId: !!storedRefId,
+            hasAddress: !!address
+          });
+          return;
+        }
+
+        console.log('Fetching referrer data for refId:', storedRefId);
+        const response = await fetch(`https://node-referral-system.onrender.com/referral/${storedRefId}`);
+        
+        console.log('API Response status:', response.status);
+        if (!response.ok) {
+          throw new Error(`API responded with status: ${response.status}`);
+        }
 
         const data = await response.json();
+        console.log('API Response data:', data);
+
         setReferrerAddress(data.referring_wallet);
-      } catch {
-        // Silent fail - user can still input address manually
+        console.log('Referrer address set:', data.referring_wallet);
+        
+        localStorage.removeItem('tetherwave_refId');
+        console.log('RefID removed from localStorage');
+      } catch (error) {
+        console.error('Error in fetchReferrerAddress:', error);
       }
     };
 
     fetchReferrerAddress();
-  }, []);
+  }, [address]);
 
   const handleRegister = async () => {
-    if (!address || !referrerAddress) return;
+    if (!address || !referrerAddress) {
+      console.log('Registration prerequisites not met:', {
+        hasAddress: !!address,
+        hasReferrerAddress: !!referrerAddress
+      });
+      return;
+    }
 
     try {
+      console.log('Starting registration process with:', {
+        userAddress: address,
+        referrerAddress
+      });
+
       // First, register on blockchain
       await register(referrerAddress);
+      console.log('Blockchain registration successful');
 
       // Then, register referral in backend
       const response = await fetch('https://node-referral-system.onrender.com/register-referred', {
@@ -123,25 +170,31 @@ const DashboardPage = () => {
         })
       });
 
+      console.log('Backend registration response status:', response.status);
       if (!response.ok) throw new Error('Failed to register referral');
 
       const data = await response.json();
+      console.log('Backend registration response data:', data);
       
       // Update UI states
       setIsRegistered(true);
       setCurrentLevel(1);
       const stats = await getUserStats();
+      console.log('Updated user stats:', stats);
       if (stats) setUserStats(stats);
 
-      const referralLink = `${window.location.origin}?ref=${data.referral_code}`;
+      const referralLink = `${window.location.origin}/?ref=${data.referral_code}`;
+      console.log('Generated new referral link:', referralLink);
       
       const referralLinkElement = document.querySelector('.referral-link');
       if (referralLinkElement) {
         referralLinkElement.setAttribute('data-referral', referralLink);
+        console.log('Referral link updated in DOM');
       }
 
       alert('Registration successful! Your referral link has been generated.');
-    } catch {
+    } catch (error) {
+      console.error('Registration process failed:', error);
       alert('Registration failed. Please try again.');
     }
   };
