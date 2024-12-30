@@ -4,6 +4,7 @@ import { useContract } from '@/lib/hooks/useContract';
 import type { RoyaltyInfo } from '@/types/contract';
 import type { Address } from 'viem';
 import { formatUnits } from 'viem';
+import { Ban, BookmarkPlus, CircleCheck, HandCoins, SquareArrowRight } from 'lucide-react';
 
 const isFullyRegistered = (info: RoyaltyInfo | null): boolean => {
   return !!info?.achievedTiers?.every(tier => tier);
@@ -11,10 +12,10 @@ const isFullyRegistered = (info: RoyaltyInfo | null): boolean => {
 
 const RoyaltySlab = () => {
   const slabs = [
-    { title: 'R1', description: 'Royalty Slab 1', bg:"bg-[radial-gradient(130%_120%_at_50%_50%,_#ffcc8033_0,_#ff006633_100%)]" },
-    { title: 'R2', description: 'Royalty Slab 2', bg:"bg-[radial-gradient(130%_120%_at_50%_50%,_#00c1d433_0,_#001f3f33_100%)]" },
-    { title: 'R3', description: 'Royalty Slab 3', bg:"bg-[radial-gradient(130%_120%_at_50%_50%,_#a4f8b544_0,_#054a2922_100%)]" },
-    { title: 'R4', description: 'Royalty Slab 4', bg:"bg-[radial-gradient(130%_120%_at_50%_50%,_#d084ff44_0,_#20004d44_100%)]" },
+    { title: 'R1', description: 'Royalty Slab 1', bg:"bg-light-gradient dark:bg-dark-gradient" },
+    { title: 'R2', description: 'Royalty Slab 2', bg:"bg-light-gradient dark:bg-dark-gradient" },
+    { title: 'R3', description: 'Royalty Slab 3', bg:"bg-light-gradient dark:bg-dark-gradient" },
+    { title: 'R4', description: 'Royalty Slab 4', bg:"bg-light-gradient dark:bg-dark-gradient" },
   ];
 
   const { address } = useWallet();
@@ -179,46 +180,55 @@ const RoyaltySlab = () => {
         {slabs.map((slab, index) => (
         <div
           key={`${index + 1}`}
-          data-aos="fade-up"
-          data-aos-duration={1000}
-          data-aos-anchor-placement="center-bottom"
           className={`relative drop-shadow shadow-md px-4 lg:px-8 py-4 min-h-32 rounded-md overflow-hidden transition-all duration-300 ${slab.bg}`}
         >
             <div className="flex justify-between items-center mb-3">
+              <div className='flex justify-center items-center gap-2'>
               <h3 className="text-lg font-semibold">{slab.title}</h3>
+              <div className={`w-3 h-3 rounded-full animate-pulse ${parsedRoyaltyInfo?.achievedTiers[index] ? "bg-green-400" :"bg-red-500"}`}></div>
+              </div>
               <div className="flex gap-2">
                 {qualifiedTiers[index] && !parsedRoyaltyInfo?.achievedTiers[index] && (
-                  <span className="bg-green-500 text-white px-2 py-1 rounded text-sm">
+                  <span className="bg-gradient-button-green text-white px-2 py-1 rounded text-sm">
                     Qualified
                   </span>
                 )}
                 {parsedRoyaltyInfo?.achievedTiers[index] && (
-                  <span className="bg-blue-500 text-white px-2 py-1 rounded text-sm">
+                  <span className="bg-gradient-button text-white px-2 py-1 rounded text-sm">
                     Registered
                   </span>
                 )}
               </div>
             </div>
-            <div className="text-sm text-gray-600 mb-2">
+            {/* <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
               Status: {parsedRoyaltyInfo?.achievedTiers[index] ? 'Active' : 'Inactive'}
-            </div>
+            </div> */}
 
             {parsedRoyaltyInfo?.achievedTiers[index] && (
               <div className="mt-2 space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Paid Days:</span>
+                  <div className='flex justify-start items-center gap-1 text-gray-600 dark:text-gray-400'>
+                    <HandCoins className="w-4 h-4"/>
+                    <span className="text-sm">Paid Days:</span>
+                  </div>
                   <span className="font-medium">
                     {Number(parsedRoyaltyInfo.paidDays[index])}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Days Remaining:</span>
+                <div className='flex justify-start items-center gap-1 text-gray-600 dark:text-gray-400'>
+                    <BookmarkPlus className="w-4 h-4"/>
+                    <span className="text-sm">Days Remaining:</span>
+                  </div>
                   <span className="font-medium">
                     {Number(parsedRoyaltyInfo.daysRemaining[index])}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Next Claim:</span>
+                <div className='flex justify-start items-center gap-1 text-gray-600 dark:text-gray-400'>
+                    <SquareArrowRight className="w-4 h-4"/>
+                    <span className="text-sm">Next Claim:</span>
+                  </div>
                   <span className="font-medium">
                     {parsedRoyaltyInfo.nextClaimTime[index]
                       ? new Date(Number(parsedRoyaltyInfo.nextClaimTime[index]) * 1000).toLocaleDateString()
@@ -226,7 +236,7 @@ const RoyaltySlab = () => {
                     }
                   </span>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
+                <div className="bg-white/40 dark:bg-white/5 backdrop-blur-md rounded-lg p-3 lg:p-4 drop-shadow-lg shadow">
                   <h3 className="text-lg font-semibold">Total Earned</h3>
                   <p className="text-2xl font-bold">
                     {parsedRoyaltyInfo?.totalEarned[index] ?
@@ -235,7 +245,7 @@ const RoyaltySlab = () => {
                     }
                   </p>
                 </div>
-                <div className="flex justify-between items-center bg-white/50 backdrop-blur rounded-lg p-3 lg:p-4 drop-shadow-lg shadow-inner">
+                <div className="flex justify-between items-center bg-white/40 dark:bg-white/5 backdrop-blur-md rounded-lg p-3 lg:p-4 drop-shadow-lg shadow">
                 <h3 className="lg:text-xl font-bold">Total Earned</h3>
                 <p className="text-lg lg:text-2xl font-bold">{parsedRoyaltyInfo?.totalEarned?.toString() || '0'} USDT</p>
               </div>
@@ -243,14 +253,16 @@ const RoyaltySlab = () => {
             )}
 
             {qualifiedTiers[index] && !parsedRoyaltyInfo?.achievedTiers[index] && (
-              <div className="mt-2 text-sm text-gray-600">
-                Qualified for registration
+              <div className="flex justify-start items-center gap-1 mt-2 text-sm text-gray-600 dark:text-gray-400">
+               <CircleCheck className="h-4 lg:h-5 w-4 lg:w-4" />  
+               <span>Qualified for registration</span>
               </div>
             )}
 
             {!qualifiedTiers[index] && !parsedRoyaltyInfo?.achievedTiers[index] && (
-              <div className="mt-2 text-sm text-gray-600">
-                Not qualified for this tier
+              <div className="flex justify-start items-center gap-1 mt-2 text-sm text-gray-600 dark:text-gray-400">
+               <Ban className="h-4 lg:h-5 w-4 lg:w-4" />      
+               <span>Not qualified for this tier</span>
               </div>
             )}
           </div>

@@ -36,14 +36,10 @@ const Referrals = () => {
 }, [address, currentPage, getDirectReferralDataPaginated]);
 
   return (
-    <div 
-    data-aos="fade-up"
-    data-aos-duration={1000}
-    data-aos-anchor-placement="top-bottom"
-    className="drop-shadow-lg p-4 rounded-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#b3e5fc33_0,_#ffffff_100%)]">
-      <div className="overflow-y-auto text-nowrap">
+    <div className="p-4 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient">
+      <div className="overflow-y-auto text-nowrap pb-1">
         <table className="w-full">
-          <thead className="overflow-y-auto drop-shadow-lg shadow-inner bg-white/40 backdrop-blur-lg">
+          <thead className="overflow-y-auto drop-shadow-lg shadow-inner bg-white/40 dark:bg-white/5 backdrop-blur-lg">
             <tr>
               <th className="py-2 px-4 text-left">S.No</th>
               <th className="py-2 px-4 text-left">Address</th>
@@ -93,15 +89,15 @@ const Referrals = () => {
             type="button"
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
-            className={`px-3 py-1 rounded ${
+            className={`px-3 py-1 rounded drop-shadow shadow ${
               currentPage === 1
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-yellow-200 hover:bg-yellow-300'
+                ? 'bg-gray-300 text-gray-600 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed'
+                : 'bg-gray-200 text-gray-500 dark:bg-gray-600 dark:text-gray-300 hover:bg-opacity-80 dark:hover:bg-opacity-80'
             }`}
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <div className="px-3 py-1 rounded bg-gradient-to-br from-yellow-500 via-yellow-300 to-yellow-500">
+          <div className="px-3 py-1 rounded bg-gradient-button text-white">
             {currentPage} of {Math.ceil(referralData.totalCount / itemsPerPage)}
           </div>
           <button
@@ -110,10 +106,10 @@ const Referrals = () => {
               Math.min(prev + 1, Math.ceil(referralData.totalCount / itemsPerPage))
             )}
             disabled={currentPage === Math.ceil(referralData.totalCount / itemsPerPage)}
-            className={`px-3 py-1 rounded ${
+            className={`px-3 py-1 rounded drop-shadow shadow ${
               currentPage === Math.ceil(referralData.totalCount / itemsPerPage)
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-yellow-200 hover:bg-yellow-300'
+                ? 'bg-gray-300 text-gray-600 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed'
+                : 'bg-gray-200 text-gray-500 dark:bg-gray-600 dark:text-gray-300 hover:bg-opacity-80 dark:hover:bg-opacity-80'
             }`}
           >
             <ChevronRight className="h-4 w-4" />

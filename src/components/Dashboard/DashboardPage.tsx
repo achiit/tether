@@ -16,7 +16,7 @@ import type { UserStats, RecentIncomeEvents } from "@/types/contract";
 
 function ProfileItem({ icon: Icon, label, value,}: { icon: React.ElementType; label: string; value: string }) {
   return (
-    <div className="flex items-center space-x-2 px-4 py-4 drop-shadow-lg shadow-inner rounded-md bg-white/40 backdrop-blur-lg">
+    <div className="flex items-center space-x-2 px-4 py-4 drop-shadow-lg shadow-inner rounded-md bg-white/40 dark:bg-white/5 backdrop-blur-lg">
       <Icon className="h-4 lg:h-5 w-4 lg:w-4 text-muted-foreground" />
       <span className="text-sm font-medium">{label}:</span>
       <span className="font-bold">{value}</span>
@@ -116,20 +116,13 @@ const DashboardPage = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <section
-      data-aos="fade-up"
-      data-aos-duration={1000}
-      data-aos-anchor-placement="center-bottom"
-      className="lg:hidden flex justify-between items-center w-full overflow-y-auto drop-shadow-lg lg:p-4 py-4">
+      <section className="lg:hidden flex justify-between items-center w-full overflow-y-auto drop-shadow-lg lg:p-4 py-4">
         <SocialLinks />
       </section>
 
       <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 text-nowrap">
         <section 
-            data-aos="fade-up"
-            data-aos-duration="1200"
-            data-aos-anchor-placement="top-bottom"
-            className="relative drop-shadow-lg p-4 rounded-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#e0f7fa55_0,_#ffffff_100%)]">
+            className="relative p-4 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient">
           <div className="flex items-center space-x-2 text-lg font-bold">
             <User className="h-5 w-5" />
             <span>Profile Details</span>
@@ -143,17 +136,14 @@ const DashboardPage = () => {
         </section>
 
         <section 
-          data-aos="fade-up"
-          data-aos-duration="1400"
-          data-aos-anchor-placement="top-bottom"
-          className="relative drop-shadow-lg p-4 rounded-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#b3e5fc33_0,_#ffffff_100%)]">
+          className="relative p-4 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient">
           <div>
             <div className="flex items-center space-x-2 text-lg font-bold">
               <Wallet className="h-5 w-5" />
               <span>Wallet Details</span>
             </div>
             <div className="grid lg:grid-cols-2 gap-2 lg:gap-4 mt-4">
-              <div className="flex items-center space-x-2 px-4 py-4 drop-shadow-lg shadow-inner rounded-md bg-white/40 backdrop-blur-lg">
+              <div className="flex items-center space-x-2 px-4 py-4 drop-shadow-lg shadow-inner rounded-md bg-white/40 dark:bg-white/5 backdrop-blur-lg">
                 <FileInput className="h-4 lg:h-5 w-4 lg:w-4 text-muted-foreground" />
                 <span className="text-sm font-medium">Address:</span>
                 <button
@@ -168,7 +158,7 @@ const DashboardPage = () => {
                   <Copy className={`h-4 w-4 transition-colors ${isCopied ? 'text-green-500' : 'text-muted-foreground hover:text-black'}`} />
                 </button>
               </div>
-                <div className="flex items-center space-x-2 px-4 py-4 drop-shadow-lg shadow-inner rounded-md bg-white/40 backdrop-blur-lg">
+                <div className="flex items-center space-x-2 px-4 py-4 drop-shadow-lg shadow-inner rounded-md bg-white/40 dark:bg-white/5 backdrop-blur-lg">
                   <Flame className="h-4 lg:h-5 w-4 lg:w-4 text-muted-foreground" />
                   <span className="text-sm font-medium">Balance:</span>
                   <ConnectButton.Custom>
@@ -206,14 +196,14 @@ const DashboardPage = () => {
                     }}
                   </ConnectButton.Custom>
                 </div>
-                <div className="flex items-center space-x-2 px-4 py-4 drop-shadow-lg shadow-inner rounded-md bg-white/40 backdrop-blur-lg">
+                <div className="flex items-center space-x-2 px-4 py-4 drop-shadow-lg shadow-inner rounded-md bg-white/40 dark:bg-white/5 backdrop-blur-lg">
                   <CircleDollarSign className="h-4 lg:h-5 w-4 lg:w-4 text-muted-foreground" />
                   <span className="text-sm font-medium">USDT Balance:</span>
                   <span className="font-bold">
                     {balances.usdt ? `${balances.usdt} USDT` : '0.0000 USDT'}
                   </span>
                 </div>
-                <div className="flex items-center space-x-2 px-4 py-4 drop-shadow-lg shadow-inner rounded-md bg-white/40 backdrop-blur-lg">
+                <div className="flex items-center space-x-2 px-4 py-3 drop-shadow-lg shadow-inner rounded-md bg-white/40 dark:bg-white/5 backdrop-blur-lg">
                   <Link2 className="h-4 lg:h-5 w-4 lg:w-4 text-muted-foreground" />
                   <span className="text-sm font-medium">Referral Link:</span>
                   <div className="flex items-center space-x-2">
@@ -223,7 +213,7 @@ const DashboardPage = () => {
                   onClick={() => address && copyToClipboard(`${window.location.origin}?ref=${address}`)}
                   onKeyDown={(e) => e.key === 'Enter' && address && copyToClipboard(`${window.location.origin}?ref=${address}`)}
                 >
-                  <span className="bg-gradient-to-br from-yellow-500 via-yellow-300 to-yellow-500 border border-dashed px-2 py-1 rounded font-medium">
+                  <span className="bg-gradient-button px-2 py-1 rounded font-medium">
                     {address ? truncateAddress(address) : 'Not Connected'}
                   </span>
                   <Copy className={`h-4 w-4 transition-colors ${isCopied ? 'text-green-500' : 'text-muted-foreground hover:text-black'}`} />
@@ -237,11 +227,8 @@ const DashboardPage = () => {
 
       {!isRegistered && (
         <section 
-          data-aos="fade-up"
-          data-aos-duration="1200"
-          data-aos-anchor-placement="center-bottom"
           className="mt-4 lg:mt-8">
-          <div className="p-4 lg:p-6 rounded-lg drop-shadow-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#ff9b8d33_0,_#ffffff_100%)]">
+          <div className="p-4 lg:p-6 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient">
             <div className="flex items-center space-x-2 text-lg font-bold mb-4">
              <Key className="h-5 w-5" />
              <span>Registration</span>
@@ -251,12 +238,13 @@ const DashboardPage = () => {
               placeholder="Referrer Address"
               value={referrerAddress}
               onChange={(e) => setReferrerAddress(e.target.value)}
-              className="w-full py-3 px-4  rounded mb-4 text-black bg-white/40 outline-none flex items-center space-x-2 drop-shadow-lg shadow-inner backdrop-blur-lg"
+              className="w-full py-3 px-4  rounded mb-4 bg-white/40 dark:bg-white/5 outline-none flex items-center space-x-2 drop-shadow-lg shadow-inner backdrop-blur-lg"
             />
             <button
               type="button"
               onClick={handleRegister}
-              className="p-2.5 px-4 lg:px-8 font-semibold cursor-pointer drop-shadow shadow bg-gradient-to-br from-green-500 via-green-400 to-green-500 hover:from-green-700 hover:via-green-600 hover:to-green-700 hover:text-white rounded-lg transition-all duration-300"
+              className="p-2.5 px-4 lg:px-8 font-semibold cursor-pointer drop-shadow shadow 
+              bg-gradient-button active:scale-105 hover:opacity-80 rounded-lg transition-all duration-300"
             >
               Register
             </button>
@@ -266,10 +254,7 @@ const DashboardPage = () => {
 
       {isRegistered && (
         <div
-           data-aos="fade-up"
-           data-aos-duration={1000}
-           data-aos-anchor-placement="center-bottom"
-           className="mt-4 lg:mt-8 rounded-lg drop-shadow-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#c2e9fb83_0,_#ffffff80_100%)]">
+           className="mt-4 lg:mt-8 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient">
           <div className="flex items-center space-x-2 text-lg font-bold px-4 lg:px-6 pt-4 lg:pt-6">
             <Boxes className="h-5 w-5" />
             <span>Packages (Current Level: {currentLevel})</span>
@@ -280,39 +265,32 @@ const DashboardPage = () => {
               const levelNum = Number(levelInfo.level);
               const isNextLevel = levelNum === (currentLevelNum + 1);
               const isCompleted = levelNum <= currentLevelNum;
-
+              
               return (
                 <div key={levelInfo.id}
-                className={`flex flex-col items-center rounded-md  transition-all duration-300
+                className={`flex flex-col items-center rounded-md transition-all duration-300
                 ${!isCompleted ? 'border-animation-card' : 'border-animation-card-completed'}
                 ${isNextLevel ? 'hover:scale-105  opacity-100 cursor-pointer' : 'opacity-50 cursor-not-allowed'}
                 `}>
-               <div className="flex justify-center items-center w-full z-50">
+               <div className="flex justify-center items-center w-full z-50 p-0.5">
                <button
                     type="button"
                     onClick={() => handleUpgrade(levelNum, levelInfo.amount)}
                     disabled={!isNextLevel}
-                    className={`
-                relative flex flex-col justify-center items-center gap-1 min-w-48 px-4 py-2 rounded-md w-full z-50
-                transition-all duration-300 bg-gradient-to-tr shadow-md drop-shadow-md overflow-hidden
-                ${isCompleted ? 'from-green-400 via-green-300 to-green-400' : 'from-yellow-300 via-yellow-200 to-yellow-300'}
-                ${isNextLevel ? 'cursor-pointer' : 'cursor-not-allowed'}
-              `}
-                  >
-                  <div className={`absolute -top-8 -left-4 w-28 h-full backdrop-blur-md blur-md rounded-br-full z-10 
-                    ${isCompleted ? 'bg-green-600/40' : ' bg-orange-400/40'}`} />
-                  <div className={`absolute -bottom-8 -right-4 w-28 h-full backdrop-blur-md blur-md rounded-tl-full z-10
-                    ${isCompleted ? 'bg-green-600/40' : 'bg-orange-400/40'}`} />
-                  <div className=" " />
+                    className={`relative flex flex-col justify-center items-center min-w-48 px-4 py-2.5 rounded-md w-full z-50
+                    shadow-md drop-shadow-md overflow-hidden text-white 
+                    ${isCompleted ? 'bg-[#7bc23d]' : 'bg-[#F72C5B]'}
+                    ${isNextLevel ? 'cursor-pointer' : 'cursor-not-allowed text-opacity-50'}
+                 `}>
                     <div className="flex justify-between items-center w-full z-20" >
-                      <p className="text-sm font-bold">Level {levelInfo.level}</p>
+                      <p className=" font-bold text-3d dark:text-3d-dark">Level {levelInfo.level}</p>
                       {isCompleted && (
-                        <span className="absolute top-2 right-2 flex justify-center items-center text-xs lg:text-sm font-bold text-white bg-green-700 rounded-full p-1 w-6 lg:w-7 h-6 lg:h-7 z-20">✓</span>
+                        <span className="absolute top-2 right-2 flex justify-center items-center text-xs shadow drop-shadow lg:text-sm font-bold text-white bg-green-500 rounded-full p-1 w-6 lg:w-7 h-6 lg:h-7 z-20">✓</span>
                       )}
                     </div>
-                     <div className="z-20 pb-2" >
-                     <p className="text-lg lg:text-2xl font-bold ">{levelInfo.name}</p>
-                     <p className="text-sm font-bold text-center w-full ">{levelInfo.amount} USD</p>
+                     <div className="z-20 pb-2 pt-2" >
+                     <p className="text-lg lg:text-2xl font-bold text-3d dark:text-3d-dark">{levelInfo.name}</p>
+                     <p className="text-sm  lg:text-lg font-bold text-center w-full text-3d dark:text-3d-dark">{levelInfo.amount} USD</p>
                      </div>
                   </button>
                </div>
@@ -325,56 +303,44 @@ const DashboardPage = () => {
 
       {isRegistered && userStats && (
         <section className="flex flex-col lg:flex-row justify-between items-start gap-4 w-full mt-4 lg:mt-8">
-          <div
-          data-aos="fade-up"
-          data-aos-duration={1000}
-          data-aos-anchor-placement="center-bottom"
-          className="flex flex-col justify-center items-center drop-shadow-lg px-4 py-4 lg:px-10 w-full border-x-4 border-green-400 rounded-bl-full rounded-tr-full bg-gradient-to-r from-green-200  to-green-300">
-            <p className="text-lg font-bold">Total Income</p>
-            <p className="font-bold">{userStats?.totalEarnings ? formatUnits(userStats.totalEarnings, 18) : '0'} USDT</p>
+          <div className="flex justify-center items-center drop-shadow-lg shadow-md p-px w-full rounded-lg !bg-gradient-button">
+            <div className="flex flex-col justify-center items-center w-full p-4 rounded-lg bg-white/70 dark:bg-black/80">
+              <p className="text-lg font-bold">Total Income</p>
+              <p className="font-bold">{userStats?.totalEarnings ? formatUnits(userStats.totalEarnings, 18) : '0'} USDT</p>
+            </div>
           </div>
-          <div
-          data-aos="fade-up"
-          data-aos-duration={1000}
-          data-aos-anchor-placement="center-bottom"
-          className="flex flex-col justify-center items-center drop-shadow-lg px-4 py-4 lg:px-10 w-full border-x-4 border-pink-400 rounded-bl-full rounded-tr-full bg-gradient-to-r from-pink-200  to-pink-300">
-            <p className="text-lg font-bold">Referral Income</p>
-            <p className="font-bold">{userStats?.directCommissionEarned ? formatUnits(userStats.directCommissionEarned, 18) : '0'} USDT</p>
+          <div className="flex justify-center items-center drop-shadow-lg shadow-md p-px w-full rounded-lg !bg-gradient-button">
+            <div className="flex flex-col justify-center items-center w-full p-4 rounded-lg bg-white/70 dark:bg-black/80">
+              <p className="text-lg font-bold">Referral Income</p>
+              <p className="font-bold">{userStats?.directCommissionEarned ? formatUnits(userStats.directCommissionEarned, 18) : '0'} USDT</p>
+            </div>
           </div>
-          <div
-          data-aos="fade-up"
-          data-aos-duration={1000}
-          data-aos-anchor-placement="center-bottom"
-          className="flex flex-col justify-center items-center drop-shadow-lg px-4 py-4 lg:px-10 w-full border-x-4 border-orange-400 rounded-bl-full rounded-tr-full bg-gradient-to-r from-orange-200  to-orange-300">
-            <p className="text-lg font-bold">Level Income</p>
-            <p className="font-bold">{userStats?.levelIncomeEarned ? formatUnits(userStats.levelIncomeEarned, 18) : '0'} USDT</p>
+          <div className="flex justify-center items-center drop-shadow-lg shadow-md p-px w-full rounded-lg !bg-gradient-button">
+            <div className="flex flex-col justify-center items-center w-full p-4 rounded-lg bg-white/70 dark:bg-black/80">
+              <p className="text-lg font-bold">Level Income</p>
+              <p className="font-bold">{userStats?.levelIncomeEarned ? formatUnits(userStats.levelIncomeEarned, 18) : '0'} USDT</p>
+            </div>
           </div>
-          <div
-          data-aos="fade-up"
-          data-aos-duration={1000}
-          data-aos-anchor-placement="center-bottom"
-          className="flex flex-col justify-center items-center drop-shadow-lg px-4 py-4 lg:px-10 w-full border-x-4 border-indigo-400 rounded-bl-full rounded-tr-full bg-gradient-to-r from-indigo-200  to-indigo-300">
-            <p className="text-lg font-bold">Direct Referral</p>
-            <p className="font-bold">{userStats?.directReferrals?.toString() || '0'}</p>
+          <div className="flex justify-center items-center drop-shadow-lg shadow-md p-px w-full rounded-lg !bg-gradient-button">
+            <div className="flex flex-col justify-center items-center w-full p-4 rounded-lg bg-white/70 dark:bg-black/80">
+              <p className="text-lg font-bold">Direct Referral</p>
+              <p className="font-bold">{userStats?.directReferrals?.toString() || '0'}</p>
+            </div>
           </div>
         </section>
       )}
 
-      <section
-      data-aos="fade-up"
-      data-aos-duration={1000}
-      data-aos-anchor-placement="center-bottom"
-      className="mt-4 lg:mt-8">
-        <div className="rounded-lg drop-shadow-lg shadow-inner bg-[radial-gradient(130%_120%_at_50%_50%,_#b3e5fc33_0,_#ffffff50_100%)]">
+      <section className="mt-4 lg:mt-8">
+        <div className="rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient">
           <div className="flex items-center space-x-2 text-lg font-bold px-4 lg:px-6 pt-4 lg:pt-6 ">
             <Landmark className="h-5 w-5" />
             <span>Rank Income</span>
           </div>
           <div className="p-4 lg:px-6 lg:pb-6 grid gap-4 md:grid-cols-2 h-80 lg:h-auto overflow-auto">
-            <div className="rounded-lg px-4 py-3 drop-shadow-md shadow-inner bg-white/40 backdrop-blur-md">
+            <div className="rounded-lg px-4 py-3 drop-shadow-md shadow-inner bg-white/40 dark:bg-white/5 backdrop-blur-md">
               <div className="flex justify-between items-center">
                 <span className="font-semibold">{LEVELS[0].name}</span>
-                <span className="bg-gradient-to-br from-yellow-500 via-yellow-300 to-yellow-500 border border-dashed overflow-hidden px-2 py-1 rounded font-medium">
+                <span className="bg-gradient-button text-white overflow-hidden px-2 py-1 rounded font-medium">
                   {userStats?.directCommissionEarned ? formatUnits(userStats.directCommissionEarned, 18) : '0'} USDT
                 </span>
               </div>
@@ -382,11 +348,11 @@ const DashboardPage = () => {
             {LEVELS.slice(1).map((level, index) => (
               <div
                 key={level.id}
-                className="rounded-lg px-4 py-3 drop-shadow-md shadow-inner bg-white/40 backdrop-blur-md"
+                className="rounded-lg px-4 py-3 drop-shadow-md shadow-inner bg-white/40 dark:bg-white/5 backdrop-blur-md"
               >
                 <div className="flex justify-between items-center">
                   <span className="font-semibold">{level.name}</span>
-                  <span className="bg-gradient-to-br from-yellow-500 via-yellow-300 to-yellow-500 border border-dashed  overflow-hidden px-2 py-1 rounded font-medium">
+                  <span className="bg-gradient-button text-white  overflow-hidden px-2 py-1 rounded font-medium">
                     {levelIncomes[index + 1] ? formatUnits(levelIncomes[index + 1], 18) : '0'} USDT
                   </span>
                 </div>
@@ -396,26 +362,18 @@ const DashboardPage = () => {
         </div>
       </section>
 
-      <section
-      data-aos="fade-up"
-      data-aos-duration={1000}
-      data-aos-anchor-placement="center-bottom"
-      className="mt-4 lg:mt-8">
+      <section className="mt-4 lg:mt-8">
         <RoyaltySlab/>
       </section>
 
-      <section
-      data-aos="fade-up"
-      data-aos-duration={1000}
-      data-aos-anchor-placement="top-bottom"
-      className="mt-4 lg:mt-8 drop-shadow-lg p-4 rounded-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#b3e5fc33_0,_#ffffff_100%)]">
+      <section className="mt-4 lg:mt-8 p-4 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient">
         <div className="flex items-center space-x-2 text-lg font-bold">
           <BadgeDollarSign className="h-5 w-5" />
           <span>Recent Income</span>
         </div>
-        <div className="overflow-y-auto text-nowrap">
+        <div className="overflow-y-auto text-nowrap pb-1">
           <table className="w-full mt-4 border-collapse">
-            <thead className="overflow-y-auto drop-shadow-lg shadow-inner bg-white/40 backdrop-blur-lg">
+            <thead className="overflow-y-auto drop-shadow-lg shadow-inner bg-white/40 dark:bg-white/5 backdrop-blur-lg">
               <tr>
                 <th className="py-2 px-4 text-left">From</th>
                 <th className="py-2 px-4 text-left">Amount</th>
@@ -457,14 +415,14 @@ const DashboardPage = () => {
                 type="button"
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className={`px-3 py-1 rounded ${currentPage === 1
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-yellow-200 hover:bg-yellow-300'
+                className={`px-3 py-2 rounded drop-shadow shadow ${currentPage === 1
+                  ? 'bg-gray-300 text-gray-600 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed'
+                  : 'bg-gray-200 text-gray-500 dark:bg-gray-600 dark:text-gray-300 hover:bg-opacity-80 dark:hover:bg-opacity-80'
                   }`}
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
-              <div className="px-3 py-1 rounded bg-gradient-to-br from-yellow-500 via-yellow-300 to-yellow-500">
+              <div className="px-3 py-1 rounded bg-gradient-button text-white">
                 {currentPage} of {Math.ceil(recentIncomes.totalCount / itemsPerPage)}
               </div>
               <button
@@ -473,9 +431,9 @@ const DashboardPage = () => {
                   Math.min(prev + 1, Math.ceil(recentIncomes.totalCount / itemsPerPage))
                 )}
                 disabled={currentPage === Math.ceil(recentIncomes.totalCount / itemsPerPage)}
-                className={`px-3 py-1 rounded ${currentPage === Math.ceil(recentIncomes.totalCount / itemsPerPage)
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-yellow-200 hover:bg-yellow-300'
+                className={`px-3 py-1 rounded drop-shadow shadow ${currentPage === Math.ceil(recentIncomes.totalCount / itemsPerPage)
+                  ? 'bg-gray-300 text-gray-600 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed'
+                  : 'bg-gray-200 text-gray-500 dark:bg-gray-600 dark:text-gray-300 hover:bg-opacity-80 dark:hover:bg-opacity-80'
                   }`}
               >
                 <ChevronRight className="h-4 w-4" />
@@ -487,7 +445,7 @@ const DashboardPage = () => {
 
       <div
       data-aos="fade-up"
-      data-aos-duration={1000}
+      data-aos-duration={500}
       data-aos-anchor-placement="top-bottom"
       className="text-center text-xs lg:text-sm font-bold mt-4 lg:mt-8 mb-2">
         <p>TetherWave Contract opbnb.bscscan</p>
