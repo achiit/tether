@@ -3,6 +3,7 @@ import { Inter, Manrope } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ClientProviders } from "@/lib/ClientProviders";
+import { ThemeProviders } from "@/lib/ThemeProviders";
 
 const glacier = localFont({
   src: "/fonts/Manrope-VariableFont_wght.ttf",
@@ -36,7 +37,9 @@ export default function RootLayout({
         className={`${inter.className} ${glacier.variable} ${manrope.variable} font-manrope`}
         suppressHydrationWarning
       >
-        <ClientProviders>{children}</ClientProviders>
+        <ClientProviders>
+          <ThemeProviders>{children}</ThemeProviders>
+        </ClientProviders>
       </body>
     </html>
   );

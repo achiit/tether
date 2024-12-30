@@ -6,8 +6,23 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  darkMode: "class",
   theme: {
     extend: {
+      colors: {
+        bgLight: "#f8f9fa",
+        bgDark: "#212529",
+        text: "#E4E4E7",
+        pink: "#FC2FA4",
+        purple: "#902DFF",
+        blue: "#4B4CF6",
+      },
+      backgroundImage: {
+        'light-gradient': 'radial-gradient(130% 120% at 50% 50%, #C6E7FF33 0%, #f1f1f1 100%)',
+        'dark-gradient': 'radial-gradient(130% 120% at 50% 50%, #262626 0%, #282828 100%)',
+        'gradient-button': 'linear-gradient(101deg, #fc2fa4, #902dff 57%, #4b4cf6)',
+        'gradient-button-green': 'linear-gradient(101deg, #6fcf97,  #902dff 57%, #219653)',
+      },
       fontFamily: {
         manrope: ["var(--font-manrope)"],
       },

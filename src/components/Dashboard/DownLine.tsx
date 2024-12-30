@@ -40,11 +40,7 @@ const DownLine = () => {
 
   return (
     <div>
-      <div 
-       data-aos="fade-up"
-      data-aos-duration={1000}
-      data-aos-anchor-placement="top-bottom"
-      className="drop-shadow-lg p-4 rounded-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#c2e9fb33_0,_#ffffff_100%)]">
+      <div className="p-4 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient">
         <div className="flex justify-start gap-4 overflow-x-auto">
           {Array.from({ length: 10 }, (_, i) => i + 1).map((level) => (
             <button
@@ -54,7 +50,7 @@ const DownLine = () => {
                 setSelectedLevel(level);
                 setCurrentPage(1);
               }}
-              className={`py-2 px-4 rounded bg-gradient-to-br from-yellow-500 via-yellow-300 to-yellow-500 ${
+              className={`py-2 px-6 rounded bg-gradient-button text-white ${
                 selectedLevel === level
                   ? "opacity-100 "
                   : "opacity-50"
@@ -66,14 +62,10 @@ const DownLine = () => {
         </div>
       </div>
 
-      <section 
-       data-aos="fade-up"
-      data-aos-duration={1200}
-      data-aos-anchor-placement="top-bottom"
-      className="mt-4 drop-shadow-lg p-4 rounded-lg bg-[radial-gradient(130%_120%_at_50%_50%,_#b3e5fc33_0,_#ffffff_100%)]">
-        <div className="overflow-y-auto text-nowrap">
+      <section className="mt-4 p-4 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient">
+        <div className="overflow-y-auto text-nowrap pb-1">
           <table className="w-full mt-4 border-collapse">
-            <thead className='overflow-y-auto drop-shadow-lg shadow-inner bg-white/40 backdrop-blur-lg'>
+            <thead className='overflow-y-auto drop-shadow-lg shadow-inner bg-white/40 dark:bg-white/5 backdrop-blur-lg'>
               <tr>
                 <th className="py-2 px-4 text-left">S.No.</th>
                 <th className="py-2 px-4 text-left">Address</th>
@@ -108,15 +100,15 @@ const DownLine = () => {
                 type="button"
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className={`px-3 py-1 rounded ${
+                className={`px-3 py-1 rounded drop-shadow shadow ${
                   currentPage === 1
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-yellow-200 hover:bg-yellow-300'
+                    ? 'bg-gray-300 text-gray-600 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed'
+                    : 'bg-gray-200 text-gray-500 dark:bg-gray-600 dark:text-gray-300 hover:bg-opacity-80 dark:hover:bg-opacity-80'
                 }`}
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
-              <div className="px-3 py-1 rounded bg-gradient-to-br from-yellow-500 via-yellow-300 to-yellow-500">
+              <div className="px-3 py-1 rounded drop-shadow shadow bg-gradient-button text-white">
                 {currentPage} of {Math.ceil(downlineData.totalCount / itemsPerPage)}
               </div>
               <button
@@ -125,10 +117,10 @@ const DownLine = () => {
                   Math.min(prev + 1, Math.ceil(downlineData.totalCount / itemsPerPage))
                 )}
                 disabled={currentPage === Math.ceil(downlineData.totalCount / itemsPerPage)}
-                className={`px-3 py-1 rounded ${
+                className={`px-3 py-1 rounded drop-shadow shadow ${
                   currentPage === Math.ceil(downlineData.totalCount / itemsPerPage)
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-yellow-200 hover:bg-yellow-300'
+                    ? 'bg-gray-300 text-gray-600 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed'
+                    : 'bg-gray-200 text-gray-500 dark:bg-gray-600 dark:text-gray-300 hover:bg-opacity-80 dark:hover:bg-opacity-80'
                 }`}
               >
                 <ChevronRight className="h-4 w-4" />
