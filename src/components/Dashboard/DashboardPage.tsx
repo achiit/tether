@@ -5,7 +5,6 @@ import { useState, useEffect } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { formatUnits } from 'viem';
 import Link from "next/link";
-import { useSearchParams } from 'next/navigation';
 
 import { useWallet } from "@/lib/hooks/useWallet";
 import { useContract } from "@/lib/hooks/useContract";
@@ -28,7 +27,6 @@ function ProfileItem({ icon: Icon, label, value, }: { icon: React.ElementType; l
 const DashboardPage = () => {
   const { address, balances } = useWallet();
   const { getUserStats, getLevelIncomes, getRecentIncomeEventsPaginated, register, upgrade } = useContract();
-  const searchParams = useSearchParams();
 
   const [isCopied, setIsCopied] = useState(false);
   const [referrerAddress, setReferrerAddress] = useState('');
@@ -87,7 +85,10 @@ const DashboardPage = () => {
   useEffect(() => {
     const fetchReferrerAddress = async () => {
       try {
-        const refId = searchParams.get('ref');
+        // Get ref from URL parameters
+        const params = new URLSearchParams(window.location.search);
+        const refId = params.get('ref');
+        
         if (!refId) return;
 
         const response = await fetch(`https://node-referral-system.onrender.com/referral/${refId}`);
@@ -101,7 +102,7 @@ const DashboardPage = () => {
     };
 
     fetchReferrerAddress();
-  }, [searchParams]);
+  }, []);
 
   const handleRegister = async () => {
     if (!address || !referrerAddress) return;
@@ -258,10 +259,9 @@ const DashboardPage = () => {
                     onClick={() => {
                       const element = document.querySelector('.referral-link');
                       const referralLink = element?.getAttribute('data-referral') || 
-                        `${window.location.origin}?ref=${address}`;
+                        `${window.location.origin}/?ref=${address}`;
                       copyToClipboard(referralLink);
                     }}
-                    onKeyDown={(e) => e.key === 'Enter' && copyToClipboard(`${window.location.origin}?ref=${address}`)}
                   >
                     <span className="bg-gradient-button px-2 py-1 rounded font-medium">
                       {address ? truncateAddress(address) : 'Not Connected'}
