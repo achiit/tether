@@ -183,7 +183,7 @@ const DashboardPage = () => {
       console.log('Updated user stats:', stats);
       if (stats) setUserStats(stats);
 
-      const referralLink = `${window.location.origin}/?ref=${data.referral_code}`;
+      const referralLink = `${window.location.origin}/dashboard/?ref=${data.referral_code}`;
       console.log('Generated new referral link:', referralLink);
       
       const referralLinkElement = document.querySelector('.referral-link');
