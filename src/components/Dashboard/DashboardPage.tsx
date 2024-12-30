@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { formatUnits } from 'viem';
 import Link from "next/link";
+import { useSearchParams } from 'next/navigation';
 
 import { useWallet } from "@/lib/hooks/useWallet";
 import { useContract } from "@/lib/hooks/useContract";
@@ -27,6 +28,7 @@ function ProfileItem({ icon: Icon, label, value, }: { icon: React.ElementType; l
 const DashboardPage = () => {
   const { address, balances } = useWallet();
   const { getUserStats, getLevelIncomes, getRecentIncomeEventsPaginated, register, upgrade } = useContract();
+  const searchParams = useSearchParams();
 
   const [isCopied, setIsCopied] = useState(false);
   const [referrerAddress, setReferrerAddress] = useState('');
@@ -75,27 +77,71 @@ const DashboardPage = () => {
           BigInt(itemsPerPage)
         );
         setRecentIncomes(resultInc);
-      } catch (error) {
-        console.error('Error fetching data:', error);
+      } catch {
       }
     };
 
     fetchData();
   }, [address, getUserStats, getLevelIncomes, getRecentIncomeEventsPaginated, currentPage]);
 
+  useEffect(() => {
+    const fetchReferrerAddress = async () => {
+      try {
+        const refId = searchParams.get('ref');
+        if (!refId) return;
+
+        const response = await fetch(`https://node-referral-system.onrender.com/referral/${refId}`);
+        if (!response.ok) throw new Error('Failed to fetch referrer');
+
+        const data = await response.json();
+        setReferrerAddress(data.referring_wallet);
+      } catch {
+        // Silent fail - user can still input address manually
+      }
+    };
+
+    fetchReferrerAddress();
+  }, [searchParams]);
+
   const handleRegister = async () => {
     if (!address || !referrerAddress) return;
 
     try {
+      // First, register on blockchain
       await register(referrerAddress);
+
+      // Then, register referral in backend
+      const response = await fetch('https://node-referral-system.onrender.com/register-referred', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          wallet_address: address,
+          referred_by: referrerAddress
+        })
+      });
+
+      if (!response.ok) throw new Error('Failed to register referral');
+
+      const data = await response.json();
+      
+      // Update UI states
       setIsRegistered(true);
       setCurrentLevel(1);
       const stats = await getUserStats();
       if (stats) setUserStats(stats);
-      alert('Registration successful!');
-    } catch (error) {
-      console.error('Registration error:', error);
-      alert(`Registration failed: ${error instanceof Error ? error.message : String(error)}`);
+
+      const referralLink = `${window.location.origin}?ref=${data.referral_code}`;
+      
+      const referralLinkElement = document.querySelector('.referral-link');
+      if (referralLinkElement) {
+        referralLinkElement.setAttribute('data-referral', referralLink);
+      }
+
+      alert('Registration successful! Your referral link has been generated.');
+    } catch {
+      alert('Registration failed. Please try again.');
     }
   };
 
@@ -108,8 +154,7 @@ const DashboardPage = () => {
       alert('Upgrade successful!');
       const stats = await getUserStats();
       if (stats) setUserStats(stats);
-    } catch (error) {
-      console.error('Upgrade error:', error);
+    } catch {
       alert('Upgrade failed!');
     }
   };
@@ -209,9 +254,14 @@ const DashboardPage = () => {
                 <div className="flex items-center space-x-2">
                   <button
                     type="button"
-                    className="flex items-center space-x-2 cursor-pointer"
-                    onClick={() => address && copyToClipboard(`${window.location.origin}?ref=${address}`)}
-                    onKeyDown={(e) => e.key === 'Enter' && address && copyToClipboard(`${window.location.origin}?ref=${address}`)}
+                    className="flex items-center space-x-2 cursor-pointer referral-link"
+                    onClick={() => {
+                      const element = document.querySelector('.referral-link');
+                      const referralLink = element?.getAttribute('data-referral') || 
+                        `${window.location.origin}?ref=${address}`;
+                      copyToClipboard(referralLink);
+                    }}
+                    onKeyDown={(e) => e.key === 'Enter' && copyToClipboard(`${window.location.origin}?ref=${address}`)}
                   >
                     <span className="bg-gradient-button px-2 py-1 rounded font-medium">
                       {address ? truncateAddress(address) : 'Not Connected'}
