@@ -13,7 +13,6 @@ export interface UserStats {
     directCommissionEarned: bigint
     levelIncomeEarned: bigint
     timestamp: number
-    isActive: boolean
 }
 
 export interface RecentIncomeEvents {

@@ -59,23 +59,31 @@ const DashboardPage = () => {
       if (!address) return;
 
       try {
+        // First check if user is registered
         const stats = await getUserStats();
+        console.log('User stats:', stats);
+        
         if (stats) {
           setCurrentLevel(stats.currentLevel);
           setUserStats(stats);
-          setIsRegistered(stats.isActive);
+          setIsRegistered(stats.currentLevel > 0);
+          console.log('User registration status:', stats.currentLevel);
         }
 
-        const incomes = await getLevelIncomes();
-        setLevelIncomes(incomes);
+        // Only fetch these if user is registered
+        if ((stats?.currentLevel ?? 0) > 0) {
+          const incomes = await getLevelIncomes();
+          setLevelIncomes(incomes);
 
-        const resultInc = await getRecentIncomeEventsPaginated(
-          address,
-          BigInt((currentPage - 1) * itemsPerPage),
-          BigInt(itemsPerPage)
-        );
-        setRecentIncomes(resultInc);
-      } catch {
+          const resultInc = await getRecentIncomeEventsPaginated(
+            address,
+            BigInt((currentPage - 1) * itemsPerPage),
+            BigInt(itemsPerPage)
+          );
+          setRecentIncomes(resultInc);
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
       }
     };
 
