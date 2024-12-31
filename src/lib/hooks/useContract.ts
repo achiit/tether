@@ -29,7 +29,6 @@ export function useContract() {
                 directCommissionEarned: stats[3],
                 levelIncomeEarned: stats[4],
                 timestamp: Number(stats[5]),
-                isActive: stats[6]
             }
         } catch {
             return null
