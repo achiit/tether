@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { getContracts } from '../constants/contracts'
 import { useAccount } from 'wagmi'
 import { publicClient } from '../constants/contracts'
-import type { UserStats, ReferralData, RoyaltyInfo, Sponsor } from '@/types/contract'
+import type { UserStats, ReferralData, RoyaltyInfo, Sponsor, LevelActivatedCount } from '@/types/contract'
 import type { Address } from 'viem'
 import { createWalletClient } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -48,25 +48,6 @@ export function useContract() {
             return stats[1]
         } catch {
             return []
-        }
-    }, [address])
-
-    const getSponsors = useCallback(async (): Promise<Sponsor | null> => {
-        if (!address) return null
-        try {
-            const { tetherWave } = getContracts()
-            const sponsors = await tetherWave.publicClient.readContract({
-                ...tetherWave,
-                functionName: 'getMatrixPosition',
-                args: [address]
-            }) as string[]
-            
-            return {
-                directSponsor: [sponsors[0]],
-                matrixSponsor: [sponsors[1]]
-            }
-        } catch {
-            return null
         }
     }, [address])
 
@@ -389,6 +370,45 @@ export function useContract() {
         }
     }, []); 
 
+    const getSponsors = useCallback(async (): Promise<Sponsor | null> => {
+        if (!address) return null
+        try {
+            const { tetherWave } = getContracts()
+            const sponsors = await tetherWave.publicClient.readContract({
+                ...tetherWave,
+                functionName: 'getMatrixPosition',
+                args: [address]
+            }) as string[]
+            
+            return {
+                directSponsor: [sponsors[0]],
+                matrixSponsor: [sponsors[1]]
+            }
+        } catch {
+            return null
+        }
+    }, [address])
+
+    const getLevelActivatedCount = useCallback(async (userAddress: Address, level: number): Promise<LevelActivatedCount | null> => {
+        if (!address) return null;
+        try {
+            const { tetherWave } = getContracts();
+            const count = await tetherWave.publicClient.readContract({
+                ...tetherWave,
+                functionName: 'getLevelActivatedCount',
+                args: [userAddress, BigInt(level)]
+            }) as [bigint, bigint, bigint];
+            
+            return {
+                strongLeg: count[0],
+                weakLeg1: count[1],
+                weakLeg2: count[2]
+            };
+        } catch {
+            return null;
+        }
+    }, [address]);
+
     return {
         getUserStats,
         getLevelIncomes,
@@ -403,6 +423,7 @@ export function useContract() {
         distributeTierRoyalties,
         getTierAchieversCount,
         getNextDistributionTime,
-        getSponsors
+        getSponsors,
+        getLevelActivatedCount
     }
 }

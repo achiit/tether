@@ -5,14 +5,15 @@ import { useState, useEffect } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { formatUnits } from 'viem';
 import Link from "next/link";
-
 import { useWallet } from "@/lib/hooks/useWallet";
 import { useContract } from "@/lib/hooks/useContract";
 import { truncateAddress } from "@/lib/utils/format";
 import { LEVELS } from "@/lib/constants/levels";
 import SocialLinks from "./SocialLinks";
 import RoyaltySlab from "./RoyaltySlab";
-import type { UserStats, RecentIncomeEvents, Sponsor } from "@/types/contract";
+import type { UserStats, RecentIncomeEvents, Sponsor, UserProfileData } from "@/types/contract";
+import { useFrontendDisplay } from '@/lib/hooks/useFrontendDisplay';
+import { FrontendIdDisplay } from "./FrontendIdDisplay";
 
 function ProfileItem({ icon: Icon, label, value, }: { icon: React.ElementType; label: string; value: string }) {
   return (
@@ -35,7 +36,7 @@ const DashboardPage = () => {
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [levelIncomes, setLevelIncomes] = useState<bigint[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [generatedReferralLink, setGeneratedReferralLink] = useState<string>('');
+  const [referralCode, setReferralCode] = useState<string>('');
   const [directSponsor, setDirectSponsor] = useState<Sponsor | null>(null);
   const [matrixSponsor, setMatrixSponsor] = useState<Sponsor | null>(null);
   const itemsPerPage = 5;
@@ -46,6 +47,7 @@ const DashboardPage = () => {
     timestamps: [],
     totalCount: 0
   });
+  const [userProfileData, setUserProfileData] = useState<UserProfileData | null>(null);
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -142,6 +144,26 @@ const DashboardPage = () => {
     fetchReferrerAddress();
   }, [address]);
 
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (!address) return;
+      
+      try {
+        const response = await fetch(`https://node-referral-system.onrender.com/user/${address}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch user profile');
+        }
+        const data = await response.json();
+        setUserProfileData(data);
+        setReferralCode(data.referral_code);
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, [address]);
+
   const handleRegister = async () => {
     if (!address || !referrerAddress) {
       return;
@@ -188,8 +210,6 @@ const DashboardPage = () => {
       alert('Registration successful! Your referral link has been generated.');
       localStorage.removeItem('tetherwave_refId');
       console.log('RefID removed from localStorage');
-
-      setGeneratedReferralLink(referralLink);
     } catch (error) {
       console.error('Registration process failed:', error);
       alert('Registration failed. Please try again.');
@@ -210,6 +230,9 @@ const DashboardPage = () => {
     }
   };
 
+  const directSponsorId = useFrontendDisplay(directSponsor?.directSponsor?.toString());
+  const matrixSponsorId = useFrontendDisplay(matrixSponsor?.matrixSponsor?.toString());
+
   return (
     <div className="flex flex-col gap-4">
       <section className="lg:hidden flex justify-between items-center w-full overflow-y-auto drop-shadow-lg lg:p-4 py-4">
@@ -224,17 +247,29 @@ const DashboardPage = () => {
             <span>Profile Details</span>
           </div>
           <div className="grid lg:grid-cols-2 gap-2 lg:gap-4 mt-4">
-            <ProfileItem icon={Hash} label="User ID" value="123" />
-            <ProfileItem icon={Crown} label="Rank" value={`${currentLevel} - ${LEVELS.find(l => l.level === currentLevel)?.name || 'Unknown'}`} />
-            <ProfileItem icon={Calendar} label="Activation Date" value="2024-01-01" />
+            <ProfileItem 
+              icon={Hash} 
+              label="User ID" 
+              value={userProfileData?.frontend_id || 'Not Available'} 
+            />
+            <ProfileItem 
+              icon={Crown} 
+              label="Rank" 
+              value={`${currentLevel} - ${LEVELS.find(l => l.level === currentLevel)?.name || 'Unknown'}`} 
+            />
+            <ProfileItem 
+              icon={Calendar} 
+              label="Activation Date" 
+              value={userProfileData ? new Date(userProfileData.created_at).toLocaleDateString() : 'Not Available'} 
+            />
             <div className="flex flex-col items-start justify-center px-4 py-4 drop-shadow-lg shadow-inner rounded-md bg-white/40 dark:bg-white/5 backdrop-blur-lg">
               <div className="flex flex-row items-center space-x-2">
                 <span className="text-sm font-medium">Direct Sponsor</span>
-                <span className="text-sm font-bold">{truncateAddress(directSponsor?.directSponsor.toString() || 'Not Set')}</span>
+                <span className="text-sm font-bold">{directSponsorId}</span>
               </div>
               <div className="flex flex-row items-center space-x-2">
                 <span className="text-sm font-medium">Matrix Sponsor</span>
-                <span className="text-sm font-bold">{truncateAddress(matrixSponsor?.matrixSponsor.toString() || 'Not Set')}</span>
+                <span className="text-sm font-bold">{matrixSponsorId}</span>
               </div>
             </div>
           </div>
@@ -310,12 +345,12 @@ const DashboardPage = () => {
                     onClick={() => {
                       const element = document.querySelector('.referral-link');
                       const referralLink = element?.getAttribute('data-referral') ||
-                        `${window.location.origin}/dashboard/?ref=${address}`;
+                        `${window.location.origin}/dashboard/?ref=${referralCode}`;
                       copyToClipboard(referralLink);
                     }}
                   >
                     <span className="bg-gradient-button px-2 py-1 rounded font-medium">
-                      {generatedReferralLink ? truncateAddress(generatedReferralLink) : 'Not Generated'}
+                      {referralCode ? truncateAddress(referralCode) : 'Not Generated'}
                     </span>
                     <Copy className={`h-4 w-4 transition-colors ${isCopied ? 'text-green-500' : 'text-muted-foreground hover:text-black'}`} />
                   </button>
@@ -488,8 +523,10 @@ const DashboardPage = () => {
             </thead>
             <tbody>
               {recentIncomes.userAddresses.map((address, index) => (
-                <tr key={`${index + 1}`} className="border-b hover:bg-white/10 backdrop-blur-lg">
-                  <td className="py-2 px-4">{truncateAddress(address)}</td>
+                <tr key={`${index+1}`} className="border-b hover:bg-white/10 backdrop-blur-lg">
+                  <td className="py-2 px-4">
+                    <FrontendIdDisplay address={address} />
+                  </td>
                   <td className="py-2 px-4 text-green-600">
                     +{formatUnits(recentIncomes.amounts[index], 18)} USDT
                   </td>
@@ -548,9 +585,9 @@ const DashboardPage = () => {
       </section>
 
       <div
-        data-aos="fade-up"
-        data-aos-duration={500}
-        data-aos-anchor-placement="top-bottom"
+        // data-aos="fade-up"
+        // data-aos-duration={500}
+        // data-aos-anchor-placement="top-bottom"
         className="text-center text-xs lg:text-sm font-bold mt-4 lg:mt-8 mb-2">
         <p>TetherWave Contract opbnb.bscscan</p>
         <Link href="https://opbnb-testnet.bscscan.com/address/0xad7284Bf6fB1c725a7500C51b71847fEf2D2d17C" className="text-yellow-600 hover:underline">

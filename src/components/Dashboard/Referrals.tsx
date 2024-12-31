@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useContract } from "@/lib/hooks/useContract";
 import { LEVELS } from "@/lib/constants/levels";
-import { truncateAddress } from "@/lib/utils/format";
 import type { ReferralData } from "@/types/contract";
 import { useWallet } from "@/lib/hooks/useWallet";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { FrontendIdDisplay } from "@/components/Dashboard/FrontendIdDisplay";
 
 const Referrals = () => {
   const { getDirectReferralDataPaginated } = useContract();
@@ -54,12 +54,11 @@ const Referrals = () => {
           </thead>
           <tbody>
             {referralData.referralData.map((referral, index) => (
-              <tr
-                key={`referral-${index + 1}`}
-                className="border-b hover:bg-white/10  backdrop-blur-lg"
-              >
+              <tr key={`referral-${index + 1}`} className="border-b hover:bg-white/10 backdrop-blur-lg">
                 <td className="py-2 px-4">{index + 1}</td>
-                <td className="py-2 px-4">{truncateAddress(referral.userAddress)}</td>
+                <td className="py-2 px-4">
+                  <FrontendIdDisplay address={referral.userAddress} />
+                </td>
                 <td className="py-2 px-4">
                   {new Date(referral.activationTime * 1000).toLocaleDateString()}
                 </td>

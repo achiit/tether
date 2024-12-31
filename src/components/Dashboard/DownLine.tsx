@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useWallet } from '@/lib/hooks/useWallet';
 import { useContract } from '@/lib/hooks/useContract';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { truncateAddress } from '@/lib/utils/format';
+import { FrontendIdDisplay } from './FrontendIdDisplay';
 
 const DownLine = () => {
   const { address } = useWallet();
@@ -74,10 +74,14 @@ const DownLine = () => {
             </thead>
             <tbody>
               {downlineData.downlineAddresses.map((address, index) => (
-                <tr key={address} className="border-b hover:bg-white/10 backdrop-blur-lg">
-                  <td className="py-2 px-4">{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                  <td className="py-2 px-4">{truncateAddress(address)}</td>
-                  <td className="py-2 px-4">{truncateAddress(downlineData.sponsorAddresses[index])}</td>
+                <tr key={`${index + 1}`}>
+                  <td>{index + 1}</td>
+                  <td>
+                    <FrontendIdDisplay address={address} />
+                  </td>
+                  <td>
+                    <FrontendIdDisplay address={downlineData.sponsorAddresses[index]} />
+                  </td>
                 </tr>
               ))}
             </tbody>
