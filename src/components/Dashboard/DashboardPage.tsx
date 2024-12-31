@@ -1,18 +1,19 @@
 "use client";
 
-import { User, Wallet, Calendar, Users, Hash, Crown, Copy, Boxes, Link2, ChevronLeft, ChevronRight, Key, Landmark, BadgeDollarSign, FileInput, CircleDollarSign, Flame } from "lucide-react";
+import { User, Wallet, Calendar, Hash, Crown, Copy, Boxes, Link2, ChevronLeft, ChevronRight, Key, Landmark, BadgeDollarSign, FileInput, CircleDollarSign, Flame } from "lucide-react";
 import { useState, useEffect } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { formatUnits } from 'viem';
 import Link from "next/link";
-
 import { useWallet } from "@/lib/hooks/useWallet";
 import { useContract } from "@/lib/hooks/useContract";
 import { truncateAddress } from "@/lib/utils/format";
 import { LEVELS } from "@/lib/constants/levels";
 import SocialLinks from "./SocialLinks";
 import RoyaltySlab from "./RoyaltySlab";
-import type { UserStats, RecentIncomeEvents } from "@/types/contract";
+import type { UserStats, RecentIncomeEvents, Sponsor, UserProfileData } from "@/types/contract";
+import { useFrontendDisplay } from '@/lib/hooks/useFrontendDisplay';
+import { FrontendIdDisplay } from "./FrontendIdDisplay";
 
 function ProfileItem({ icon: Icon, label, value, }: { icon: React.ElementType; label: string; value: string }) {
   return (
@@ -26,7 +27,7 @@ function ProfileItem({ icon: Icon, label, value, }: { icon: React.ElementType; l
 
 const DashboardPage = () => {
   const { address, balances } = useWallet();
-  const { getUserStats, getLevelIncomes, getRecentIncomeEventsPaginated, register, upgrade } = useContract();
+  const { getUserStats, getLevelIncomes, getRecentIncomeEventsPaginated, register, upgrade, getSponsors } = useContract();
 
   const [isCopied, setIsCopied] = useState(false);
   const [referrerAddress, setReferrerAddress] = useState('');
@@ -35,22 +36,26 @@ const DashboardPage = () => {
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [levelIncomes, setLevelIncomes] = useState<bigint[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [referralCode, setReferralCode] = useState<string>('');
+  const [directSponsor, setDirectSponsor] = useState<Sponsor | null>(null);
+  const [matrixSponsor, setMatrixSponsor] = useState<Sponsor | null>(null);
   const itemsPerPage = 5;
   const [recentIncomes, setRecentIncomes] = useState<RecentIncomeEvents>({
-    userAddresses: [],
+    userAddresses: [],  
     levelNumbers: [],
     amounts: [],
     timestamps: [],
     totalCount: 0
   });
+  const [userProfileData, setUserProfileData] = useState<UserProfileData | null>(null);
 
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy text: ', err);
+    } catch {
+      return null;
     }
   };
 
@@ -61,16 +66,16 @@ const DashboardPage = () => {
       try {
         // First check if user is registered
         const stats = await getUserStats();
-        console.log('User stats:', stats);
-        
+        const sponsors = await getSponsors();
         if (stats) {
           setCurrentLevel(stats.currentLevel);
           setUserStats(stats);
           setIsRegistered(stats.currentLevel > 0);
-          console.log('User registration status:', stats.currentLevel);
+          // Transform array response into Sponsor objects
+          setDirectSponsor(sponsors ? { directSponsor: sponsors.directSponsor, matrixSponsor: sponsors.matrixSponsor } : null);
+          setMatrixSponsor(sponsors ? { directSponsor: sponsors.directSponsor, matrixSponsor: sponsors.matrixSponsor } : null);
         }
 
-        // Only fetch these if user is registered
         if ((stats?.currentLevel ?? 0) > 0) {
           const incomes = await getLevelIncomes();
           setLevelIncomes(incomes);
@@ -82,23 +87,17 @@ const DashboardPage = () => {
           );
           setRecentIncomes(resultInc);
         }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
+      } catch {
+        return null;
       }
     };
 
     fetchData();
-  }, [address, getUserStats, getLevelIncomes, getRecentIncomeEventsPaginated, currentPage]);
+  }, [address, getUserStats, getLevelIncomes, getRecentIncomeEventsPaginated, currentPage, getSponsors]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const refId = params.get('ref');
-    
-    console.log('URL Params Check:', {
-      fullUrl: window.location.href,
-      searchParams: window.location.search,
-      refId
-    });
 
     if (refId) {
       localStorage.setItem('tetherwave_refId', refId);
@@ -125,7 +124,7 @@ const DashboardPage = () => {
 
         console.log('Fetching referrer data for refId:', storedRefId);
         const response = await fetch(`https://node-referral-system.onrender.com/referral/${storedRefId}`);
-        
+
         console.log('API Response status:', response.status);
         if (!response.ok) {
           throw new Error(`API responded with status: ${response.status}`);
@@ -134,11 +133,9 @@ const DashboardPage = () => {
         const data = await response.json();
         console.log('API Response data:', data);
 
-        setReferrerAddress(data.referring_wallet);
+        setReferrerAddress(data.frontend_id);
+        console.log('Referrer address set:', data.frontend_id);
         console.log('Referrer address set:', data.referring_wallet);
-        
-        localStorage.removeItem('tetherwave_refId');
-        console.log('RefID removed from localStorage');
       } catch (error) {
         console.error('Error in fetchReferrerAddress:', error);
       }
@@ -147,22 +144,32 @@ const DashboardPage = () => {
     fetchReferrerAddress();
   }, [address]);
 
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (!address) return;
+      
+      try {
+        const response = await fetch(`https://node-referral-system.onrender.com/user/${address}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch user profile');
+        }
+        const data = await response.json();
+        setUserProfileData(data);
+        setReferralCode(data.referral_code);
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, [address]);
+
   const handleRegister = async () => {
     if (!address || !referrerAddress) {
-      console.log('Registration prerequisites not met:', {
-        hasAddress: !!address,
-        hasReferrerAddress: !!referrerAddress
-      });
       return;
     }
 
     try {
-      console.log('Starting registration process with:', {
-        userAddress: address,
-        referrerAddress
-      });
-
-      // First, register on blockchain
       await register(referrerAddress);
       console.log('Blockchain registration successful');
 
@@ -183,7 +190,7 @@ const DashboardPage = () => {
 
       const data = await response.json();
       console.log('Backend registration response data:', data);
-      
+
       // Update UI states
       setIsRegistered(true);
       setCurrentLevel(1);
@@ -193,7 +200,7 @@ const DashboardPage = () => {
 
       const referralLink = `${window.location.origin}/dashboard/?ref=${data.referral_code}`;
       console.log('Generated new referral link:', referralLink);
-      
+
       const referralLinkElement = document.querySelector('.referral-link');
       if (referralLinkElement) {
         referralLinkElement.setAttribute('data-referral', referralLink);
@@ -201,6 +208,8 @@ const DashboardPage = () => {
       }
 
       alert('Registration successful! Your referral link has been generated.');
+      localStorage.removeItem('tetherwave_refId');
+      console.log('RefID removed from localStorage');
     } catch (error) {
       console.error('Registration process failed:', error);
       alert('Registration failed. Please try again.');
@@ -221,6 +230,9 @@ const DashboardPage = () => {
     }
   };
 
+  const directSponsorId = useFrontendDisplay(directSponsor?.directSponsor?.toString());
+  const matrixSponsorId = useFrontendDisplay(matrixSponsor?.matrixSponsor?.toString());
+
   return (
     <div className="flex flex-col gap-4">
       <section className="lg:hidden flex justify-between items-center w-full overflow-y-auto drop-shadow-lg lg:p-4 py-4">
@@ -235,10 +247,31 @@ const DashboardPage = () => {
             <span>Profile Details</span>
           </div>
           <div className="grid lg:grid-cols-2 gap-2 lg:gap-4 mt-4">
-            <ProfileItem icon={Hash} label="User ID" value="123" />
-            <ProfileItem icon={Crown} label="Rank" value={`${currentLevel} - ${LEVELS.find(l => l.level === currentLevel)?.name || 'Unknown'}`} />
-            <ProfileItem icon={Calendar} label="Activation Date" value="2024-01-01" />
-            <ProfileItem icon={Users} label="Referred By" value="feygyfe...fegwu" />
+            <ProfileItem 
+              icon={Hash} 
+              label="User ID" 
+              value={userProfileData?.frontend_id || 'Not Available'} 
+            />
+            <ProfileItem 
+              icon={Crown} 
+              label="Rank" 
+              value={`${currentLevel} - ${LEVELS.find(l => l.level === currentLevel)?.name || 'Unknown'}`} 
+            />
+            <ProfileItem 
+              icon={Calendar} 
+              label="Activation Date" 
+              value={userProfileData ? new Date(userProfileData.created_at).toLocaleDateString() : 'Not Available'} 
+            />
+            <div className="flex flex-col items-start justify-center px-4 py-4 drop-shadow-lg shadow-inner rounded-md bg-white/40 dark:bg-white/5 backdrop-blur-lg">
+              <div className="flex flex-row items-center space-x-2">
+                <span className="text-sm font-medium">Direct Sponsor</span>
+                <span className="text-sm font-bold">{directSponsorId}</span>
+              </div>
+              <div className="flex flex-row items-center space-x-2">
+                <span className="text-sm font-medium">Matrix Sponsor</span>
+                <span className="text-sm font-bold">{matrixSponsorId}</span>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -253,17 +286,9 @@ const DashboardPage = () => {
               <div className="flex items-center space-x-2 px-4 py-4 drop-shadow-lg shadow-inner rounded-md bg-white/40 dark:bg-white/5 backdrop-blur-lg">
                 <FileInput className="h-4 lg:h-5 w-4 lg:w-4 text-muted-foreground" />
                 <span className="text-sm font-medium">Address:</span>
-                <button
-                  type="button"
-                  className="flex items-center space-x-2 cursor-pointer"
-                  onClick={() => address && copyToClipboard(address)}
-                  onKeyDown={(e) => e.key === 'Enter' && address && copyToClipboard(address)}
-                >
-                  <span className="font-bold">
-                    {address ? truncateAddress(address) : 'Not Connected'}
-                  </span>
-                  <Copy className={`h-4 w-4 transition-colors ${isCopied ? 'text-green-500' : 'text-muted-foreground hover:text-black'}`} />
-                </button>
+                <span className="font-bold">
+                  {address ? truncateAddress(address) : 'Not Connected'}
+                </span>
               </div>
               <div className="flex items-center space-x-2 px-4 py-4 drop-shadow-lg shadow-inner rounded-md bg-white/40 dark:bg-white/5 backdrop-blur-lg">
                 <Flame className="h-4 lg:h-5 w-4 lg:w-4 text-muted-foreground" />
@@ -319,13 +344,13 @@ const DashboardPage = () => {
                     className="flex items-center space-x-2 cursor-pointer referral-link"
                     onClick={() => {
                       const element = document.querySelector('.referral-link');
-                      const referralLink = element?.getAttribute('data-referral') || 
-                        `${window.location.origin}/?ref=${address}`;
+                      const referralLink = element?.getAttribute('data-referral') ||
+                        `${window.location.origin}/dashboard/?ref=${referralCode}`;
                       copyToClipboard(referralLink);
                     }}
                   >
                     <span className="bg-gradient-button px-2 py-1 rounded font-medium">
-                      {address ? truncateAddress(address) : 'Not Connected'}
+                      {referralCode ? truncateAddress(referralCode) : 'Not Generated'}
                     </span>
                     <Copy className={`h-4 w-4 transition-colors ${isCopied ? 'text-green-500' : 'text-muted-foreground hover:text-black'}`} />
                   </button>
@@ -474,6 +499,9 @@ const DashboardPage = () => {
       </section>
 
       <section className="mt-4 lg:mt-8">
+        <h3 className="text-5xl font-bold pb-2 text-center text-3d bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600 text-transparent/30 bg-clip-text">
+          Fortune Founder Reward
+        </h3>
         <RoyaltySlab />
       </section>
 
@@ -495,8 +523,10 @@ const DashboardPage = () => {
             </thead>
             <tbody>
               {recentIncomes.userAddresses.map((address, index) => (
-                <tr key={`${index + 1}`} className="border-b hover:bg-white/10 backdrop-blur-lg">
-                  <td className="py-2 px-4">{truncateAddress(address)}</td>
+                <tr key={`${index+1}`} className="border-b hover:bg-white/10 backdrop-blur-lg">
+                  <td className="py-2 px-4">
+                    <FrontendIdDisplay address={address} />
+                  </td>
                   <td className="py-2 px-4 text-green-600">
                     +{formatUnits(recentIncomes.amounts[index], 18)} USDT
                   </td>
@@ -555,9 +585,9 @@ const DashboardPage = () => {
       </section>
 
       <div
-        data-aos="fade-up"
-        data-aos-duration={500}
-        data-aos-anchor-placement="top-bottom"
+        // data-aos="fade-up"
+        // data-aos-duration={500}
+        // data-aos-anchor-placement="top-bottom"
         className="text-center text-xs lg:text-sm font-bold mt-4 lg:mt-8 mb-2">
         <p>TetherWave Contract opbnb.bscscan</p>
         <Link href="https://opbnb-testnet.bscscan.com/address/0xad7284Bf6fB1c725a7500C51b71847fEf2D2d17C" className="text-yellow-600 hover:underline">

@@ -44,3 +44,26 @@ export interface RoyaltyInfo {
     totalEarned: bigint[];
     qualifiedNewTiers: boolean[];
 }
+
+export interface Sponsor {
+    directSponsor: string[];
+    matrixSponsor: string[];
+}
+
+export interface LevelActivatedCount {
+    strongLeg: bigint;
+    weakLeg1: bigint;
+    weakLeg2: bigint;
+}
+
+export interface UserProfileData {
+    frontend_id: string;
+    created_at: string;
+    wallet_address: string;
+    referral_code: string;
+}
+
+export interface FrontendIdContextType {
+    getFrontendId: (address: string) => Promise<string>;
+    clearCache: () => void;
+}

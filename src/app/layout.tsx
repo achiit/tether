@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { ClientProviders } from "@/lib/ClientProviders";
 import { ThemeProviders } from "@/lib/ThemeProviders";
+import { FrontendIdProvider } from "@/contexts/FrontendIdContext";
 
 const glacier = localFont({
   src: "/fonts/Manrope-VariableFont_wght.ttf",
@@ -38,7 +39,9 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <ClientProviders>
-          <ThemeProviders>{children}</ThemeProviders>
+          <FrontendIdProvider>
+            <ThemeProviders>{children}</ThemeProviders>
+          </FrontendIdProvider>
         </ClientProviders>
       </body>
     </html>

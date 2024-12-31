@@ -12,17 +12,28 @@ const isFullyRegistered = (info: RoyaltyInfo | null): boolean => {
 
 const RoyaltySlab = () => {
   const slabs = [
-    { title: 'R1', description: 'Royalty Slab 1', bg: "bg-light-gradient dark:bg-dark-gradient" },
-    { title: 'R2', description: 'Royalty Slab 2', bg: "bg-light-gradient dark:bg-dark-gradient" },
-    { title: 'R3', description: 'Royalty Slab 3', bg: "bg-light-gradient dark:bg-dark-gradient" },
-    { title: 'R4', description: 'Royalty Slab 4', bg: "bg-light-gradient dark:bg-dark-gradient" },
+    { title: 'FFR1', description: 'Royalty Slab 1', bg: "bg-light-gradient dark:bg-dark-gradient" },
+    { title: 'FFR2', description: 'Royalty Slab 2', bg: "bg-light-gradient dark:bg-dark-gradient" },
+    { title: 'FFR3', description: 'Royalty Slab 3', bg: "bg-light-gradient dark:bg-dark-gradient" },
+    { title: 'FFR4', description: 'Royalty Slab 4', bg: "bg-light-gradient dark:bg-dark-gradient" },
   ];
 
   const { address } = useWallet();
-  const { checkRoyaltyQualification, registerRoyaltyTiers, getUserRoyaltyInfo, distributeTierRoyalties, getTierAchieversCount, getNextDistributionTime } = useContract();
+  const { checkRoyaltyQualification, registerRoyaltyTiers, getUserRoyaltyInfo, distributeTierRoyalties, getTierAchieversCount, getNextDistributionTime, getLevelActivatedCount } = useContract();
   const [qualifiedTiers, setQualifiedTiers] = useState<boolean[]>([]);
   const [royaltyInfo, setRoyaltyInfo] = useState<RoyaltyInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [legProgress, setLegProgress] = useState<{
+    tier1: { total: number, strongLeg: bigint, weakLeg1: bigint, weakLeg2: bigint },
+    tier2: { total: number, strongLeg: bigint, weakLeg1: bigint, weakLeg2: bigint },
+    tier3: { total: number, strongLeg: bigint, weakLeg1: bigint, weakLeg2: bigint },
+    tier4: { total: number, strongLeg: bigint, weakLeg1: bigint, weakLeg2: bigint }
+  }>({
+    tier1: { total: 6, strongLeg: BigInt(0), weakLeg1: BigInt(0), weakLeg2: BigInt(0) },
+    tier2: { total: 8, strongLeg: BigInt(0), weakLeg1: BigInt(0), weakLeg2: BigInt(0) },
+    tier3: { total: 10, strongLeg: BigInt(0), weakLeg1: BigInt(0), weakLeg2: BigInt(0) },
+    tier4: { total: 12, strongLeg: BigInt(0), weakLeg1: BigInt(0), weakLeg2: BigInt(0) }
+  });
 
   // Clear error after 5 seconds
   useEffect(() => {
@@ -140,6 +151,50 @@ const RoyaltySlab = () => {
     };
   }, [handleRoyaltyDistribution]);
 
+  useEffect(() => {
+    const fetchLegProgress = async () => {
+      if (!address) return;
+
+      try {
+        const tier1Data = await getLevelActivatedCount(address, 2);
+        const tier2Data = await getLevelActivatedCount(address, 3);
+        const tier3Data = await getLevelActivatedCount(address, 4);
+        const tier4Data = await getLevelActivatedCount(address, 5);
+
+        setLegProgress({
+          tier1: { 
+            total: 6, 
+            strongLeg: tier1Data?.strongLeg || BigInt(0),
+            weakLeg1: tier1Data?.weakLeg1 || BigInt(0),
+            weakLeg2: tier1Data?.weakLeg2 || BigInt(0)
+          },
+          tier2: { 
+            total: 8, 
+            strongLeg: tier2Data?.strongLeg || BigInt(0),
+            weakLeg1: tier2Data?.weakLeg1 || BigInt(0),
+            weakLeg2: tier2Data?.weakLeg2 || BigInt(0)
+          },
+          tier3: { 
+            total: 10, 
+            strongLeg: tier3Data?.strongLeg || BigInt(0),
+            weakLeg1: tier3Data?.weakLeg1 || BigInt(0),
+            weakLeg2: tier3Data?.weakLeg2 || BigInt(0)
+          },
+          tier4: { 
+            total: 12, 
+            strongLeg: tier4Data?.strongLeg || BigInt(0),
+            weakLeg1: tier4Data?.weakLeg1 || BigInt(0),
+            weakLeg2: tier4Data?.weakLeg2 || BigInt(0)
+          }
+        });
+      } catch (error) {
+        console.error('Error fetching leg progress:', error);
+      }
+    };
+
+    fetchLegProgress();
+  }, [address, getLevelActivatedCount]);
+
   const tierAmounts = [
     BigInt('5000000000000000000'),   // $5 USDT for tier 1
     BigInt('10000000000000000000'),  // $10 USDT for tier 2
@@ -205,12 +260,62 @@ const RoyaltySlab = () => {
                 )}
               </div>
             </div>
-            {/* <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-              Status: {parsedRoyaltyInfo?.achievedTiers[index] ? 'Active' : 'Inactive'}
-            </div> */}
 
             {parsedRoyaltyInfo?.achievedTiers[index] && (
               <div className="mt-2 space-y-2">
+                <div className="space-y-4">
+                  {/* Strong Leg Progress */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className='text-black font-semibold'>Strong Leg</span>
+                      <span>
+                        {index === 0 && `${Number(legProgress.tier1.strongLeg)}/${legProgress.tier1.total}`}
+                        {index === 1 && `${Number(legProgress.tier2.strongLeg)}/${legProgress.tier2.total}`}
+                        {index === 2 && `${Number(legProgress.tier3.strongLeg)}/${legProgress.tier3.total}`}
+                        {index === 3 && `${Number(legProgress.tier4.strongLeg)}/${legProgress.tier4.total}`}
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div
+                        className="bg-green-600 h-2.5 rounded-full transition-all duration-300"
+                        style={{
+                          width: `${
+                            index === 0 ? (Number(legProgress.tier1.strongLeg) >= legProgress.tier1.total ? '100' : (Number(legProgress.tier1.strongLeg) / legProgress.tier1.total) * 100) :
+                            index === 1 ? (Number(legProgress.tier2.strongLeg) >= legProgress.tier2.total ? '100' : (Number(legProgress.tier2.strongLeg) / legProgress.tier2.total) * 100) :
+                            index === 2 ? (Number(legProgress.tier3.strongLeg) >= legProgress.tier3.total ? '100' : (Number(legProgress.tier3.strongLeg) / legProgress.tier3.total) * 100) :
+                            (Number(legProgress.tier4.strongLeg) >= legProgress.tier4.total ? '100' : (Number(legProgress.tier4.strongLeg) / legProgress.tier4.total) * 100)
+                          }%`
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Weak Leg Progress */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className='text-black font-semibold'>Weak Leg</span>
+                      <span>
+                        {index === 0 && `${Number(legProgress.tier1.weakLeg1 + legProgress.tier1.weakLeg2)}/${legProgress.tier1.total}`}
+                        {index === 1 && `${Number(legProgress.tier2.weakLeg1 + legProgress.tier2.weakLeg2)}/${legProgress.tier2.total}`}
+                        {index === 2 && `${Number(legProgress.tier3.weakLeg1 + legProgress.tier3.weakLeg2)}/${legProgress.tier3.total}`}
+                        {index === 3 && `${Number(legProgress.tier4.weakLeg1 + legProgress.tier4.weakLeg2)}/${legProgress.tier4.total}`}
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div
+                        className="bg-blue h-2.5 rounded-full transition-all duration-300"
+                        style={{
+                          width: `${
+                            index === 0 ? (Number(legProgress.tier1.weakLeg1 + legProgress.tier1.weakLeg2) >= legProgress.tier1.total ? '50' : ((Number(legProgress.tier1.weakLeg1 + legProgress.tier1.weakLeg2) / legProgress.tier1.total) * 50)) :
+                            index === 1 ? (Number(legProgress.tier2.weakLeg1 + legProgress.tier2.weakLeg2) >= legProgress.tier2.total ? '50' : ((Number(legProgress.tier2.weakLeg1 + legProgress.tier2.weakLeg2) / legProgress.tier2.total) * 50)) :
+                            index === 2 ? (Number(legProgress.tier3.weakLeg1 + legProgress.tier3.weakLeg2) >= legProgress.tier3.total ? '50' : ((Number(legProgress.tier3.weakLeg1 + legProgress.tier3.weakLeg2) / legProgress.tier3.total) * 50)) :
+                            (Number(legProgress.tier4.weakLeg1 + legProgress.tier4.weakLeg2) >= legProgress.tier4.total ? '50' : ((Number(legProgress.tier4.weakLeg1 + legProgress.tier4.weakLeg2) / legProgress.tier4.total) * 50))
+                          }%`
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
                 <div className="flex justify-between items-center">
                   <div className='flex justify-start items-center gap-1 text-gray-600 dark:text-gray-400'>
                     <HandCoins className="w-4 h-4" />
@@ -277,6 +382,73 @@ const RoyaltySlab = () => {
           </div>
         ))}
       </div >
+      {/* <div className="space-y-4 mt-6">
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <span className='text-black font-semibold'>Tier 1 Strong Leg (Apprentice)</span>
+            <span>{Number(strongLegProgress.tier1.current)}/{strongLegProgress.tier1.total}</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div
+              className="bg-green-500 h-2.5 rounded-full transition-all duration-300"
+              style={{
+                width: `${Number(strongLegProgress.tier1.current) >= strongLegProgress.tier1.total ?
+                  '100' :
+                  (Number(strongLegProgress.tier1.current) / strongLegProgress.tier1.total) * 100}%`,
+                display: Number(strongLegProgress.tier1.current) > 0 ? 'block' : 'block'
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <span className='text-black font-semibold'>Tier 2 Strong Leg (Adventure)</span>
+            <span>{Number(strongLegProgress.tier2.current)}/{strongLegProgress.tier2.total}</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div
+              className="bg-green-500 h-2.5 rounded-full transition-all duration-300"
+              style={{
+                width: `${Number(strongLegProgress.tier2.current) >= strongLegProgress.tier2.total ?
+                  '100' :
+                  (Number(strongLegProgress.tier2.current) / strongLegProgress.tier2.total) * 100}%`,
+                display: Number(strongLegProgress.tier2.current) > 0 ? 'block' : 'block'
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <span className='text-black font-semibold'>Tier 3 Strong Leg (Master)</span>
+            <span>{Number(strongLegProgress.tier3.current)}/{strongLegProgress.tier3.total}</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div
+              className="bg-green-500 h-2.5 rounded-full transition-all duration-300"
+              style={{
+                width: `${Math.min((Number(strongLegProgress.tier3.current) / strongLegProgress.tier3.total) * 100, 100)}%`
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <span className='text-black font-semibold'>Tier 4 Strong Leg (Legend)</span>
+            <span>{Number(strongLegProgress.tier4.current)}/{strongLegProgress.tier4.total}</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div
+              className="bg-green-500 h-2.5 rounded-full transition-all duration-300"
+              style={{
+                width: `${Math.min((Number(strongLegProgress.tier4.current) / strongLegProgress.tier4.total) * 100, 100)}%`
+              }}
+            />
+          </div>
+        </div>
+      </div> */}
     </>
   );
 };
