@@ -44,3 +44,8 @@ export interface RoyaltyInfo {
     totalEarned: bigint[];
     qualifiedNewTiers: boolean[];
 }
+
+export interface Sponsor {
+    directSponsor: string[];
+    matrixSponsor: string[];
+} 

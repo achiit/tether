@@ -12,10 +12,10 @@ const isFullyRegistered = (info: RoyaltyInfo | null): boolean => {
 
 const RoyaltySlab = () => {
   const slabs = [
-    { title: 'R1', description: 'Royalty Slab 1', bg: "bg-light-gradient dark:bg-dark-gradient" },
-    { title: 'R2', description: 'Royalty Slab 2', bg: "bg-light-gradient dark:bg-dark-gradient" },
-    { title: 'R3', description: 'Royalty Slab 3', bg: "bg-light-gradient dark:bg-dark-gradient" },
-    { title: 'R4', description: 'Royalty Slab 4', bg: "bg-light-gradient dark:bg-dark-gradient" },
+    { title: 'FFR1', description: 'Royalty Slab 1', bg: "bg-light-gradient dark:bg-dark-gradient" },
+    { title: 'FFR2', description: 'Royalty Slab 2', bg: "bg-light-gradient dark:bg-dark-gradient" },
+    { title: 'FFR3', description: 'Royalty Slab 3', bg: "bg-light-gradient dark:bg-dark-gradient" },
+    { title: 'FFR4', description: 'Royalty Slab 4', bg: "bg-light-gradient dark:bg-dark-gradient" },
   ];
 
   const { address } = useWallet();

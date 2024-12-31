@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { getContracts } from '../constants/contracts'
 import { useAccount } from 'wagmi'
 import { publicClient } from '../constants/contracts'
-import type { UserStats, ReferralData, RoyaltyInfo } from '@/types/contract'
+import type { UserStats, ReferralData, RoyaltyInfo, Sponsor } from '@/types/contract'
 import type { Address } from 'viem'
 import { createWalletClient } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -46,9 +46,27 @@ export function useContract() {
             }) as [number[], bigint[]]
 
             return stats[1]
-        } catch (error) {
-            console.error('Error fetching level incomes:', error)
+        } catch {
             return []
+        }
+    }, [address])
+
+    const getSponsors = useCallback(async (): Promise<Sponsor | null> => {
+        if (!address) return null
+        try {
+            const { tetherWave } = getContracts()
+            const sponsors = await tetherWave.publicClient.readContract({
+                ...tetherWave,
+                functionName: 'getMatrixPosition',
+                args: [address]
+            }) as string[]
+            
+            return {
+                directSponsor: [sponsors[0]],
+                matrixSponsor: [sponsors[1]]
+            }
+        } catch {
+            return null
         }
     }, [address])
 
@@ -86,8 +104,7 @@ export function useContract() {
                 timestamps: timestamps.map(Number),
                 totalCount
             };
-        } catch (error) {
-            console.error('Error fetching recent income events:', error);
+        } catch {
             return {
                 userAddresses: [],
                 levelNumbers: [],
@@ -298,8 +315,7 @@ export function useContract() {
                 functionName: 'getTierAchieversCount',
             }) as number[];
             return count;
-        } catch (error) {
-            console.error('Error getting tier achievers count:', error);
+        } catch {
             return [0, 0, 0, 0];
         }
     }, []);
@@ -386,6 +402,7 @@ export function useContract() {
         getUserRoyaltyInfo,
         distributeTierRoyalties,
         getTierAchieversCount,
-        getNextDistributionTime
+        getNextDistributionTime,
+        getSponsors
     }
 }
