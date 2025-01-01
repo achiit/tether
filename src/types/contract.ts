@@ -67,3 +67,12 @@ export interface FrontendIdContextType {
     getFrontendId: (address: string) => Promise<string>;
     clearCache: () => void;
 }
+
+export interface LegProgress {
+    total: number;
+    requiredStrong: number;
+    strongLeg: bigint;
+    weakLeg1: bigint;
+    weakLeg2: bigint;
+    requiredLevel: number;
+}
