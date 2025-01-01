@@ -10,6 +10,7 @@ const DownLine = () => {
   const { address } = useWallet();
   const { getDownlineByDepthPaginated } = useContract();
   const [selectedLevel, setSelectedLevel] = useState(1);
+  const { currentLevel } = useWallet();
   const [downlineData, setDownlineData] = useState<{
     downlineAddresses: `0x${string}`[];
     sponsorAddresses: `0x${string}`[];
@@ -77,7 +78,7 @@ const DownLine = () => {
                 <tr key={`${index + 1}`}>
                   <td>{index + 1}</td>
                   <td>
-                    <FrontendIdDisplay address={address} isRegistered={true} />
+                    <FrontendIdDisplay address={address} isRegistered={currentLevel > 0} />
                   </td>
                   <td>
                     <FrontendIdDisplay address={downlineData.sponsorAddresses[index]} isRegistered={true} />
