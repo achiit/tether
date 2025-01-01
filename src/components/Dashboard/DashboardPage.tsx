@@ -164,89 +164,13 @@ const DashboardPage = () => {
     fetchUserProfile();
   }, [address]);
 
-  // const handleRegister = async () => {
-  //   if (!address || !referrerAddress) {
-  //     console.error("Missing address or referrer address");
-  //     return;
-  //   }
-
-  //   try {
-  //     // First do blockchain registration
-  //     try {
-  //       await register(referrerAddress);
-  //       console.log('Blockchain registration successful');
-  //     } catch (blockchainError) {
-  //       console.error('Blockchain registration failed:', blockchainError);
-  //       throw new Error('Blockchain registration failed');
-  //     }
-
-  //     // Wait for transaction confirmation
-  //     await new Promise(resolve => setTimeout(resolve, 3000));
-
-  //     // Then do backend registration
-  //     try {
-  //       const response = await fetch('https://node-referral-system.onrender.com/register-referred', {
-  //         method: 'POST',
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         },
-  //         body: JSON.stringify({
-  //           wallet_address: address,
-  //           referred_by: referrerAddress
-  //         })
-  //       });
-
-  //       console.log('Backend response status:', response.status);
-        
-  //       // Parse response as JSON directly instead of reading as text first
-  //       const data = await response.json();
-  //       console.log('Backend response:', data);
-
-  //       if (!response.ok) {
-  //         throw new Error(`Backend registration failed: ${response.status} - ${JSON.stringify(data)}`);
-  //       }
-
-  //       // Update UI states
-  //       setIsRegistered(true);
-  //       setCurrentLevel(1);
-  //       const stats = await getUserStats();
-  //       console.log('Updated user stats:', stats);
-  //       if (stats) setUserStats(stats);
-
-  //       const referralLink = `${window.location.origin}/dashboard/?ref=${data.referral_code}`;
-  //       console.log('Generated new referral link:', referralLink);
-
-  //       const referralLinkElement = document.querySelector('.referral-link');
-  //       if (referralLinkElement) {
-  //         referralLinkElement.setAttribute('data-referral', referralLink);
-  //         console.log('Referral link updated in DOM');
-  //       }
-
-  //       alert('Registration successful! Your referral link has been generated.');
-  //       localStorage.removeItem('tetherwave_refId');
-  //       console.log('RefID removed from localStorage');
-
-  //     } catch (backendError) {
-  //       console.error('Backend registration failed:', backendError);
-  //       throw new Error('Backend registration failed');
-  //     }
-
-  //   } catch (error) {
-  //     console.error('Registration process failed:', error);
-  //     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-  //     alert(`Registration failed: ${errorMessage}`);
-  //     throw new Error('Failed to register');
-  //   }
-  // };
-
   const handleRegister = async () => {
     if (!address || !referrerAddress) {
       console.error("Missing address or referrer address");
       return;
     }
-  
+
     try {
-      // First do blockchain registration
       try {
         await register(referrerAddress);
         console.log('Blockchain registration successful');
@@ -254,11 +178,9 @@ const DashboardPage = () => {
         console.error('Blockchain registration failed:', blockchainError);
         throw new Error('Blockchain registration failed');
       }
-  
-      // Wait for transaction confirmation
+
       await new Promise(resolve => setTimeout(resolve, 3000));
-  
-      // Then do backend registration
+
       try {
         const response = await fetch('https://node-referral-system.onrender.com/register-referred', {
           method: 'POST',
@@ -270,49 +192,48 @@ const DashboardPage = () => {
             referred_by: referrerAddress
           })
         });
-  
+
         const data = await response.json();
         if (!response.ok) {
           throw new Error(`Backend registration failed: ${response.status} - ${JSON.stringify(data)}`);
         }
-  
-        // Update UI states
+
         setIsRegistered(true);
         setCurrentLevel(1);
-        
-        // Remove referral data from localStorage
+
         localStorage.removeItem('tetherwave_refId');
-  
-        // Wait for a moment to let backend sync
+
         await new Promise(resolve => setTimeout(resolve, 2000));
-  
-        // Fetch all updated data silently
-        const [stats, profile] = await Promise.all([
+
+        const [stats, profile, sponsors] = await Promise.all([
           getUserStats(),
-          fetch(`https://node-referral-system.onrender.com/user/${address}`).then(r => r.json())
+          fetch(`https://node-referral-system.onrender.com/user/${address}`).then(r => r.json()),
+          getSponsors()
         ]);
-  
-        // Update all states at once
+
         if (stats) setUserStats(stats);
         if (profile) {
           setUserProfileData(profile);
           setReferralCode(profile.referral_code);
         }
-  
-        // Set referral link
+        if (sponsors) {
+          setDirectSponsor(sponsors ? { directSponsor: sponsors.directSponsor, matrixSponsor: sponsors.matrixSponsor } : null);
+          setMatrixSponsor(sponsors ? { directSponsor: sponsors.directSponsor, matrixSponsor: sponsors.matrixSponsor } : null);
+        }
+
         const referralLink = `${window.location.origin}/dashboard/?ref=${data.referral_code}`;
         const referralLinkElement = document.querySelector('.referral-link');
         if (referralLinkElement) {
           referralLinkElement.setAttribute('data-referral', referralLink);
         }
-  
+
         alert('Registration successful!');
-  
+
       } catch (backendError) {
         console.error('Backend registration failed:', backendError);
         throw new Error('Backend registration failed');
       }
-  
+
     } catch (error) {
       console.error('Registration process failed:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
