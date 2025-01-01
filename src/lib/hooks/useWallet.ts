@@ -10,6 +10,7 @@ export function useWallet() {
     const [isRegistered, setIsRegistered] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
     const { getUserStats } = useContract()
+    const [currentLevel, setCurrentLevel] = useState(0)
 
     const { data: usdtBalance } = useBalance({
         address,
@@ -47,6 +48,15 @@ export function useWallet() {
         checkRegistrationStatus()
     }, [checkRegistrationStatus])
 
+    useEffect(() => {
+        const fetchLevel = async () => {
+            if (!address) return;
+            const stats = await getUserStats();
+            if (stats) setCurrentLevel(stats.currentLevel);
+        };
+        fetchLevel();
+    }, [address, getUserStats]);
+
     return {
         address,
         isConnected,
@@ -54,6 +64,7 @@ export function useWallet() {
         isLoading,
         chainId,
         balances: formattedBalances,
+        currentLevel,
         checkRegistrationStatus,
     }
 }

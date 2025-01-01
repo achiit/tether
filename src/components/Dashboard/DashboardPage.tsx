@@ -41,7 +41,7 @@ const DashboardPage = () => {
   const [matrixSponsor, setMatrixSponsor] = useState<Sponsor | null>(null);
   const itemsPerPage = 5;
   const [recentIncomes, setRecentIncomes] = useState<RecentIncomeEvents>({
-    userAddresses: [],  
+    userAddresses: [],
     levelNumbers: [],
     amounts: [],
     timestamps: [],
@@ -147,7 +147,7 @@ const DashboardPage = () => {
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (!address) return;
-      
+
       try {
         const response = await fetch(`https://node-referral-system.onrender.com/user/${address}`);
         if (!response.ok) {
@@ -164,55 +164,131 @@ const DashboardPage = () => {
     fetchUserProfile();
   }, [address]);
 
+  // const handleRegister = async () => {
+  //   if (!address || !referrerAddress) {
+  //     return;
+  //   }
+
+  //   try {
+  //     await register(referrerAddress);
+  //     console.log('Blockchain registration successful');
+
+  //     // Then, register referral in backend
+  //     const response = await fetch('https://node-referral-system.onrender.com/register-referred', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         wallet_address: address,
+  //         referred_by: referrerAddress
+  //       })
+  //     });
+
+  //     console.log('Backend registration response status:', response.status);
+  //     if (!response.ok) throw new Error('Failed to register referral');
+
+  //     const data = await response.json();
+  //     console.log('Backend registration response data:', data);
+
+  //     // Update UI states
+  //     setIsRegistered(true);
+  //     setCurrentLevel(1);
+  //     const stats = await getUserStats();
+  //     console.log('Updated user stats:', stats);
+  //     if (stats) setUserStats(stats);
+
+  //     const referralLink = `${window.location.origin}/dashboard/?ref=${data.referral_code}`;
+  //     console.log('Generated new referral link:', referralLink);
+
+  //     const referralLinkElement = document.querySelector('.referral-link');
+  //     if (referralLinkElement) {
+  //       referralLinkElement.setAttribute('data-referral', referralLink);
+  //       console.log('Referral link updated in DOM');
+  //     }
+
+  //     alert('Registration successful! Your referral link has been generated.');
+  //     localStorage.removeItem('tetherwave_refId');
+  //     console.log('RefID removed from localStorage');
+  //   } catch (error) {
+  //     console.error('Registration process failed:', error);
+  //     alert('Registration failed. Please try again.');
+  //   }
+  // };
+
   const handleRegister = async () => {
     if (!address || !referrerAddress) {
+      console.error("Missing address or referrer address");
       return;
     }
 
     try {
-      await register(referrerAddress);
-      console.log('Blockchain registration successful');
-
-      // Then, register referral in backend
-      const response = await fetch('https://node-referral-system.onrender.com/register-referred', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          wallet_address: address,
-          referred_by: referrerAddress
-        })
-      });
-
-      console.log('Backend registration response status:', response.status);
-      if (!response.ok) throw new Error('Failed to register referral');
-
-      const data = await response.json();
-      console.log('Backend registration response data:', data);
-
-      // Update UI states
-      setIsRegistered(true);
-      setCurrentLevel(1);
-      const stats = await getUserStats();
-      console.log('Updated user stats:', stats);
-      if (stats) setUserStats(stats);
-
-      const referralLink = `${window.location.origin}/dashboard/?ref=${data.referral_code}`;
-      console.log('Generated new referral link:', referralLink);
-
-      const referralLinkElement = document.querySelector('.referral-link');
-      if (referralLinkElement) {
-        referralLinkElement.setAttribute('data-referral', referralLink);
-        console.log('Referral link updated in DOM');
+      // First do blockchain registration
+      try {
+        await register(referrerAddress);
+        console.log('Blockchain registration successful');
+      } catch (blockchainError) {
+        console.error('Blockchain registration failed:', blockchainError);
+        throw new Error('Blockchain registration failed');
       }
 
-      alert('Registration successful! Your referral link has been generated.');
-      localStorage.removeItem('tetherwave_refId');
-      console.log('RefID removed from localStorage');
+      // Wait for transaction confirmation
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
+      // Then do backend registration
+      try {
+        const response = await fetch('https://node-referral-system.onrender.com/register-referred', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            wallet_address: address,
+            referred_by: referrerAddress
+          })
+        });
+
+        console.log('Backend response status:', response.status);
+        const responseText = await response.text();
+        console.log('Backend response:', responseText);
+
+        if (!response.ok) {
+          throw new Error(`Backend registration failed: ${response.status} - ${responseText}`);
+        }
+
+        const data = await response.json();
+        console.log('Backend registration response data:', data);
+
+        // Update UI states
+        setIsRegistered(true);
+        setCurrentLevel(1);
+        const stats = await getUserStats();
+        console.log('Updated user stats:', stats);
+        if (stats) setUserStats(stats);
+
+        const referralLink = `${window.location.origin}/dashboard/?ref=${data.referral_code}`;
+        console.log('Generated new referral link:', referralLink);
+
+        const referralLinkElement = document.querySelector('.referral-link');
+        if (referralLinkElement) {
+          referralLinkElement.setAttribute('data-referral', referralLink);
+          console.log('Referral link updated in DOM');
+        }
+
+        alert('Registration successful! Your referral link has been generated.');
+        localStorage.removeItem('tetherwave_refId');
+        console.log('RefID removed from localStorage');
+
+      } catch (backendError) {
+        console.error('Backend registration failed:', backendError);
+        throw new Error('Backend registration failed');
+      }
+
     } catch (error) {
       console.error('Registration process failed:', error);
-      alert('Registration failed. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      alert(`Registration failed: ${errorMessage}`);
+      throw new Error('Failed to register');
     }
   };
 
@@ -247,20 +323,20 @@ const DashboardPage = () => {
             <span>Profile Details</span>
           </div>
           <div className="grid lg:grid-cols-2 gap-2 lg:gap-4 mt-4">
-            <ProfileItem 
-              icon={Hash} 
-              label="User ID" 
-              value={userProfileData?.frontend_id || 'Not Available'} 
+            <ProfileItem
+              icon={Hash}
+              label="User ID"
+              value={userProfileData?.frontend_id || 'Not Available'}
             />
-            <ProfileItem 
-              icon={Crown} 
-              label="Rank" 
-              value={`${currentLevel} - ${LEVELS.find(l => l.level === currentLevel)?.name || 'Unknown'}`} 
+            <ProfileItem
+              icon={Crown}
+              label="Rank"
+              value={`${currentLevel} - ${LEVELS.find(l => l.level === currentLevel)?.name || 'Unknown'}`}
             />
-            <ProfileItem 
-              icon={Calendar} 
-              label="Activation Date" 
-              value={userProfileData ? new Date(userProfileData.created_at).toLocaleDateString() : 'Not Available'} 
+            <ProfileItem
+              icon={Calendar}
+              label="Activation Date"
+              value={userProfileData ? new Date(userProfileData.created_at).toLocaleDateString() : 'Not Available'}
             />
             <div className="flex flex-col items-start justify-center px-4 py-4 drop-shadow-lg shadow-inner rounded-md bg-white/40 dark:bg-white/5 backdrop-blur-lg">
               <div className="flex flex-row items-center space-x-2">
@@ -523,9 +599,9 @@ const DashboardPage = () => {
             </thead>
             <tbody>
               {recentIncomes.userAddresses.map((address, index) => (
-                <tr key={`${index+1}`} className="border-b hover:bg-white/10 backdrop-blur-lg">
+                <tr key={`${index + 1}`} className="border-b hover:bg-white/10 backdrop-blur-lg">
                   <td className="py-2 px-4">
-                    <FrontendIdDisplay address={address} />
+                    <FrontendIdDisplay address={address} isRegistered={currentLevel > 0} />
                   </td>
                   <td className="py-2 px-4 text-green-600">
                     +{formatUnits(recentIncomes.amounts[index], 18)} USDT
