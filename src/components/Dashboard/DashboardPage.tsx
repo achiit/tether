@@ -249,15 +249,14 @@ const DashboardPage = () => {
         });
 
         console.log('Backend response status:', response.status);
-        const responseText = await response.text();
-        console.log('Backend response:', responseText);
+        
+        // Parse response as JSON directly instead of reading as text first
+        const data = await response.json();
+        console.log('Backend response:', data);
 
         if (!response.ok) {
-          throw new Error(`Backend registration failed: ${response.status} - ${responseText}`);
+          throw new Error(`Backend registration failed: ${response.status} - ${JSON.stringify(data)}`);
         }
-
-        const data = await response.json();
-        console.log('Backend registration response data:', data);
 
         // Update UI states
         setIsRegistered(true);
