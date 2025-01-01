@@ -77,10 +77,10 @@ const DownLine = () => {
                 <tr key={`${index + 1}`}>
                   <td>{index + 1}</td>
                   <td>
-                    <FrontendIdDisplay address={address} />
+                    <FrontendIdDisplay address={address} isRegistered={true} />
                   </td>
                   <td>
-                    <FrontendIdDisplay address={downlineData.sponsorAddresses[index]} />
+                    <FrontendIdDisplay address={downlineData.sponsorAddresses[index]} isRegistered={true} />
                   </td>
                 </tr>
               ))}

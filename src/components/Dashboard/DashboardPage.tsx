@@ -230,8 +230,8 @@ const DashboardPage = () => {
     }
   };
 
-  const directSponsorId = useFrontendDisplay(directSponsor?.directSponsor?.toString());
-  const matrixSponsorId = useFrontendDisplay(matrixSponsor?.matrixSponsor?.toString());
+  const directSponsorId = useFrontendDisplay(directSponsor?.directSponsor?.toString(), true);
+  const matrixSponsorId = useFrontendDisplay(matrixSponsor?.matrixSponsor?.toString(), true);
 
   return (
     <div className="flex flex-col gap-4">

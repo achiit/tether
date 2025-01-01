@@ -57,7 +57,7 @@ const Referrals = () => {
               <tr key={`referral-${index + 1}`} className="border-b hover:bg-white/10 backdrop-blur-lg">
                 <td className="py-2 px-4">{index + 1}</td>
                 <td className="py-2 px-4">
-                  <FrontendIdDisplay address={referral.userAddress} />
+                  <FrontendIdDisplay address={referral.userAddress}  isRegistered={referral.currentLevel > 0}  />
                 </td>
                 <td className="py-2 px-4">
                   {new Date(referral.activationTime * 1000).toLocaleDateString()}

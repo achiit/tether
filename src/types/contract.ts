@@ -76,3 +76,8 @@ export interface LegProgress {
     weakLeg2: bigint;
     requiredLevel: number;
 }
+
+export interface FrontendIdDisplayProps {
+    address?: string;
+    isRegistered?: boolean;
+}
