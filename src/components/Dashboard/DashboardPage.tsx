@@ -133,7 +133,7 @@ const DashboardPage = () => {
         const data = await response.json();
         console.log('API Response data:', data);
 
-        setReferrerAddress(data.frontend_id);
+        setReferrerAddress(data.referring_wallet);
         console.log('Referrer address set:', data.frontend_id);
         console.log('Referrer address set:', data.referring_wallet);
       } catch (error) {
