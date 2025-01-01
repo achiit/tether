@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useFrontendId } from '@/contexts/FrontendIdContext';
 
-export function useFrontendDisplay(address: string | undefined) {
+export function useFrontendDisplay(address: string | undefined, isRegistered = true) {
     const [displayId, setDisplayId] = useState<string>('Loading...');
     const { getFrontendId } = useFrontendId();
 
     useEffect(() => {
-        if (!address) {
-            setDisplayId('Not Available');
+        if (!address || !isRegistered) {
+            const truncated = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'Not Available';
+            setDisplayId(truncated);
             return;
         }
 
@@ -25,7 +26,7 @@ export function useFrontendDisplay(address: string | undefined) {
         return () => {
             isMounted = false;
         };
-    }, [address, getFrontendId]);
+    }, [address, getFrontendId, isRegistered]);
 
     return displayId;
 }
