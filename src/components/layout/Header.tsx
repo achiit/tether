@@ -129,7 +129,7 @@ export default Header;
 
 const BrandLogo = () => (
   <Link href="/" className="flex items-center justify-start gap-2">
-    <div className="w-16 h-16 rounded-full overflow-hidden bg-white flex items-center justify-center">
+    <div className="w-16 h-10 rounded-md overflow-hidden bg-white flex items-center justify-center">
       <Image
         src="/images/logo.jpg"
         alt="Logo"

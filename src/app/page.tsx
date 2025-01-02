@@ -11,9 +11,23 @@ import Container from "@/components/Container";
 
 export default function Home() {
   return (
-    <main className="relative min-h-screen bg-white w-full">
+    <main className="relative min-h-screen bg-white text-black w-full">
       <GradientCursor />
       <Header />
+
+      <section className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-screen w-full overflow-hidden">
+        <div className="w-full h-full">
+          <Image
+            src="/images/bnb-bg.png"
+            alt="tether Logo Animation"
+            width={1000}
+            height={1000}
+            quality={100}
+            priority
+            className="object-cover relative z-10 w-full h-full opacity-10"
+          />
+        </div>
+      </section>
 
       {/* Hero Section */}
       <section className="relative flex items-center pt-20 lg:pt-16 min-h-screen w-full overflow-hidden">
