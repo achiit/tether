@@ -438,17 +438,16 @@ const DashboardPage = () => {
                       type="button"
                       onClick={() => handleUpgrade(levelNum, levelInfo.amount)}
                       disabled={!isNextLevel}
-                      className={`relative flex flex-col justify-center items-center min-w-48 px-4 py-2.5 rounded-md w-full z-50
-                    drop-shadow-md overflow-hidden text-white shadow-[#FFFFFF80_0px_2px_4px_1px_inset,#3423AA50_0px_-2px_2px_1px_inset]
-                    ${isCompleted ? 'bg-[#7bc23d]' : 'bg-[#F72C5B]'}
+                      className={`relative flex flex-col justify-center items-center min-w-48 px-4 py-2.5 rounded-md w-full z-50 text-black
+                    drop-shadow-md overflow-hidden  shadow-[#FFFFFF80_0px_2px_4px_1px_inset,#3423AA50_0px_-2px_2px_1px_inset]
+                    ${isCompleted ? 'bg-gradient-to-br from-[#FF9D23] via-[#E7BE5E] to-[#FF9D23]' : 'bg-gradient-to-br from-gray-500 via-gray-400 to-gray-500'}
                     ${isNextLevel ? 'cursor-pointer' : 'cursor-not-allowed text-opacity-50'}
                   `}>
-                  {/* bg-gradient-to-br from-[#FF9D23] via-[#E7BE5E] to-[#FF9D23] */}
                     { !isCompleted && isNextLevel &&
-                      <div className="absolute top-1 left-[-75%] w-full h-full bg-gradient-to-l from-white/20 via-white/5 to-transparent skew-x-[-25deg] transition-all duration-[20000ms] z-20 animate-shimmer-slide" />
+                      <div className="absolute top-1 left-[-75%] w-full h-full bg-gradient-to-l from-white/40 via-white/10 to-transparent transition-all duration-[2000ms] -rotate-45 z-20 animate-shimmer-slide" />
                     }
                       <div className="flex justify-between items-center w-full z-20" >
-                        <p className=" font-bold text-3d dark:text-3d-dark text-3d">Level {levelInfo.level}</p>
+                        <p className=" font-bold text-3d dark:text-3d-dark text-3d ">Level {levelInfo.level}</p>
                         {isCompleted && (
                           <span className="absolute top-2 right-2 flex justify-center items-center text-xs shadow drop-shadow lg:text-sm font-bold text-white bg-green-500 rounded-full p-1 w-6 lg:w-7 h-6 lg:h-7 z-20">✓</span>
                         )}
