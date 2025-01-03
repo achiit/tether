@@ -45,13 +45,13 @@ export default function HowItWorks() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
         >
-          <div className="absolute top-0 left-[40px] lg:top-[50px] lg:left-[15%] lg:right-[15%] w-px lg:w-auto h-full lg:h-px bg-gray-200">
+          <div className="absolute top-0 left-[40px] lg:top-[50px] lg:left-[15%] lg:right-[15%] w-px lg:w-auto h-full lg:h-px bg-gray-400">
             <motion.div
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
               transition={{ duration: 1, delay: 0.5, ease: "easeInOut" }}
               viewport={{ once: true, amount: 0.2 }}
-              className="w-full h-full bg-gray-200"
+              className="w-full h-full bg-gray-400"
             />
           </div>
 
@@ -63,7 +63,7 @@ export default function HowItWorks() {
               variants={stepVariant}
             >
               <div className="inline-flex lg:flex-col justify-between items-start lg:items-center gap-8">
-                <div className="bg-white p-4 rounded-full border">
+                <div className="bg-gray-600 p-4 rounded-full border">
                   <div className="w-12 lg:w-16 h-12 lg:h-16 rounded-full flex items-center justify-center">
                     {step.icon}
                   </div>
@@ -72,7 +72,7 @@ export default function HowItWorks() {
                   <h2 className="text-4xl lg:text-6xl font-medium mb-1 lg:mb-4">
                     {step.title}
                   </h2>
-                  <p className="lg:text-2xl text-gray-600">{step.subtitle}</p>
+                  <p className="lg:text-2xl text-gray-400">{step.subtitle}</p>
                 </div>
               </div>
             </motion.div>

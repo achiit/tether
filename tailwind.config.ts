@@ -39,8 +39,8 @@ const config: Config = {
           },
         },
         'shimmer-slide': {
-          '0%': { transform: 'translateX(-400%)' },
-          '100%': { transform: 'translateX(400%)' },
+          '0%': { transform: 'translateX(-400%) skewX(-30deg)' },
+          '100%': { transform: 'translateX(400%) skewX(-30deg)' },
         },
       },
     },
