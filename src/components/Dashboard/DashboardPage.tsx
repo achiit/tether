@@ -431,7 +431,7 @@ const DashboardPage = () => {
               return (
                 <div key={levelInfo.id}
                   className={`relative flex flex-col items-center rounded-md transition-all duration-300 overflow-hidden
-                  ${isNextLevel ? 'hover:scale-105  opacity-100 cursor-pointer' : 'opacity-50 cursor-not-allowed'}
+                 
                 `}>
                   <div className="flex justify-center items-center w-full h-full z-0 p-0.5 shimmer">
                     <button
@@ -440,8 +440,8 @@ const DashboardPage = () => {
                       disabled={!isNextLevel}
                       className={`relative flex flex-col justify-center items-center min-w-48 px-4 py-2.5 rounded-md w-full z-50 text-black
                     drop-shadow-md overflow-hidden  shadow-[#FFFFFF80_0px_2px_4px_1px_inset,#3423AA50_0px_-2px_2px_1px_inset]
-                    ${isCompleted ? 'bg-gradient-to-br from-[#FF9D23] via-[#E7BE5E] to-[#FF9D23]' : 'bg-gradient-to-br from-gray-500 via-gray-400 to-gray-500'}
-                    ${isNextLevel ? 'cursor-pointer' : 'cursor-not-allowed text-opacity-50'}
+                    ${isCompleted ? 'bg-gradient-to-br from-[#FF9D23] via-[#E7BE5E] to-[#FF9D23]' : 'bg-gradient-to-br from-gray-400 via-gray-300 to-gray-400'}
+                    ${isNextLevel ? 'cursor-pointer' : 'cursor-not-allowed opacity-70 text-opacity-90'}
                   `}>
                     { !isCompleted && isNextLevel &&
                       <div className="absolute top-1 left-[-75%] w-full h-full bg-gradient-to-l from-white/40 via-white/10 to-transparent transition-all duration-[2000ms] -rotate-45 z-20 animate-shimmer-slide" />
