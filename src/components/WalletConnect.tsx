@@ -39,7 +39,7 @@ export const WalletConnect = () => {
                                             }
                                         }}
                                         variant="default"
-                                        className="bg-[#f3ba2f] text-black hover:bg-[#f3ba2f]/90 h-10 font-semibold transition-all duration-300"
+                                        className="bg-[#f3ba2f] text-black hover:bg-[#f3ba2f]/90 shadow-[4px_4px_12px_#f3ba2f90,-4px_-4px_12px_#f3ba2f90] h-10 font-semibold transition-all duration-300"
                                     >
                                         Launch App
                                     </Button>
@@ -51,7 +51,7 @@ export const WalletConnect = () => {
                                     <Button
                                         onClick={openChainModal}
                                         variant="default"
-                                        className="bg-red-500 text-white hover:bg-red-600 h-10 font-semibold"
+                                        className="bg-red-500 hover:bg-red-600 text-white shadow-[4px_4px_12px_#ef444450,-4px_-4px_12px_#ef444450] h-10 font-semibold transition-all duration-300"
                                     >
                                         Wrong Network
                                     </Button>

@@ -393,7 +393,7 @@ const DashboardPage = () => {
                       copyToClipboard(referralLink);
                     }}
                   >
-                    <span className="bg-gradient-button px-2 py-1 rounded font-medium">
+                    <span className="bg-gradient-button text-white px-2 py-1 rounded font-medium">
                       {referralCode ? truncateAddress(referralCode) : 'Not Generated'}
                     </span>
                     <Copy className={`h-4 w-4 transition-colors ${isCopied ? 'text-green-500' : 'text-muted-foreground hover:text-black'}`} />
@@ -423,8 +423,8 @@ const DashboardPage = () => {
             <button
               type="button"
               onClick={handleRegister}
-              className="p-2.5 px-4 lg:px-8 font-semibold cursor-pointer drop-shadow shadow 
-              bg-gradient-button active:scale-105 hover:opacity-80 rounded-lg transition-all duration-300"
+              className="p-2.5 px-4 lg:px-8 font-semibold text-white cursor-pointer drop-shadow shadow-[4px_4px_12px_#FC2FA450,-4px_-4px_12px_#FC2FA450]
+              bg-gradient-button active:scale-105 hover:opacity-90 rounded-lg transition-all duration-300"
             >
               Register
             </button>
@@ -448,22 +448,24 @@ const DashboardPage = () => {
 
               return (
                 <div key={levelInfo.id}
-                  className={`flex flex-col items-center rounded-md transition-all duration-300
-                ${!isCompleted ? 'border-animation-card' : 'border-animation-card-completed'}
-                ${isNextLevel ? 'hover:scale-105  opacity-100 cursor-pointer' : 'opacity-50 cursor-not-allowed'}
+                  className={`relative flex flex-col items-center rounded-md transition-all duration-300 overflow-hidden
+                 
                 `}>
-                  <div className="flex justify-center items-center w-full z-50 p-0.5">
+                  <div className="flex justify-center items-center w-full h-full z-0 p-0.5 shimmer">
                     <button
                       type="button"
                       onClick={() => handleUpgrade(levelNum, levelInfo.amount)}
                       disabled={!isNextLevel}
-                      className={`relative flex flex-col justify-center items-center min-w-48 px-4 py-2.5 rounded-md w-full z-50
-                    shadow-md drop-shadow-md overflow-hidden text-white 
-                    ${isCompleted ? 'bg-[#7bc23d]' : 'bg-[#F72C5B]'}
-                    ${isNextLevel ? 'cursor-pointer' : 'cursor-not-allowed text-opacity-50'}
+                      className={`relative flex flex-col justify-center items-center min-w-48 px-4 py-2.5 rounded-md w-full z-50 text-black
+                    drop-shadow-md overflow-hidden  shadow-[#FFFFFF80_0px_2px_4px_1px_inset,#3423AA50_0px_-2px_2px_1px_inset]
+                    ${isCompleted ? 'bg-gradient-to-br from-[#FF9D23] via-[#E7BE5E] to-[#FF9D23]' : 'bg-gradient-to-br from-gray-400 via-gray-300 to-gray-400'}
+                    ${isNextLevel ? 'cursor-pointer' : 'cursor-not-allowed opacity-70 text-opacity-90'}
                   `}>
+                    { !isCompleted && isNextLevel &&
+                      <div className="absolute top-1 left-[-75%] w-full h-full bg-gradient-to-l from-white/40 via-white/10 to-transparent transition-all duration-[2000ms] -rotate-45 z-20 animate-shimmer-slide" />
+                    }
                       <div className="flex justify-between items-center w-full z-20" >
-                        <p className=" font-bold text-3d dark:text-3d-dark">Level {levelInfo.level}</p>
+                        <p className=" font-bold text-3d dark:text-3d-dark text-3d ">Level {levelInfo.level}</p>
                         {isCompleted && (
                           <span className="absolute top-2 right-2 flex justify-center items-center text-xs shadow drop-shadow lg:text-sm font-bold text-white bg-green-500 rounded-full p-1 w-6 lg:w-7 h-6 lg:h-7 z-20">✓</span>
                         )}
@@ -555,7 +557,7 @@ const DashboardPage = () => {
       </section>
 
       <section className="mt-4 lg:mt-8">
-        <h3 className="text-5xl font-bold pb-2 text-center text-3d bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600 text-transparent/30 bg-clip-text">
+        <h3 className="text-2xl lg:text-5xl font-bold pb-4 lg:pb-8 text-center text-3d dark:text-3d-dark bg-gradient-to-r from-pink via-purple to-blue text-transparent/10 bg-clip-text">
           Fortune Founder Reward
         </h3>
         <RoyaltySlab />
@@ -641,9 +643,6 @@ const DashboardPage = () => {
       </section>
 
       <div
-        // data-aos="fade-up"
-        // data-aos-duration={500}
-        // data-aos-anchor-placement="top-bottom"
         className="text-center text-xs lg:text-sm font-bold mt-4 lg:mt-8 mb-2">
         <p>TetherWave Contract opbnb.bscscan</p>
         <Link href="https://opbnb-testnet.bscscan.com/address/0xad7284Bf6fB1c725a7500C51b71847fEf2D2d17C" className="text-yellow-600 hover:underline">

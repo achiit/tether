@@ -79,7 +79,7 @@ const Dashboard = () => {
 
   return (
     <div className="relative flex flex-col bg-bgLight dark:bg-bgDark">
-      <div className="fixed inset-0 w-full h-full blur-3xl opacity-20 dark:opacity-10 bg-gradient-to-r from-[#FC2FA4] via-[#902DFF] to-[#4B4CF6]" />
+      <div className="fixed inset-0 w-full h-full blur-3xl opacity-20 dark:opacity-10 bg-gradient-to-r from-[#FC2FA430] dark:from-[#FC2FA4] via-[#902DFF] to-[#4B4CF6]" />
       {/* <div className="fixed top-0 -left-8 lg:-left-16 w-80 h-96 lg:w-96 lg:h-96 rounded-r-full blur-3xl opacity-40 dark:opacity-20 bg-gradient-to-r from-[#FC2FA4] via-[#902DFF] to-[#4B4CF6]" /> */}
       {/* <div className="fixed -bottom-8 -right-8 lg:-right-16 w-80 h-96 lg:w-96 lg:h-96 rounded-l-full blur-3xl opacity-40 dark:opacity-20 bg-gradient-to-l from-[#FC2FA4] via-[#902DFF] to-[#4B4CF6]" /> */}
       <div className="relative flex flex-col min-h-screen">
@@ -90,12 +90,12 @@ const Dashboard = () => {
                 <div className="flex w-full lg:w-auto pt-5 lg:pt-0">
                   <BrandLogo />
                 </div>
-                <div className="flex justify-start items-center gap-2 lg:gap-4 overflow-y-auto w-full pb-4 lg:py-4">
+                <div className="flex justify-start items-center gap-2 lg:gap-4 overflow-y-auto w-full px-4 pb-4 lg:py-4">
                   {tabs.map((tab) => (
                     <button
                       type="button"
                       key={tab.id}
-                      className={`relative py-2.5 px-6 lg:!px-8 group font-semibold drop-shadow shadow cursor-pointer rounded-full 
+                      className={`relative py-2.5 px-6 lg:!px-8 group font-semibold drop-shadow shadow-[4px_4px_12px_#FC2FA450,-4px_-4px_12px_#FC2FA450] cursor-pointer rounded-full 
                         bg-gradient-button text-white hover:opacity-100 dark:hover:opacity-100 transition-all duration-300 active:scale-105 ${
                         activeTab === tab.id
                           ? "opacity-100"
@@ -119,7 +119,7 @@ const Dashboard = () => {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="p-2.5 px-4 lg:px-8 font-semibold cursor-pointer drop-shadow shadow bg-red-500 dark:bg-red-600 text-white hover:opacity-90 rounded-lg w-full transition-all duration-300"
+                  className="p-2.5 px-4 lg:px-8 font-semibold cursor-pointer drop-shadow bg-red-500 dark:bg-red-600 shadow-[4px_4px_12px_#ef444450,-4px_-4px_12px_#ef444450] text-white hover:opacity-90 rounded-lg w-full transition-all duration-300"
                 >
                   Logout
                 </button>
