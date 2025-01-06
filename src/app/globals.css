@@ -10,7 +10,7 @@
 }
 
 * {
- scroll-behavior: smooth;
+ scroll-behavior: smooth !important;
 }
 
 .font-mona {
@@ -22,9 +22,9 @@
 }
 
 /* Add smooth scrolling */
-html {
+/* html {
   scroll-behavior: smooth;
-}
+} */
 
 /* Gradient backgrounds */
 .gradient-bg {

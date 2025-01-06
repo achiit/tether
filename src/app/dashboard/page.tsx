@@ -4,8 +4,6 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useAccount, useDisconnect } from "wagmi";
 import { useRouter } from "next/navigation";
-import AOS from "aos";
-import "aos/dist/aos.css";
 
 import DashboardPage from "@/components/Dashboard/DashboardPage";
 import SocialLinks from "@/components/Dashboard/SocialLinks";
@@ -27,25 +25,6 @@ const Dashboard = () => {
   const { isConnected } = useAccount();
   const { disconnect } = useDisconnect();
   const router = useRouter();
-
-  useEffect(() => {
-    AOS.init({
-      duration: 1000,
-      easing: "ease",
-      anchorPlacement: "top-bottom",
-      once: false,
-    });
-
-    const handleScroll = () => {
-      AOS.refresh();
-    };
-
-    window.addEventListener("scroll", handleScroll);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
 
   useEffect(() => {
     if (!isConnected) {
