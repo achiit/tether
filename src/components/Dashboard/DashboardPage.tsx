@@ -27,7 +27,7 @@ function ProfileItem({ icon: Icon, label, value, }: { icon: React.ElementType; l
 
 const DashboardPage = () => {
   const { address, balances } = useWallet();
-  const { getUserStats, getLevelIncomes, getRecentIncomeEventsPaginated, register, upgrade, getSponsors } = useContract();
+  const { getUserStats, getLevelIncomes, getRecentIncomeEventsPaginated, register, upgrade, getSponsors, getUpgradeReferralIncome, getTeamSizes } = useContract();
 
   const [isCopied, setIsCopied] = useState(false);
   const [referrerAddress, setReferrerAddress] = useState('');
@@ -39,6 +39,8 @@ const DashboardPage = () => {
   const [referralCode, setReferralCode] = useState<string>('');
   const [directSponsor, setDirectSponsor] = useState<Sponsor | null>(null);
   const [matrixSponsor, setMatrixSponsor] = useState<Sponsor | null>(null);
+  const [upgradeReferralIncome, setUpgradeReferralIncome] = useState<bigint | null | undefined>();
+  const [totalTeamSize, setTotalTeamSize] = useState<number | undefined>();
   const itemsPerPage = 5;
   const [recentIncomes, setRecentIncomes] = useState<RecentIncomeEvents>({
     userAddresses: [],
@@ -48,6 +50,7 @@ const DashboardPage = () => {
     totalCount: 0
   });
   const [userProfileData, setUserProfileData] = useState<UserProfileData | null>(null);
+  const [usdtBalance, setUsdtBalance] = useState('0.0000');
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -79,6 +82,11 @@ const DashboardPage = () => {
         if ((stats?.currentLevel ?? 0) > 0) {
           const incomes = await getLevelIncomes();
           setLevelIncomes(incomes);
+          const upgradeReferralIncome = await getUpgradeReferralIncome(address);
+          setUpgradeReferralIncome(upgradeReferralIncome || undefined);
+          const totalTeamSize = await getTeamSizes(address);
+          setTotalTeamSize(totalTeamSize && totalTeamSize.length > 0 ? totalTeamSize[0] : 0);
+
 
           const resultInc = await getRecentIncomeEventsPaginated(
             address,
@@ -93,7 +101,7 @@ const DashboardPage = () => {
     };
 
     fetchData();
-  }, [address, getUserStats, getLevelIncomes, getRecentIncomeEventsPaginated, currentPage, getSponsors]);
+  }, [address, getUserStats, getLevelIncomes, getRecentIncomeEventsPaginated, currentPage, getSponsors, getUpgradeReferralIncome, getTeamSizes]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -163,6 +171,16 @@ const DashboardPage = () => {
 
     fetchUserProfile();
   }, [address]);
+
+  useEffect(() => {
+    const updateBalance = async () => {
+      if (balances.usdt) {
+        setUsdtBalance(balances.usdt);
+      }
+    };
+
+    updateBalance();
+  }, [balances.usdt]);
 
   const handleRegister = async () => {
     if (!address || !referrerAddress) {
@@ -358,7 +376,7 @@ const DashboardPage = () => {
                 <CircleDollarSign className="h-4 lg:h-5 w-4 lg:w-4 text-muted-foreground" />
                 <span className="text-sm font-medium">USDT Balance:</span>
                 <span className="font-bold">
-                  {balances.usdt ? `${balances.usdt} USDT` : '0.0000 USDT'}
+                  {`${usdtBalance} USDT`}
                 </span>
               </div>
               <div className="flex items-center space-x-2 px-4 py-3 drop-shadow-lg shadow-inner rounded-md bg-white/40 dark:bg-white/5 backdrop-blur-lg">
@@ -467,26 +485,38 @@ const DashboardPage = () => {
         <section className="flex flex-col lg:flex-row justify-between items-start gap-4 w-full mt-4 lg:mt-8">
           <div className="flex justify-center items-center drop-shadow-lg shadow-md p-px w-full rounded-lg !bg-gradient-button">
             <div className="flex flex-col justify-center items-center w-full p-4 rounded-lg bg-white/70 dark:bg-black/80">
-              <p className="text-lg font-bold">Total Income</p>
-              <p className="font-bold">{userStats?.totalEarnings ? formatUnits(userStats.totalEarnings, 18) : '0'} USDT</p>
+              <p className="text-lg font-bold text-center">Total Income</p>
+              <p className="font-bold text-green-600">+{userStats?.totalEarnings ? formatUnits(userStats.totalEarnings, 18) : '0'} USDT</p>
             </div>
           </div>
           <div className="flex justify-center items-center drop-shadow-lg shadow-md p-px w-full rounded-lg !bg-gradient-button">
             <div className="flex flex-col justify-center items-center w-full p-4 rounded-lg bg-white/70 dark:bg-black/80">
-              <p className="text-lg font-bold">Referral Income</p>
-              <p className="font-bold">{userStats?.directCommissionEarned ? formatUnits(userStats.directCommissionEarned, 18) : '0'} USDT</p>
+              <p className="text-lg font-bold text-center">Referral Income</p>
+              <p className="font-bold text-green-600">+{userStats?.directCommissionEarned ? formatUnits(userStats.directCommissionEarned, 18) : '0'} USDT</p>
             </div>
           </div>
           <div className="flex justify-center items-center drop-shadow-lg shadow-md p-px w-full rounded-lg !bg-gradient-button">
             <div className="flex flex-col justify-center items-center w-full p-4 rounded-lg bg-white/70 dark:bg-black/80">
-              <p className="text-lg font-bold">Level Income</p>
-              <p className="font-bold">{userStats?.levelIncomeEarned ? formatUnits(userStats.levelIncomeEarned, 18) : '0'} USDT</p>
+              <p className="text-lg font-bold text-center">Level Income</p>
+              <p className="font-bold text-green-600">+{userStats?.levelIncomeEarned ? formatUnits(userStats.levelIncomeEarned, 18) : '0'} USDT</p>
             </div>
           </div>
           <div className="flex justify-center items-center drop-shadow-lg shadow-md p-px w-full rounded-lg !bg-gradient-button">
             <div className="flex flex-col justify-center items-center w-full p-4 rounded-lg bg-white/70 dark:bg-black/80">
-              <p className="text-lg font-bold">Direct Referral</p>
+              <p className="text-lg font-bold text-center">Direct Referral</p>
               <p className="font-bold">{userStats?.directReferrals?.toString() || '0'}</p>
+            </div>
+          </div>
+          <div className="flex justify-center items-center drop-shadow-lg shadow-md p-px w-full rounded-lg !bg-gradient-button">
+            <div className="flex flex-col justify-center items-center w-full p-4 rounded-lg bg-white/70 dark:bg-black/80">
+              <p className="text-lg font-bold text-center">Upgrade Referral Income</p>
+              <p className="font-bold text-green-600">+{upgradeReferralIncome ? formatUnits(upgradeReferralIncome, 18) : '0'} USDT</p>
+            </div>
+          </div>
+          <div className="flex justify-center items-center drop-shadow-lg shadow-md p-px w-full rounded-lg !bg-gradient-button">
+            <div className="flex flex-col justify-center items-center w-full p-4 rounded-lg bg-white/70 dark:bg-black/80">
+              <p className="text-lg font-bold text-center">Total Team Size</p>
+              <p className="font-bold">{totalTeamSize ?? '0'}</p>
             </div>
           </div>
         </section>

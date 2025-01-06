@@ -193,19 +193,23 @@ export function useContract() {
                 ...tetherWave,
                 functionName: 'getDownlineByDepthPaginated',
                 args: [userAddress, depth, startIndex, limit],
-            }) as [Address[], Address[], bigint];
+            }) as [Address[], Address[], number[], number[], bigint];
 
-            const [downlineAddresses, sponsorAddresses, totalCount] = data;
+            const [downlineAddresses, sponsorAddresses, directReferralsCount, currentLevels, totalCount] = data;
 
             return {
                 downlineAddresses,
                 sponsorAddresses,
+                directReferralsCount,
+                currentLevels,
                 totalCount: Number(totalCount)
             };
         } catch {
             return {
                 downlineAddresses: [],
                 sponsorAddresses: [],
+                directReferralsCount: [],
+                currentLevels: [],
                 totalCount: 0
             };
         }
@@ -409,6 +413,38 @@ export function useContract() {
         }
     }, [address]);
 
+    const getUpgradeReferralIncome = useCallback(async (userAddress: Address) => {
+        if (!address) return null;
+        try {
+            const { tetherWave } = getContracts();
+            const upgradeReferralIncome = await tetherWave.publicClient.readContract({
+                ...tetherWave,
+                functionName: 'getUpgradeReferralIncome',
+                args: [userAddress]
+            }) as bigint;
+
+            return upgradeReferralIncome;
+        } catch {
+            return null;
+        }
+    }, [address])
+
+    const getTeamSizes = useCallback(async (userAddress: Address) => {
+        if (!address) return null;
+        try {
+            const { tetherWave } = getContracts();
+            const totalTeamSize = await tetherWave.publicClient.readContract({
+                ...tetherWave,
+                functionName: 'getTeamSizes',
+                args: [userAddress]
+            }) as number[];
+
+            return totalTeamSize;
+        } catch {
+            return null;
+        }
+    }, [address])
+
     return {
         getUserStats,
         getLevelIncomes,
@@ -424,6 +460,8 @@ export function useContract() {
         getTierAchieversCount,
         getNextDistributionTime,
         getSponsors,
-        getLevelActivatedCount
+        getLevelActivatedCount,
+        getUpgradeReferralIncome,
+        getTeamSizes
     }
 }

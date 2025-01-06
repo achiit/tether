@@ -13,11 +13,13 @@ import DownLine from "@/components/Dashboard/DownLine";
 import Referrals from "@/components/Dashboard/Referrals";
 import Container from "@/components/Container";
 import ThemeToggle from "@/components/ThemeToggle";
+import Geneology from "@/components/Dashboard/Geneology";
 
 const tabs = [
   { id: "dashboard", label: "Dashboard" },
   { id: "referrals", label: "Referrals" },
   { id: "downline", label: "Community" },
+  { id: "geneology", label: "Geneology" },
 ];
 
 const Dashboard = () => {
@@ -68,6 +70,8 @@ const Dashboard = () => {
         return <Referrals />;
       case "downline":
         return <DownLine />;
+      case "geneology":
+        return <Geneology />;
       default:
         return <div>Select a tab to view content.</div>;
     }

@@ -14,8 +14,10 @@ const DownLine = () => {
   const [downlineData, setDownlineData] = useState<{
     downlineAddresses: `0x${string}`[];
     sponsorAddresses: `0x${string}`[];
+    directReferralsCount: number[];
+    currentLevels: number[];
     totalCount: number;
-  }>({ downlineAddresses: [], sponsorAddresses: [], totalCount: 0 });
+  }>({ downlineAddresses: [], sponsorAddresses: [], directReferralsCount: [], currentLevels: [], totalCount: 0 });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -71,17 +73,25 @@ const DownLine = () => {
                 <th className="py-2 px-4 text-left">S.No.</th>
                 <th className="py-2 px-4 text-left">Address</th>
                 <th className="py-2 px-4 text-left">Sponsor</th>
+                <th className="py-2 px-4 text-left">Direct Referral</th>
+                <th className="py-2 px-4 text-left">Current Levels</th>
               </tr>
             </thead>
             <tbody>
               {downlineData.downlineAddresses.map((address, index) => (
                 <tr key={`${index + 1}`}>
-                  <td>{index + 1}</td>
-                  <td>
+                  <td className="py-2 px-8 text-left">{index + 1}</td>
+                  <td className="py-2 px-4 text-left">
                     <FrontendIdDisplay address={address} isRegistered={currentLevel > 0} />
                   </td>
-                  <td>
+                  <td className="py-2 px-4 text-left">
                     <FrontendIdDisplay address={downlineData.sponsorAddresses[index]} isRegistered={true} />
+                  </td>
+                  <td className="py-2 px-16 text-left">
+                    {downlineData.directReferralsCount[0]}
+                  </td>
+                  <td className="py-2 px-16 text-left">
+                    {downlineData.currentLevels[0]}
                   </td>
                 </tr>
               ))}
