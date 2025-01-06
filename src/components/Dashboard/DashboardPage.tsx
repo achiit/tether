@@ -483,7 +483,7 @@ const DashboardPage = () => {
         </div>
       )}
 
-      {isRegistered && userStats && (
+      {!isRegistered && userStats && (
         <section className="flex flex-col lg:flex-row justify-between items-start gap-4 w-full mt-4 lg:mt-8">
           <div className="flex justify-center items-center drop-shadow-lg shadow-md p-px w-full rounded-lg !bg-gradient-button">
             <div className="flex flex-col justify-center items-center w-full p-4 rounded-lg bg-white/70 dark:bg-black/80">
@@ -511,7 +511,7 @@ const DashboardPage = () => {
           </div>
           <div className="flex justify-center items-center drop-shadow-lg shadow-md p-px w-full rounded-lg !bg-gradient-button">
             <div className="flex flex-col justify-center items-center w-full p-4 rounded-lg bg-white/70 dark:bg-black/80">
-              <p className="text-lg font-bold text-center">Upgrade Referral Income</p>
+              <p className="text-lg font-bold text-center text-nowrap">Upgrade Referral Income</p>
               <p className="font-bold text-green-600">+{upgradeReferralIncome ? formatUnits(upgradeReferralIncome, 18) : '0'} USDT</p>
             </div>
           </div>
