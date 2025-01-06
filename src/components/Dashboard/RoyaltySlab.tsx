@@ -408,11 +408,11 @@ const RoyaltySlab = () => {
                     <span className="font-medium">N/A</span>
                   </div>
                   <div className="flex justify-between items-center bg-white/40 dark:bg-white/5 backdrop-blur-md rounded-lg p-3 lg:p-4 drop-shadow-lg shadow">
-                    <div className="flex flex-col justify-between items-center">
+                    <div className="flex flex-col justify-start items-start">
                       <h3 className="text-lg font-semibold">Total Earned</h3>
                       <p className="text-2xl font-bold text-green-600">0.00 USDT</p>
                     </div>
-                    <div className="flex flex-col justify-between items-end">
+                    <div className="flex flex-col justify-start items-end">
                       <h3 className="text-lg font-semibold">Total Pool Amount</h3>
                       <p className="text-2xl font-bold text-green-600">{`${calculateTotalPoolAmount(index)} USDT`}</p>
                     </div>

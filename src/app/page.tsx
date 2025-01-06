@@ -11,9 +11,23 @@ import Container from "@/components/Container";
 
 export default function Home() {
   return (
-    <main className="relative min-h-screen bg-white w-full">
+    <main className="relative min-h-screen bg-black text-white w-full">
       <GradientCursor />
       <Header />
+
+      <section className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-screen w-full overflow-hidden">
+        <div className="w-full h-full">
+          <Image
+            src="/images/bnb-bg.png"
+            alt="tether Logo Animation"
+            width={1000}
+            height={1000}
+            quality={100}
+            priority
+            className="object-cover relative z-10 w-full h-full opacity-15"
+          />
+        </div>
+      </section>
 
       {/* Hero Section */}
       <section className="relative flex items-center pt-20 lg:pt-16 min-h-screen w-full overflow-hidden">
@@ -25,10 +39,10 @@ export default function Home() {
               <div className="absolute inset-0 bg-[#f3ba2f] opacity-20 blur-3xl rounded-full animate-pulse" />
 
               {/* Saturn Rings */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-[120%] h-[120%] border border-[#f3ba2f]/20 rounded-full absolute animate-spin-slow" />
-                <div className="w-[140%] h-[140%] border border-[#f3ba2f]/10 rounded-full absolute animate-spin-slower" />
-                <div className="w-[160%] h-[160%] border border-[#f3ba2f]/5 rounded-full absolute animate-reverse-spin" />
+              <div className="absolute inset-0 flex items-center justify-center w-full h-full">
+                <div className="w-[100%] h-[100%] border border-[#f3ba2f]/5 rounded-full absolute animate-spin-slow" />
+                <div className="w-[120%] h-[120%] border border-[#f3ba2f]/10 rounded-full absolute animate-spin-slower" />
+                <div className="w-[140%] h-[140%] border border-[#f3ba2f]/5 rounded-full absolute animate-reverse-spin" />
               </div>
 
               {/* Main Image */}
@@ -63,7 +77,7 @@ export default function Home() {
                   </span>
                 </h1>
               </div>
-              <p className="lg:text-xl text-gray-600">
+              <p className="lg:text-xl text-gray-400">
                 Leverage Your Network for Unmatched Rewards and Opportunities.
               </p>
               <div className="flex gap-8">
@@ -94,7 +108,7 @@ export default function Home() {
       <HowItWorks />
 
       {/* Features Grid */}
-      <section className="py-20 lg:py-24 bg-gray-50">
+      <section className="py-20 lg:py-24">
         <Container>
           <div className="grid lg:grid-cols-2 gap-4 lg:gap-8">
             {[
@@ -129,12 +143,12 @@ export default function Home() {
             ].map((feature) => (
               <div
                 key={feature.title}
-                className={`rounded-3xl px-4 lg:px-8 py-8 lg:py-12 drop-shadow-lg border border-black border-opacity-10 ${feature.bg}`}
+                className={`rounded-3xl px-4 lg:px-8 py-8 lg:py-12 drop-shadow-lg border border-white border-opacity-10 ${feature.bg}`}
               >
                 <h3 className="text-2xl lg:text-3xl font-bold mb-4 lg:mb-6">
                   {feature.title}
                 </h3>
-                <p className="lg:text-xl text-gray-600 mb-4 lg:mb-6">
+                <p className="lg:text-xl text-gray-400 mb-4 lg:mb-6">
                   {feature.description}
                 </p>
                 <div className="text-xl lg:text-2xl font-bold text-[#f3ba2f]">

@@ -6,13 +6,13 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import Container from "../Container";
 import { AlignJustify, X } from "lucide-react";
-import { WalletConnect } from '../WalletConnect';
+import { WalletConnect } from "../WalletConnect";
 
 const navItems = [
   { name: "Staking", href: "" },
   { name: "Integrations", href: "" },
   { name: "Node Operators", href: "" },
-  { name: "tether DAO", href: "" },
+  { name: "Tether DAO", href: "" },
 ];
 
 const Header: React.FC = () => {
@@ -28,8 +28,8 @@ const Header: React.FC = () => {
         <Link
           key={item.name}
           href={item.href}
-          className={`font-medium px-4 py-0.5 transition-all duration-300  hover:text-gray-900 text-lg ${
-            pathname === item.href ? "text-gray-900" : "text-gray-600"
+          className={`font-medium px-4 py-0.5 transition-all duration-300  hover:text-gray-100 text-lg ${
+            pathname === item.href ? "text-gray-200" : "text-gray-300"
           }`}
           onClick={() => isMobileMenuOpen && setMobileMenuOpen(false)}
         >
@@ -42,7 +42,7 @@ const Header: React.FC = () => {
   return (
     <header
       className={
-        "shadow-sm fixed top-0 left-0 w-full z-50 bg-white/80  backdrop-blur-md transition-all duration-300"
+        "shadow-sm fixed top-0 left-0 w-full z-50 bg-white/10 backdrop-blur-md transition-all duration-300"
       }
     >
       <Container className="py-4">
@@ -53,7 +53,11 @@ const Header: React.FC = () => {
           <section className="hidden lg:block">
             <NavLinks />
           </section>
-          <section>
+          <section className="flex items-center gap-4">
+            <div className="">
+              <WalletConnect />
+            </div>
+
             <button
               type="button"
               className="lg:hidden text-3xl"
@@ -70,20 +74,16 @@ const Header: React.FC = () => {
                 Launch App
               </Button>
             </Link> */}
-
-            <div className="hidden lg:block">
-              <WalletConnect />
-            </div>
           </section>
         </div>
       </Container>
 
       <div
-        className={`fixed inset-0 flex lg:hidden bg-white  backdrop-blur w-full h-screen z-[100] transform transition-all duration-500 ${
+        className={`fixed inset-0 flex lg:hidden bg-black/50  backdrop-blur w-full h-screen z-[100] transform transition-all duration-500 ${
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="relative w-full h-full p-6 bg-white backdrop-blur text-black">
+        <div className="relative w-full h-full p-6 bg-black/90  text-white backdrop-blur">
           <div className="px-4">
             <BrandLogo />
           </div>
@@ -100,9 +100,9 @@ const Header: React.FC = () => {
               </Button>
             </Link> */}
 
-          <div className="mt-4">
+          {/* <div className="mt-4">
             <WalletConnect />
-          </div>
+          </div> */}
 
           <button
             type="button"
@@ -113,10 +113,10 @@ const Header: React.FC = () => {
           </button>
         </div>
 
-        <div 
-          className="flex-1" 
+        <div
+          className="flex-1"
           onClick={() => setMobileMenuOpen(false)}
-          onKeyDown={(e) => e.key === 'Escape' && setMobileMenuOpen(false)}
+          onKeyDown={(e) => e.key === "Escape" && setMobileMenuOpen(false)}
           role="button"
           tabIndex={0}
         />
@@ -129,7 +129,7 @@ export default Header;
 
 const BrandLogo = () => (
   <Link href="/" className="flex items-center justify-start gap-2">
-    <div className="w-16 h-16 rounded-full overflow-hidden bg-white flex items-center justify-center">
+    <div className="w-16 h-10 rounded-md overflow-hidden bg-white flex items-center justify-center">
       <Image
         src="/images/logo.jpg"
         alt="Logo"
