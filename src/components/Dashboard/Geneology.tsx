@@ -2,12 +2,6 @@ import { useState, useEffect } from 'react';
 import { useWallet } from '@/lib/hooks/useWallet';
 import { useContract } from '@/lib/hooks/useContract';
 
-interface TreeNode {
-    address: `0x${string}`;
-    children: `0x${string}`[];
-    isLoading: boolean;
-}
-
 const Geneology = () => {
     const { address } = useWallet();
     const { getDownlineByDepthPaginated } = useContract();
