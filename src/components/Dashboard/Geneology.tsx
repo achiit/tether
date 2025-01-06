@@ -46,20 +46,20 @@ const Geneology = () => {
     }
 
     return (
-        <div className="p-4 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient overflow-auto">
+        <div className="p-4 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient">
             <div className="text-center mb-4">
-                <span className="px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900 text-sm font-medium">
+                <span className="px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900 text-sm lg:text-xl font-medium">
                     Depth Level: {currentDepth}
                 </span>
             </div>
-            <div className="flex flex-col items-center min-w-max p-4">
+            <div className="flex flex-col items-center w-full p-4 overflow-auto ps-60 lg:ps-0">
                 {/* Current Address */}
-                <div className="mb-8">
+                <div className="">
                     <button
                         type="button"
                         onClick={() => address && currentAddress !== address && handleAddressClick(address)}
                         className={`p-4 rounded-lg transition-all duration-200 
-                            ${currentAddress === address ? 'bg-blue-100 dark:bg-blue-900' : 'bg-white/40 dark:bg-white/5'}
+                            ${currentAddress === address ? 'bg-white/40 dark:bg-white/5' : 'bg-white/40 dark:bg-white/5'}
                             backdrop-blur-lg shadow-md hover:shadow-lg`}
                     >
                         <span className="text-sm font-medium">
@@ -70,28 +70,38 @@ const Geneology = () => {
 
                 {/* Connecting Line */}
                 {downlines.length > 0 && (
-                    <div className="w-px h-8 bg-gray-300 dark:bg-gray-700" />
+                    <div className="w-1 h-8 bg-gradient-to-t from-pink via-purple to-blue" />
                 )}
 
                 {/* Downline Addresses */}
-                <div className="flex gap-8">
+                <div className="flex">
                     {loading ? (
                         <div className="flex items-center justify-center">
                             <span className="inline-block w-8 h-8 border-2 border-t-transparent border-blue-500 rounded-full animate-spin" />
                         </div>
                     ) : (
-                        downlines.map((downlineAddress) => (
-                            <button
+                        downlines.map((downlineAddress, index) => (
+                         <div key={downlineAddress} className='flex flex-col justify-center items-center' >
+                           {
+                            downlines.length > 1  &&
+                            <div className={`relative h-1 bg-gradient-to-t from-pink via-purple to-blue 
+                            ${ index === 0  ? "w-[51%] ml-auto" : index === downlines.length - 1
+                                     ? "w-[51%] mr-auto": "w-full" }`} />
+                           }
+                           
+                           <div className="w-1 h-8 bg-gradient-to-t from-pink via-purple to-blue" />
+                           <button
                                 type="button"
-                                key={downlineAddress}
+                                
                                 onClick={() => handleAddressClick(downlineAddress)}
-                                className="p-4 rounded-lg transition-all duration-200 bg-white/40 dark:bg-white/5 
+                                className="p-4 mx-8 rounded-lg transition-all duration-200 bg-white/40 dark:bg-white/5 
                                     backdrop-blur-lg shadow-md hover:shadow-lg hover:bg-blue-50 dark:hover:bg-blue-900/50"
                             >
                                 <span className="text-sm font-medium">
                                     {`${downlineAddress.slice(0, 6)}...${downlineAddress.slice(-4)}`}
                                 </span>
                             </button>
+                         </div>
                         ))
                     )}
                 </div>
