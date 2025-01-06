@@ -5,10 +5,17 @@ import { useAccount } from 'wagmi';
 import { useRouter } from 'next/navigation';
 import { Button } from './ui/button';
 import Image from 'next/image';
+import { useEffect } from 'react';
 
 export const WalletConnect = () => {
     const { isConnected } = useAccount();
     const router = useRouter();
+
+    useEffect(() => {
+        if (isConnected) {
+            router.push('/dashboard');
+        }
+    }, [isConnected, router]);
 
     return (
         <ConnectButton.Custom>
@@ -60,11 +67,6 @@ export const WalletConnect = () => {
 
                             return (
                                 <Button
-                                    onClick={() => {
-                                        if (isConnected) {
-                                            router.push('/dashboard');
-                                        }
-                                    }}
                                     variant="default"
                                     className="bg-[#f3ba2f] text-black hover:bg-[#f3ba2f]/90 h-10 font-semibold transition-all duration-300 flex items-center gap-2"
                                 >
@@ -83,6 +85,8 @@ export const WalletConnect = () => {
                                                     alt={chain.name ?? 'Chain icon'}
                                                     src={chain.iconUrl}
                                                     style={{ width: '100%', height: '100%' }}
+                                                    width={16}
+                                                    height={16}
                                                 />
                                             )}
                                         </div>
