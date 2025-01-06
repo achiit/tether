@@ -33,6 +33,8 @@ export interface ReferralData {
 export interface DownlineData {
     downlineAddresses: `0x${string}`[];
     sponsorAddresses: `0x${string}`[];
+    directReferralsCount: number[];
+    currentLevels: number[];
     totalCount: number;
 }
 
