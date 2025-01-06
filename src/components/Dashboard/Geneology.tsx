@@ -46,13 +46,14 @@ const Geneology = () => {
     }
 
     return (
-        <div className="p-4 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient">
+        <div className="p-4 mt-4 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient">
             <div className="text-center mb-4">
-                <span className="px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900 text-sm lg:text-xl font-medium">
+                <span className="px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900 lg:text-xl font-medium">
                     Depth Level: {currentDepth}
                 </span>
             </div>
-            <div className="flex flex-col items-center w-full p-4 overflow-auto ps-60 lg:ps-0">
+           <div className={`flex lg:justify-center items-center w-full py-4 overflow-x-auto ${downlines.length > 1 ? 'justify-start lg:justify-center' : 'justify-center'}`}>
+           <div className="flex flex-col items-center">
                 {/* Current Address */}
                 <div className="">
                     <button
@@ -74,7 +75,7 @@ const Geneology = () => {
                 )}
 
                 {/* Downline Addresses */}
-                <div className="flex">
+                <div className="flex justify-center items-center w-full">
                     {loading ? (
                         <div className="flex items-center justify-center">
                             <span className="inline-block w-8 h-8 border-2 border-t-transparent border-blue-500 rounded-full animate-spin" />
@@ -94,7 +95,7 @@ const Geneology = () => {
                                 type="button"
                                 
                                 onClick={() => handleAddressClick(downlineAddress)}
-                                className="p-4 mx-8 rounded-lg transition-all duration-200 bg-white/40 dark:bg-white/5 
+                                className="p-4 mx-4 lg:mx-8 rounded-lg transition-all duration-200 bg-white/40 dark:bg-white/5 
                                     backdrop-blur-lg shadow-md hover:shadow-lg hover:bg-blue-50 dark:hover:bg-blue-900/50"
                             >
                                 <span className="text-sm font-medium">
@@ -106,6 +107,7 @@ const Geneology = () => {
                     )}
                 </div>
             </div>
+           </div>
         </div>
     );
 };
