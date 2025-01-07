@@ -9,9 +9,9 @@
   }
 }
 
-* {
+/* * {
  scroll-behavior: smooth !important;
-}
+} */
 
 .font-mona {
   font-family: var(--font-mona-sans);
@@ -22,9 +22,9 @@
 }
 
 /* Add smooth scrolling */
-/* html {
-  scroll-behavior: smooth;
-} */
+html {
+  scroll-behavior: smooth !important;
+}
 
 /* Gradient backgrounds */
 .gradient-bg {
@@ -40,7 +40,7 @@
   display: none !important;
 }
 
-@property --gradient-angle {
+/* @property --gradient-angle {
   syntax: "<angle>";
   initial-value: 0turn;
   inherits: false;
@@ -92,7 +92,7 @@
   to {
     --gradient-angle: 1turn;
   }
-}
+} */
 
 .text-3d {
   text-shadow: 

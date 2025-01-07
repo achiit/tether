@@ -439,7 +439,7 @@ const DashboardPage = () => {
             <Boxes className="h-5 w-5" />
             <span>Packages (Current Level: {currentLevel})</span>
           </div>
-          <div className="p-4 lg:px-6 lg:pb-6 flex lg:grid lg:grid-cols-5 gap-4 lg:gap-6 overflow-auto text-nowrap">
+          <div className="p-4 lg:px-6 lg:pb-6 flex lg:grid lg:grid-cols-5 gap-4 lg:gap-6 overflow-auto w-full text-nowrap">
             {LEVELS.map((levelInfo) => {
               const currentLevelNum = Number(currentLevel);
               const levelNum = Number(levelInfo.level);
@@ -448,8 +448,7 @@ const DashboardPage = () => {
 
               return (
                 <div key={levelInfo.id}
-                  className={`relative flex flex-col items-center rounded-md transition-all duration-300 overflow-hidden
-                 
+                  className={`relative flex flex-col items-center rounded-md transition-all duration-300
                 `}>
                   <div className="flex justify-center items-center w-full h-full z-0 p-0.5 shimmer">
                     <button
@@ -484,7 +483,7 @@ const DashboardPage = () => {
       )}
 
       {isRegistered && userStats && (
-        <section className="flex flex-col lg:flex-row justify-between items-start gap-4 w-full mt-4 lg:mt-8">
+        <section className="flex flex-col lg:flex-row justify-between items-start gap-4 w-full mt-4 lg:mt-8 text-nowrap">
           <div className="flex justify-center items-center drop-shadow-lg shadow-md p-px w-full rounded-lg !bg-gradient-button">
             <div className="flex flex-col justify-center items-center w-full p-4 rounded-lg bg-white/70 dark:bg-black/80">
               <p className="text-lg font-bold text-center">Total Income</p>
