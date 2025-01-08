@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { useContract } from "@/lib/hooks/useContract";
 import { LEVELS } from "@/lib/constants/levels";
@@ -6,7 +8,7 @@ import { useWallet } from "@/lib/hooks/useWallet";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { FrontendIdDisplay } from "@/components/Dashboard/FrontendIdDisplay";
 
-const Referrals = () => {
+const ReferralsPage = () => {
   const { getDirectReferralDataPaginated } = useContract();
   const { address } = useWallet();
   const [referralData, setReferralData] = useState<{
@@ -36,7 +38,7 @@ const Referrals = () => {
 }, [address, currentPage, getDirectReferralDataPaginated]);
 
   return (
-    <div className="p-4 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient">
+    <div className="p-4 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient w-full">
       <div className="overflow-y-auto text-nowrap pb-1">
         <table className="w-full">
           <thead className="overflow-y-auto drop-shadow-lg shadow-inner bg-white/40 dark:bg-white/5 backdrop-blur-lg">
@@ -54,7 +56,7 @@ const Referrals = () => {
           </thead>
           <tbody>
             {referralData.referralData.map((referral, index) => (
-              <tr key={`referral-${index + 1}`} className="border-b hover:bg-white/10 backdrop-blur-lg">
+              <tr key={`referral-${index + 1}`} className="hover:bg-white/20 dark:hover:bg-white/10">
                 <td className="py-2 px-4">{index + 1}</td>
                 <td className="py-2 px-4">
                   <FrontendIdDisplay address={referral.userAddress} isRegistered={referral.currentLevel > 0} />
@@ -120,4 +122,4 @@ const Referrals = () => {
   );
 };
 
-export default Referrals;
+export default ReferralsPage;
