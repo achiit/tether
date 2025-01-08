@@ -9,9 +9,9 @@
   }
 }
 
-/* * {
- scroll-behavior: smooth !important;
-} */
+* {
+  scroll-behavior: smooth;
+}
 
 .font-mona {
   font-family: var(--font-mona-sans);
@@ -19,11 +19,6 @@
 
 .font-glacier {
   font-family: var(--font-glacier);
-}
-
-/* Add smooth scrolling */
-html {
-  scroll-behavior: smooth !important;
 }
 
 /* Gradient backgrounds */
@@ -40,63 +35,7 @@ html {
   display: none !important;
 }
 
-/* @property --gradient-angle {
-  syntax: "<angle>";
-  initial-value: 0turn;
-  inherits: false;
-}
-
-.border-animation-card {
-  animation: 2s gradient-angle infinite linear;
-  border: 2px solid transparent;
-  background-image: linear-gradient(#00000000, #00000000),
-    conic-gradient(
-      from var(--gradient-angle),
-      #fc2fa4 0%,
-      #902dff 37%,
-      #4b4cf6 30%,
-      #902dff 33%,
-      #fc2fa4 40%,
-      #fc2fa4 50%,
-      #902dff 77%,
-      #4b4cf6 80%,
-      #902dff 83%,
-      #fc2fa4 90%
-    );
-  background-clip: padding-box, border-box;
-  background-origin: padding-box, border-box;
-}
-
-.border-animation-card-completed {
-  animation: 2s gradient-angle infinite linear;
-  border: 2px solid transparent;
-  background-image: linear-gradient(#4ade8000, #4ade8000),
-    conic-gradient(
-      from var(--gradient-angle),
-      #4ade8000 0%,
-      #4ade80 37%,
-      #4ade8090 30%,
-      #4ade80 33%,
-      #4ade8000 40%,
-      #4ade8000 50%,
-      #4ade80 77%,
-      #4ade8090 80%,
-      #4ade80 83%,
-      #4ade8000 90%
-    );
-  background-clip: padding-box, border-box;
-  background-origin: padding-box, border-box;
-}
-
-@keyframes gradient-angle {
-  to {
-    --gradient-angle: 1turn;
-  }
-} */
-
 .text-3d {
-  text-shadow: 
-  1px 4px 4px #00000050,
-  4px 4px 5px #00000010; /* Depth */
+  text-shadow: 1px 4px 4px #00000050, 4px 4px 5px #00000010; /* Depth */
   /* transform: rotateX(-10deg) rotateY(10deg); */
 }

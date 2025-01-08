@@ -1,8 +1,10 @@
+"use client";
+
 import { useState, useEffect } from 'react';
 import { useWallet } from '@/lib/hooks/useWallet';
 import { useContract } from '@/lib/hooks/useContract';
 
-const Geneology = () => {
+const GeneologyPage = () => {
     const { address } = useWallet();
     const { getDownlineByDepthPaginated } = useContract();
     const [currentAddress, setCurrentAddress] = useState<`0x${string}` | null>(null);
@@ -46,9 +48,9 @@ const Geneology = () => {
     }
 
     return (
-        <div className="p-4 mt-4 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient">
+        <div className="p-4 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient w-full">
             <div className="text-center mb-4">
-                <span className="px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900 lg:text-xl font-medium">
+                <span className="px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900 text-lg lg:text-xl font-semibold">
                     Depth Level: {currentDepth}
                 </span>
             </div>
@@ -77,7 +79,7 @@ const Geneology = () => {
                 {/* Downline Addresses */}
                 <div className="flex justify-center items-center w-full">
                     {loading ? (
-                        <div className="flex items-center justify-center">
+                        <div className="flex items-center justify-center py-4">
                             <span className="inline-block w-8 h-8 border-2 border-t-transparent border-blue-500 rounded-full animate-spin" />
                         </div>
                     ) : (
@@ -112,4 +114,4 @@ const Geneology = () => {
     );
 };
 
-export default Geneology;   
+export default GeneologyPage;   
