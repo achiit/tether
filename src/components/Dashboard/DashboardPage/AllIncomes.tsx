@@ -1,5 +1,5 @@
 import React from "react";
-import { UserStats } from "@/types/contract";
+import type { UserStats } from "@/types/contract";
 import { formatUnits } from "viem";
 
 interface AllIncomesProps {

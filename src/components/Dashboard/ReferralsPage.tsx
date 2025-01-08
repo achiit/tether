@@ -7,6 +7,7 @@ import type { ReferralData } from "@/types/contract";
 import { useWallet } from "@/lib/hooks/useWallet";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { FrontendIdDisplay } from "@/components/Dashboard/FrontendIdDisplay";
+import { useFrontendId } from "@/contexts/FrontendIdContext";
 
 const ReferralsPage = () => {
   const { getDirectReferralDataPaginated } = useContract();
@@ -17,6 +18,7 @@ const ReferralsPage = () => {
   }>({ referralData: [], totalCount: 0 });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const { batchFetchFrontendIds } = useFrontendId();
 
   useEffect(() => {
     const fetchReferralData = async () => {
@@ -36,6 +38,12 @@ const ReferralsPage = () => {
 
     fetchReferralData();
 }, [address, currentPage, getDirectReferralDataPaginated]);
+
+  useEffect(() => {
+    if (referralData.referralData.length > 0) {
+        batchFetchFrontendIds(referralData.referralData.map(ref => ref.userAddress));
+    }
+  }, [referralData.referralData, batchFetchFrontendIds]);
 
   return (
     <div className="p-4 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient w-full">

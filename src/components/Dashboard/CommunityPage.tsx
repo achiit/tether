@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useWallet } from '@/lib/hooks/useWallet';
 import { useContract } from '@/lib/hooks/useContract';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { FrontendIdDisplay } from '@/components/Dashboard/FrontendIdDisplay';
+import { debounce } from 'lodash';
 
 const CommunityPage = () => {
   const { address } = useWallet();
@@ -21,25 +22,29 @@ const CommunityPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  useEffect(() => {
-    const fetchDownlineData = async () => {
-      if (!address) return;
-      
+  const debouncedFetch = useCallback(
+    debounce(async (addr: string, level: number, page: number) => {
+      if (!addr) return;
       try {
         const result = await getDownlineByDepthPaginated(
-          address,
-          selectedLevel,
-          BigInt((currentPage - 1) * itemsPerPage),
-          BigInt(itemsPerPage)
+          addr as `0x${string}`,
+          level,
+          BigInt((page - 1) * 10),
+          BigInt(10)
         );
         setDownlineData(result);
       } catch (error) {
         console.error('Error fetching downline data:', error);
       }
-    };
+    }, 500),
+    []
+  );
 
-    fetchDownlineData();
-  }, [address, selectedLevel, currentPage, getDownlineByDepthPaginated]);
+  useEffect(() => {
+    if (!address) return;
+    debouncedFetch(address, selectedLevel, currentPage);
+    return () => debouncedFetch.cancel();
+  }, [address, selectedLevel, currentPage, debouncedFetch]);
 
   return (
     <div className='w-full'>

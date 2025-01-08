@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { useWallet } from "@/lib/hooks/useWallet";
 import { useContract } from "@/lib/hooks/useContract";
@@ -20,9 +20,10 @@ import Packages from "./Packages";
 import AllIncomes from "./AllIncomes";
 import RankIncome from "./RankIncome";
 import RecentIncome from "./RecentIncome";
+import toast from 'react-hot-toast';
 
 const DashboardPage = () => {
-  const { address, balances } = useWallet();
+  const { address, balances, refetchUsdtBalance } = useWallet();
   const {
     getUserStats,
     getLevelIncomes,
@@ -35,18 +36,10 @@ const DashboardPage = () => {
   } = useContract();
 
   const [referrerAddress, setReferrerAddress] = useState("");
-  const [isRegistered, setIsRegistered] = useState(false);
-  const [currentLevel, setCurrentLevel] = useState(0);
-  const [userStats, setUserStats] = useState<UserStats | null>(null);
-  const [levelIncomes, setLevelIncomes] = useState<bigint[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [referralCode, setReferralCode] = useState<string>("");
   const [directSponsor, setDirectSponsor] = useState<Sponsor | null>(null);
   const [matrixSponsor, setMatrixSponsor] = useState<Sponsor | null>(null);
-  const [upgradeReferralIncome, setUpgradeReferralIncome] = useState<
-    bigint | null | undefined
-  >();
-  const [totalTeamSize, setTotalTeamSize] = useState<number | undefined>();
   const itemsPerPage = 5;
   const [recentIncomes, setRecentIncomes] = useState<RecentIncomeEvents>({
     userAddresses: [],
@@ -59,70 +52,95 @@ const DashboardPage = () => {
     useState<UserProfileData | null>(null);
   const [usdtBalance, setUsdtBalance] = useState("0.0000");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!address) return;
-
-      try {
-        // First check if user is registered
-        const stats = await getUserStats();
-        const sponsors = await getSponsors();
-        if (stats) {
-          setCurrentLevel(stats.currentLevel);
-          setUserStats(stats);
-          setIsRegistered(stats.currentLevel > 0);
-          // Transform array response into Sponsor objects
-          setDirectSponsor(
-            sponsors
-              ? {
-                  directSponsor: sponsors.directSponsor,
-                  matrixSponsor: sponsors.matrixSponsor,
-                }
-              : null
-          );
-          setMatrixSponsor(
-            sponsors
-              ? {
-                  directSponsor: sponsors.directSponsor,
-                  matrixSponsor: sponsors.matrixSponsor,
-                }
-              : null
-          );
-        }
-
-        if ((stats?.currentLevel ?? 0) > 0) {
-          const incomes = await getLevelIncomes();
-          setLevelIncomes(incomes);
-          const upgradeReferralIncome = await getUpgradeReferralIncome(address);
-          setUpgradeReferralIncome(upgradeReferralIncome || undefined);
-          const totalTeamSize = await getTeamSizes(address);
-          setTotalTeamSize(
-            totalTeamSize && totalTeamSize.length > 0 ? totalTeamSize[0] : 0
-          );
-
-          const resultInc = await getRecentIncomeEventsPaginated(
-            address,
-            BigInt((currentPage - 1) * itemsPerPage),
-            BigInt(itemsPerPage)
-          );
-          setRecentIncomes(resultInc);
-        }
-      } catch {
-        return null;
-      }
-    };
-
-    fetchData();
-  }, [
-    address,
+  const contractFunctions = useMemo(() => ({
     getUserStats,
     getLevelIncomes,
     getRecentIncomeEventsPaginated,
-    currentPage,
+    register,
+    upgrade,
     getSponsors,
     getUpgradeReferralIncome,
     getTeamSizes,
+  }), [
+    getUserStats,
+    getLevelIncomes,
+    getRecentIncomeEventsPaginated,
+    register,
+    upgrade,
+    getSponsors,
+    getUpgradeReferralIncome,
+    getTeamSizes
   ]);
+
+  const [dashboardState, setDashboardState] = useState({
+    isRegistered: false,
+    currentLevel: 0,
+    userStats: null as UserStats | null,
+    levelIncomes: [] as bigint[],
+    referralCode: "",
+    directSponsor: null as Sponsor | null,
+    matrixSponsor: null as Sponsor | null,
+    upgradeReferralIncome: undefined as bigint | null | undefined,
+    totalTeamSize: undefined as number | undefined,
+    userProfileData: null as UserProfileData | null,
+  });
+
+  const fetchDashboardData = useCallback(async () => {
+    if (!address) return;
+
+    try {
+      const [stats, sponsors] = await Promise.all([
+        contractFunctions.getUserStats(),
+        contractFunctions.getSponsors()
+      ]);
+
+      if (!stats) return;
+
+      const updates: Partial<typeof dashboardState> = {
+        currentLevel: stats.currentLevel,
+        userStats: stats,
+        isRegistered: stats.currentLevel > 0,
+        directSponsor: sponsors ? {
+          directSponsor: sponsors.directSponsor,
+          matrixSponsor: sponsors.matrixSponsor,
+        } : null,
+        matrixSponsor: sponsors ? {
+          directSponsor: sponsors.directSponsor,
+          matrixSponsor: sponsors.matrixSponsor,
+        } : null,
+      };
+
+      if (stats.currentLevel > 0) {
+        const [incomes, upgradeRefIncome, teamSize, recentInc] = await Promise.all([
+          contractFunctions.getLevelIncomes(),
+          contractFunctions.getUpgradeReferralIncome(address),
+          contractFunctions.getTeamSizes(address),
+          contractFunctions.getRecentIncomeEventsPaginated(
+            address,
+            BigInt((currentPage - 1) * itemsPerPage),
+            BigInt(itemsPerPage)
+          )
+        ]);
+
+        Object.assign(updates, {
+          levelIncomes: incomes,
+          upgradeReferralIncome: upgradeRefIncome || undefined,
+          totalTeamSize: teamSize && teamSize.length > 0 ? teamSize[0] : 0,
+        });
+        setRecentIncomes(recentInc);
+      }
+
+      setDashboardState(prev => ({ ...prev, ...updates }));
+    } catch (error) {
+      console.error('Dashboard data fetch error:', error);
+    }
+  }, [address, contractFunctions, currentPage]);
+
+  useEffect(() => {
+    fetchDashboardData();
+    const interval = setInterval(fetchDashboardData, 60000); // Refresh every minute
+    return () => clearInterval(interval);
+  }, [fetchDashboardData]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -209,116 +227,104 @@ const DashboardPage = () => {
 
   const handleRegister = async () => {
     if (!address || !referrerAddress) {
-      console.error("Missing address or referrer address");
-      return;
+        toast.error("Missing address or referrer address");
+        return;
     }
 
-    try {
-      try {
-        await register(referrerAddress);
-        console.log("Blockchain registration successful");
-      } catch (blockchainError) {
-        console.error("Blockchain registration failed:", blockchainError);
-        throw new Error("Blockchain registration failed");
-      }
+    const registerPromise = (async () => {
+        try {
+            await register(referrerAddress);
+            
+            await new Promise(resolve => setTimeout(resolve, 3000));
 
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+            const [response, sponsors] = await Promise.all([
+                fetch("https://node-referral-system.onrender.com/register-referred", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        wallet_address: address,
+                        referred_by: referrerAddress,
+                    }),
+                }),
+                contractFunctions.getSponsors()
+            ]);
 
-      try {
-        const response = await fetch(
-          "https://node-referral-system.onrender.com/register-referred",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              wallet_address: address,
-              referred_by: referrerAddress,
-            }),
-          }
-        );
+            if (!response.ok) {
+                throw new Error("Backend registration failed");
+            }
 
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(
-            `Backend registration failed: ${response.status} - ${JSON.stringify(
-              data
-            )}`
-          );
+            await response.json();
+            
+            // Update all relevant states
+            setDashboardState(prev => ({ ...prev, isRegistered: true, currentLevel: 1 }));
+            if (sponsors) {
+                setDirectSponsor({ 
+                    directSponsor: sponsors.directSponsor, 
+                    matrixSponsor: sponsors.matrixSponsor 
+                });
+                setMatrixSponsor({ 
+                    directSponsor: sponsors.directSponsor, 
+                    matrixSponsor: sponsors.matrixSponsor 
+                });
+            }
+            localStorage.removeItem("tetherwave_refId");
+
+            return "Registration successful!";
+        } catch {
+            throw new Error("Registration failed");
         }
+    })();
 
-        setIsRegistered(true);
-        setCurrentLevel(1);
-
-        localStorage.removeItem("tetherwave_refId");
-
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-
-        const [stats, profile, sponsors] = await Promise.all([
-          getUserStats(),
-          fetch(
-            `https://node-referral-system.onrender.com/user/${address}`
-          ).then((r) => r.json()),
-          getSponsors(),
-        ]);
-
-        if (stats) setUserStats(stats);
-        if (profile) {
-          setUserProfileData(profile);
-          setReferralCode(profile.referral_code);
-        }
-        if (sponsors) {
-          setDirectSponsor(
-            sponsors
-              ? {
-                  directSponsor: sponsors.directSponsor,
-                  matrixSponsor: sponsors.matrixSponsor,
-                }
-              : null
-          );
-          setMatrixSponsor(
-            sponsors
-              ? {
-                  directSponsor: sponsors.directSponsor,
-                  matrixSponsor: sponsors.matrixSponsor,
-                }
-              : null
-          );
-        }
-
-        const referralLink = `${window.location.origin}/dashboard/?ref=${data.referral_code}`;
-        const referralLinkElement = document.querySelector(".referral-link");
-        if (referralLinkElement) {
-          referralLinkElement.setAttribute("data-referral", referralLink);
-        }
-
-        alert("Registration successful!");
-      } catch (backendError) {
-        console.error("Backend registration failed:", backendError);
-        throw new Error("Backend registration failed");
-      }
-    } catch (error) {
-      console.error("Registration process failed:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error occurred";
-      alert(`Registration failed: ${errorMessage}`);
-      throw new Error("Failed to register");
-    }
+    toast.promise(registerPromise, {
+        loading: 'Registering...',
+        success: (message: string) => message,
+        error: (err: Error) => `Registration failed: ${err.message}`
+    });
   };
 
-  const handleUpgrade = async (targetLevel: number, amount: number) => {
+  const handleUpgrade = async (targetLevel: number) => {
     if (!address) return;
 
-    try {
-      await upgrade(targetLevel, amount);
-      setCurrentLevel(targetLevel);
-      alert("Upgrade successful!");
-      const stats = await getUserStats();
-      if (stats) setUserStats(stats);
-    } catch {
-      alert("Upgrade failed!");
-    }
+    const upgradePromise = (async () => {
+        await upgrade(targetLevel);
+        
+        const [stats, response, sponsors] = await Promise.all([
+            contractFunctions.getUserStats(),
+            fetch(`https://node-referral-system.onrender.com/user/${address}`),
+            contractFunctions.getSponsors()
+        ]);
+
+        setDashboardState(prev => ({ ...prev, currentLevel: targetLevel }));
+        await refetchUsdtBalance();
+
+        if (stats) {
+            setDashboardState(prev => ({ ...prev, userStats: stats }));
+        }
+
+        if (response.ok) {
+            const data = await response.json();
+            setUserProfileData(data);
+        }
+
+        if (sponsors) {
+            setDirectSponsor({ 
+                directSponsor: sponsors.directSponsor, 
+                matrixSponsor: sponsors.matrixSponsor 
+            });
+            setMatrixSponsor({ 
+                directSponsor: sponsors.directSponsor, 
+                matrixSponsor: sponsors.matrixSponsor 
+            });
+        }
+
+        return `Successfully upgraded to Level ${targetLevel}!`;
+    })();
+
+    toast.promise(upgradePromise, {
+        loading: 'Processing upgrade...',
+        success: (message: string) => message,
+        error: (err: Error) => `Upgrade failed: ${err.message}`
+    });
   };
 
   const directSponsorId = useFrontendDisplay(
@@ -339,7 +345,7 @@ const DashboardPage = () => {
       <section className="grid lg:grid-cols-2 gap-6 lg:gap-8 text-nowrap w-full">
         <ProfileDetails
           userProfileData={userProfileData}
-          currentLevel={currentLevel}
+          currentLevel={dashboardState.currentLevel}
           directSponsorId={directSponsorId}
           matrixSponsorId={matrixSponsorId}
         />
@@ -351,7 +357,7 @@ const DashboardPage = () => {
         />
       </section>
 
-      {!isRegistered && (
+      {!dashboardState.isRegistered && (
         <Registration
           referrerAddress={referrerAddress}
           setReferrerAddress={setReferrerAddress}
@@ -359,20 +365,20 @@ const DashboardPage = () => {
         />
       )}
 
-      {isRegistered && (
-        <Packages currentLevel={currentLevel} handleUpgrade={handleUpgrade} />
+      {dashboardState.isRegistered && (
+        <Packages currentLevel={dashboardState.currentLevel} handleUpgrade={handleUpgrade} />
       )}
 
-      {isRegistered && userStats && (
+      {dashboardState.isRegistered && dashboardState.userStats && (
         <AllIncomes
-          userStats={userStats}
-          upgradeReferralIncome={upgradeReferralIncome}
-          totalTeamSize={totalTeamSize}
+          userStats={dashboardState.userStats}
+          upgradeReferralIncome={dashboardState.upgradeReferralIncome}
+          totalTeamSize={dashboardState.totalTeamSize}
         />
       )}
 
       <section className="w-full">
-        <RankIncome userStats={userStats} levelIncomes={levelIncomes} />
+        <RankIncome userStats={dashboardState.userStats} levelIncomes={dashboardState.levelIncomes} />
       </section>
 
       <section className="mt-4 lg:mt-8 w-full">
@@ -386,7 +392,7 @@ const DashboardPage = () => {
         <RecentIncome
           {...{
             recentIncomes,
-            currentLevel,
+            currentLevel: dashboardState.currentLevel,
             currentPage,
             setCurrentPage,
             itemsPerPage,

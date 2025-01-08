@@ -17,7 +17,7 @@ const navItems = [
   { title: "Geneology", path: "/dashboard/geneology" },
 ];
 
-const DashboardHeader = ({}) => {
+const DashboardHeader = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { isConnected } = useAccount();
@@ -59,7 +59,7 @@ const DashboardHeader = ({}) => {
               {navItems.map((item, index) => (
                 <Link
                   href={item.path}
-                  key={index}
+                  key={`${index + 1}`}
                   className={`relative py-2.5 px-6 lg:!px-8 group font-semibold drop-shadow shadow-[4px_4px_12px_#FC2FA450,-4px_-4px_12px_#FC2FA450] cursor-pointer rounded-full 
                     bg-gradient-button text-white hover:opacity-100 dark:hover:opacity-100 transition-all duration-300 active:scale-105 ${
                       pathname === item.path

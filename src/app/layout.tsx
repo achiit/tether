@@ -5,6 +5,7 @@ import "./globals.css";
 import { ClientProviders } from "@/lib/ClientProviders";
 import { ThemeProviders } from "@/lib/ThemeProviders";
 import { FrontendIdProvider } from "@/contexts/FrontendIdContext";
+import { Toaster } from 'react-hot-toast';
 
 const glacier = localFont({
   src: "/fonts/Manrope-VariableFont_wght.ttf",
@@ -46,6 +47,7 @@ export default function RootLayout({
             <ThemeProviders>{children}</ThemeProviders>
           </FrontendIdProvider>
         </ClientProviders>
+        <Toaster position="top-right" />
       </body>
     </html>
   );
