@@ -65,10 +65,11 @@ export interface UserProfileData {
     referral_code: string;
 }
 
-export interface FrontendIdContextType {
+export type FrontendIdContextType = {
     getFrontendId: (address: string) => Promise<string>;
-    clearCache: () => void;
-}
+    batchFetchFrontendIds: (addresses: string[]) => Promise<void>;
+    frontendIdCache: Record<string, string>;
+};
 
 export interface LegProgress {
     total: number;
@@ -82,4 +83,45 @@ export interface LegProgress {
 export interface FrontendIdDisplayProps {
     address?: string;
     isRegistered?: boolean;
+}
+
+export interface TierCardProps {
+    slab: {
+        title: string;
+        description: string;
+        bg: string;
+    };
+    index: number;
+    data: {
+        qualifiedTiers: boolean[];
+        royaltyInfo: RoyaltyInfo | null;
+        legProgress: {
+            tier1: LegProgress;
+            tier2: LegProgress;
+            tier3: LegProgress;
+            tier4: LegProgress;
+        };
+    };
+    parsedRoyaltyInfo: RoyaltyInfo | null;
+    calculateTotalPoolAmount: (index: number) => string;
+    calculateStrongLegProgress: (tier: LegProgress) => number;
+    calculateWeakLegProgress: (tier: LegProgress) => number;
+}
+
+export interface RankIncomeProps {
+    userStats: UserStats | null;
+    levelIncomes: bigint[];
+}
+
+export interface RecentIncomeProps {
+    recentIncomes: RecentIncomeEvents;
+    currentLevel: number;
+    currentPage: number;
+    setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
+    itemsPerPage: number;
+}
+
+export interface PackagesProps {
+    currentLevel: number;
+    handleUpgrade: (level: number, amount: number) => void;
 }

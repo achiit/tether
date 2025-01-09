@@ -101,15 +101,23 @@ export function useContract() {
         try {
             const { tetherWave, usdt } = getContracts()
 
-            // First approve USDT
-            const approveAmount = BigInt(11 * 10 ** 18)
-            const approveHash = await usdt.walletClient.writeContract({
+            // First approve USDT with higher amount (10,000 USDT)
+            const approveAmount = BigInt(10000 * 10 ** 18)
+            const allowance = await usdt.publicClient.readContract({
                 ...usdt,
-                functionName: 'approve',
-                args: [tetherWave.address, approveAmount],
-                account: address as `0x${string}`
-            })
-            await publicClient.waitForTransactionReceipt({ hash: approveHash })
+                functionName: 'allowance',
+                args: [address as `0x${string}`, tetherWave.address]
+            }) as bigint;
+
+            if (allowance < approveAmount) {
+                const approveHash = await usdt.walletClient.writeContract({
+                    ...usdt,
+                    functionName: 'approve',
+                    args: [tetherWave.address, approveAmount],
+                    account: address as `0x${string}`
+                })
+                await publicClient.waitForTransactionReceipt({ hash: approveHash })
+            }
 
             // Then register
             const { request } = await tetherWave.publicClient.simulateContract({
@@ -126,19 +134,10 @@ export function useContract() {
         }
     }, [address])
 
-    const upgrade = useCallback(async (targetLevel: number, amount: number): Promise<void> => {
+    const upgrade = useCallback(async (targetLevel: number): Promise<void> => {
         if (!address) return
         try {
-            const { tetherWave, usdt } = getContracts()
-
-            const approveAmount = BigInt(amount * 10 ** 18)
-            const approveHash = await usdt.walletClient.writeContract({
-                ...usdt,
-                functionName: 'approve',
-                args: [tetherWave.address, approveAmount],
-                account: address as `0x${string}`
-            })
-            await publicClient.waitForTransactionReceipt({ hash: approveHash })
+            const { tetherWave } = getContracts()
 
             const upgradeHash = await tetherWave.walletClient.writeContract({
                 ...tetherWave,

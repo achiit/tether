@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useWallet } from '@/lib/hooks/useWallet';
 import { useContract } from '@/lib/hooks/useContract';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { FrontendIdDisplay } from './FrontendIdDisplay';
+import { FrontendIdDisplay } from '@/components/Dashboard/FrontendIdDisplay';
+import { debounce } from 'lodash';
 
-const DownLine = () => {
+const CommunityPage = () => {
   const { address } = useWallet();
   const { getDownlineByDepthPaginated } = useContract();
   const [selectedLevel, setSelectedLevel] = useState(1);
@@ -21,29 +22,33 @@ const DownLine = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  useEffect(() => {
-    const fetchDownlineData = async () => {
-      if (!address) return;
-      
+  const debouncedFetch = useCallback(
+    debounce(async (addr: string, level: number, page: number) => {
+      if (!addr) return;
       try {
         const result = await getDownlineByDepthPaginated(
-          address,
-          selectedLevel,
-          BigInt((currentPage - 1) * itemsPerPage),
-          BigInt(itemsPerPage)
+          addr as `0x${string}`,
+          level,
+          BigInt((page - 1) * 10),
+          BigInt(10)
         );
         setDownlineData(result);
       } catch (error) {
         console.error('Error fetching downline data:', error);
       }
-    };
+    }, 500),
+    []
+  );
 
-    fetchDownlineData();
-  }, [address, selectedLevel, currentPage, getDownlineByDepthPaginated]);
+  useEffect(() => {
+    if (!address) return;
+    debouncedFetch(address, selectedLevel, currentPage);
+    return () => debouncedFetch.cancel();
+  }, [address, selectedLevel, currentPage, debouncedFetch]);
 
   return (
-    <div>
-      <div className="p-4 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient">
+    <div className='w-full'>
+      <div className="p-4 rounded-lg drop-shadow-lg shadow bg-light-gradient dark:bg-dark-gradient w-full">
         <div className="flex justify-start gap-4 overflow-x-auto">
           {Array.from({ length: 10 }, (_, i) => i + 1).map((level) => (
             <button
@@ -79,7 +84,7 @@ const DownLine = () => {
             </thead>
             <tbody>
               {downlineData.downlineAddresses.map((address, index) => (
-                <tr key={`${index + 1}`}>
+                <tr key={`${index + 1}`} className='hover:bg-white/20 dark:hover:bg-white/10'>
                   <td className="py-2 px-8 text-left">{index + 1}</td>
                   <td className="py-2 px-4 text-left">
                     <FrontendIdDisplay address={address} isRegistered={currentLevel > 0} />
@@ -148,4 +153,4 @@ const DownLine = () => {
   );
 };
 
-export default DownLine;
+export default CommunityPage;

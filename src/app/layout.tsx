@@ -5,6 +5,7 @@ import "./globals.css";
 import { ClientProviders } from "@/lib/ClientProviders";
 import { ThemeProviders } from "@/lib/ThemeProviders";
 import { FrontendIdProvider } from "@/contexts/FrontendIdContext";
+import { Toaster } from 'react-hot-toast';
 
 const glacier = localFont({
   src: "/fonts/Manrope-VariableFont_wght.ttf",
@@ -23,7 +24,10 @@ const manrope = Manrope({
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "tether - Liquid staking for digital assets",
+  title: {
+    default: "Tether - Liquid staking for digital assets",
+    template: "%s | Tether - Liquid staking for digital assets",
+  },
   description: "Stake your digital assets and earn daily rewards",
 };
 
@@ -43,6 +47,7 @@ export default function RootLayout({
             <ThemeProviders>{children}</ThemeProviders>
           </FrontendIdProvider>
         </ClientProviders>
+        <Toaster position="top-right" />
       </body>
     </html>
   );

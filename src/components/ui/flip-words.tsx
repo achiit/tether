@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 
 interface FlipWordsProps {
@@ -29,7 +29,7 @@ export const FlipWords: React.FC<FlipWordsProps> = ({
     if (words.length > 0 && currentWord === "") {
       setCurrentWord(words[0])
     }
-  }, [words])
+  }, [words, currentWord])
 
   useEffect(() => {
     if (!isAnimating && words.length > 1) {
@@ -77,7 +77,7 @@ export const FlipWords: React.FC<FlipWordsProps> = ({
       >
         {currentWord.split(" ").map((word, wordIndex) => (
           <motion.span
-            key={word + wordIndex}
+            key={`${wordIndex+1}`}
             initial={{ opacity: 0, y: 10, filter: "blur(8px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             transition={{
@@ -88,7 +88,7 @@ export const FlipWords: React.FC<FlipWordsProps> = ({
           >
             {word.split("").map((letter, letterIndex) => (
               <motion.span
-                key={word + letterIndex}
+                key={`${letterIndex+1}`}
                 initial={{ opacity: 0, y: 10, filter: "blur(8px)" }}
                 animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                 transition={{

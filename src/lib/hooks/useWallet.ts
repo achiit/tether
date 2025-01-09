@@ -12,7 +12,7 @@ export function useWallet() {
     const { getUserStats } = useContract()
     const [currentLevel, setCurrentLevel] = useState(0)
 
-    const { data: usdtBalance } = useBalance({
+    const { data: usdtBalance, refetch: refetchUsdtBalance } = useBalance({
         address,
         token: siteConfig.contracts.USDT as `0x${string}`,
     })
@@ -66,5 +66,6 @@ export function useWallet() {
         balances: formattedBalances,
         currentLevel,
         checkRegistrationStatus,
+        refetchUsdtBalance,
     }
 }
