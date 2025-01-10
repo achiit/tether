@@ -43,14 +43,14 @@ const TierStats = ({
   );
 
   return (
-    <div className="flex justify-between items-center bg-white/40 dark:bg-white/5 backdrop-blur-md rounded-lg p-3 lg:p-4 drop-shadow-lg shadow">
-      <div className="flex flex-col justify-between items-center">
-        <h3 className="text-lg font-semibold">Total Earned</h3>
-        <p className="text-2xl font-bold text-green-600">{totalEarned}</p>
+    <div className="flex justify-between items-center gap-1 bg-white/40 dark:bg-white/5 backdrop-blur-md rounded-lg p-3 lg:p-4 drop-shadow-lg shadow">
+      <div className="flex flex-col justify-between items-start">
+        <h3 className="text-sm lg:text-lg font-semibold text-start">Total Earned</h3>
+        <p className="text-xl lg:text-2xl font-bold text-green-600">{totalEarned}</p>
       </div>
       <div className="flex flex-col justify-between items-end">
-        <h3 className="text-lg font-semibold">Total Pool Amount</h3>
-        <p className="text-2xl font-bold text-green-600">{poolAmount}</p>
+        <h3 className="text-sm lg:text-lg font-semibold text-end lg:text-start">Total Pool Amount</h3>
+        <p className="text-xl lg:text-2xl font-bold text-green-600">{poolAmount}</p>
       </div>
     </div>
   );

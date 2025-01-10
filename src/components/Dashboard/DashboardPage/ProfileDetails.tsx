@@ -7,16 +7,16 @@ import type { UserProfileData } from "@/types/contract";
 interface ProfileDetailsProps {
   userProfileData: UserProfileData | null;
   currentLevel: number;
-  directSponsorId: string | null;
-  matrixSponsorId: string | null;
+  directSponsorId: string | null | undefined;
+  matrixSponsorId: string | null | undefined;
 }
 
 const SponsorInfo = memo(({ 
   directSponsorId, 
   matrixSponsorId 
 }: { 
-  directSponsorId: string | null; 
-  matrixSponsorId: string | null;
+  directSponsorId: string | null | undefined; 
+  matrixSponsorId: string | null | undefined;
 }) => (
   <div className="flex flex-col items-start justify-center px-4 py-4 drop-shadow-lg shadow-inner rounded-md bg-white/40 dark:bg-white/5 backdrop-blur-lg">
     <div className="flex flex-row items-center space-x-2">
