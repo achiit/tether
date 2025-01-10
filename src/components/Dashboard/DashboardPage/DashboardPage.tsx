@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, memo, lazy } from "react";
 import Link from "next/link";
 import { useWallet } from "@/lib/hooks/useWallet";
 import { useContract } from "@/lib/hooks/useContract";
 import SocialLinks from "../SocialLinks";
-import RoyaltySlab from "../RoyaltySlab";
+// import RoyaltySlab from "../RoyaltySlab";
 import type {
   UserStats,
   RecentIncomeEvents,
@@ -21,6 +21,15 @@ import AllIncomes from "./AllIncomes";
 import RankIncome from "./RankIncome";
 import RecentIncome from "./RecentIncome";
 import toast from 'react-hot-toast';
+
+const RoyaltySlab = lazy(() => import('../RoyaltySlab'));
+const MemoizedProfileDetails = memo(ProfileDetails);
+const MemoizedWalletDetails = memo(WalletDetails);
+const MemoizedRegistration = memo(Registration);
+const MemoizedPackages = memo(Packages);
+const MemoizedAllIncomes = memo(AllIncomes);
+const MemoizedRankIncome = memo(RankIncome);
+const MemoizedRecentIncome = memo(RecentIncome);
 
 const DashboardPage = () => {
   const { address, balances, refetchUsdtBalance } = useWallet();
@@ -48,8 +57,7 @@ const DashboardPage = () => {
     timestamps: [],
     totalCount: 0,
   });
-  const [userProfileData, setUserProfileData] =
-    useState<UserProfileData | null>(null);
+  const [userProfileData, setUserProfileData] = useState<UserProfileData | null>(null);
   const [usdtBalance, setUsdtBalance] = useState("0.0000");
 
   const contractFunctions = useMemo(() => ({
@@ -100,13 +108,14 @@ const DashboardPage = () => {
         currentLevel: stats.currentLevel,
         userStats: stats,
         isRegistered: stats.currentLevel > 0,
+          // update this in better way
         directSponsor: sponsors ? {
-          directSponsor: sponsors.directSponsor,
-          matrixSponsor: sponsors.matrixSponsor,
+          directSponsor: sponsors.directSponsor || null,
+          matrixSponsor: sponsors.matrixSponsor || null,
         } : null,
         matrixSponsor: sponsors ? {
-          directSponsor: sponsors.directSponsor,
-          matrixSponsor: sponsors.matrixSponsor,
+          directSponsor: sponsors.directSponsor || null,
+          matrixSponsor: sponsors.matrixSponsor || null,
         } : null,
       };
 
@@ -327,15 +336,13 @@ const DashboardPage = () => {
     });
   };
 
-  const directSponsorId = useFrontendDisplay(
-    directSponsor?.directSponsor?.toString(),
-    true
-  );
-  const matrixSponsorId = useFrontendDisplay(
-    matrixSponsor?.matrixSponsor?.toString(),
-    true
-  );
-
+  // update this in better way
+  const directSponsorIdRaw = directSponsor?.directSponsor?.toString() ?? undefined;
+  const matrixSponsorIdRaw = matrixSponsor?.matrixSponsor?.toString() ?? undefined;
+  
+  const directSponsorId = useFrontendDisplay(directSponsorIdRaw, true);
+  const matrixSponsorId = useFrontendDisplay(matrixSponsorIdRaw, true);
+  
   return (
     <div className="flex flex-col justify-center items-center gap-4 w-full overflow-hidden">
       <section className="lg:hidden flex justify-between items-center w-full overflow-y-auto drop-shadow-lg lg:p-4 pb-2 ps-5">
@@ -343,14 +350,14 @@ const DashboardPage = () => {
       </section>
 
       <section className="grid lg:grid-cols-2 gap-6 lg:gap-8 text-nowrap w-full">
-        <ProfileDetails
+        <MemoizedProfileDetails
           userProfileData={userProfileData}
           currentLevel={dashboardState.currentLevel}
           directSponsorId={directSponsorId}
           matrixSponsorId={matrixSponsorId}
         />
 
-        <WalletDetails
+        <MemoizedWalletDetails
           address={address}
           usdtBalance={usdtBalance}
           referralCode={referralCode}
@@ -358,7 +365,7 @@ const DashboardPage = () => {
       </section>
 
       {!dashboardState.isRegistered && (
-        <Registration
+        <MemoizedRegistration
           referrerAddress={referrerAddress}
           setReferrerAddress={setReferrerAddress}
           handleRegister={handleRegister}
@@ -366,11 +373,11 @@ const DashboardPage = () => {
       )}
 
       {dashboardState.isRegistered && (
-        <Packages currentLevel={dashboardState.currentLevel} handleUpgrade={handleUpgrade} />
+        <MemoizedPackages currentLevel={dashboardState.currentLevel} handleUpgrade={handleUpgrade} />
       )}
 
       {dashboardState.isRegistered && dashboardState.userStats && (
-        <AllIncomes
+        <MemoizedAllIncomes
           userStats={dashboardState.userStats}
           upgradeReferralIncome={dashboardState.upgradeReferralIncome}
           totalTeamSize={dashboardState.totalTeamSize}
@@ -378,7 +385,7 @@ const DashboardPage = () => {
       )}
 
       <section className="w-full">
-        <RankIncome userStats={dashboardState.userStats} levelIncomes={dashboardState.levelIncomes} />
+        <MemoizedRankIncome userStats={dashboardState.userStats} levelIncomes={dashboardState.levelIncomes} />
       </section>
 
       <section className="mt-4 lg:mt-8 w-full">
@@ -389,7 +396,7 @@ const DashboardPage = () => {
       </section>
 
       <section className="w-full">
-        <RecentIncome
+        <MemoizedRecentIncome
           {...{
             recentIncomes,
             currentLevel: dashboardState.currentLevel,
