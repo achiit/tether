@@ -242,29 +242,32 @@ const DashboardPage = () => {
 
     const registerPromise = (async () => {
         try {
-            await register(referrerAddress);
+            // First do the blockchain registration
+            await register(referrerAddress, usdtBalance);
             
+            // Wait for blockchain state to update
             await new Promise(resolve => setTimeout(resolve, 3000));
 
-            const [response, sponsors] = await Promise.all([
-                fetch("https://node-referral-system.onrender.com/register-referred", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        wallet_address: address,
-                        referred_by: referrerAddress,
-                    }),
+            // Try to get the backend response
+            const response = await fetch("https://node-referral-system.onrender.com/register-referred", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    wallet_address: address,
+                    referred_by: referrerAddress,
                 }),
-                contractFunctions.getSponsors()
-            ]);
+            });
 
             if (!response.ok) {
-                throw new Error("Backend registration failed");
+                const errorData = await response.json().catch(() => ({}));
+                console.error('Backend registration error:', errorData);
+                // Continue with UI updates even if backend fails
             }
 
-            await response.json();
+            // Get sponsors data regardless of backend status
+            const sponsors = await contractFunctions.getSponsors();
             
-            // Update all relevant states
+            // Update UI state
             setDashboardState(prev => ({ ...prev, isRegistered: true, currentLevel: 1 }));
             if (sponsors) {
                 setDirectSponsor({ 
@@ -279,23 +282,24 @@ const DashboardPage = () => {
             localStorage.removeItem("tetherwave_refId");
 
             return "Registration successful!";
-        } catch {
-            throw new Error("Registration failed");
+        } catch (error) {
+            console.error('Registration error:', error);
+            throw new Error("Registration failed. Please try again.");
         }
     })();
 
     toast.promise(registerPromise, {
-        loading: 'Registering...',
-        success: (message: string) => message,
-        error: (err: Error) => `Registration failed: ${err.message}`
-    });
+      loading: 'Registering...',
+      success: (message: string) => message,
+      error: (err: Error) => `Registration failed: ${err.message}`
+  });
   };
 
   const handleUpgrade = async (targetLevel: number) => {
     if (!address) return;
 
     const upgradePromise = (async () => {
-        await upgrade(targetLevel);
+        await upgrade(targetLevel, usdtBalance);
         
         const [stats, response, sponsors] = await Promise.all([
             contractFunctions.getUserStats(),
