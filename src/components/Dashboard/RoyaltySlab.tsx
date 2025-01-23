@@ -19,16 +19,16 @@ const TierProgressBar = memo(({ progress, className }: { progress: number; class
       style={{ width: `${progress}%` }}
     />
   </div>
-     ));
+));
 
 TierProgressBar.displayName = 'TierProgressBar';
 
-const TierStats = ({ 
-  index, 
-  parsedRoyaltyInfo, 
-  calculateTotalPoolAmount 
-}: { 
-  index: number; 
+const TierStats = ({
+  index,
+  parsedRoyaltyInfo,
+  calculateTotalPoolAmount
+}: {
+  index: number;
   parsedRoyaltyInfo: RoyaltyInfo | null;
   calculateTotalPoolAmount: (index: number) => string;
 }) => {
@@ -37,8 +37,8 @@ const TierStats = ({
     return `+${formatUnits(parsedRoyaltyInfo.totalEarned[index], 18)} USDT`;
   }, [parsedRoyaltyInfo?.totalEarned, index]);
 
-  const poolAmount = useMemo(() => 
-    `${calculateTotalPoolAmount(index)} USDT`, 
+  const poolAmount = useMemo(() =>
+    `${calculateTotalPoolAmount(index)} USDT`,
     [calculateTotalPoolAmount, index]
   );
 
@@ -58,14 +58,14 @@ const TierStats = ({
 
 TierStats.displayName = 'TierStats';
 
-const TierCard = memo(({ 
-  slab, 
-  index, 
+const TierCard = memo(({
+  slab,
+  index,
   data,
   parsedRoyaltyInfo,
   calculateTotalPoolAmount,
   calculateStrongLegProgress,
-  calculateWeakLegProgress 
+  calculateWeakLegProgress
 }: TierCardProps) => {
   const tier = useMemo(() => {
     const tiers = {
@@ -77,13 +77,13 @@ const TierCard = memo(({
     return tiers[index as keyof typeof tiers];
   }, [data.legProgress, index]);
 
-  const strongLegProgress = useMemo(() => 
-    calculateStrongLegProgress(tier), 
+  const strongLegProgress = useMemo(() =>
+    calculateStrongLegProgress(tier),
     [calculateStrongLegProgress, tier]
   );
 
-  const weakLegProgress = useMemo(() => 
-    calculateWeakLegProgress(tier), 
+  const weakLegProgress = useMemo(() =>
+    calculateWeakLegProgress(tier),
     [calculateWeakLegProgress, tier]
   );
 
@@ -233,7 +233,7 @@ const TierCard = memo(({
       )}
     </div>
   );
-}, (prevProps: TierCardProps, nextProps: TierCardProps) => 
+}, (prevProps: TierCardProps, nextProps: TierCardProps) =>
   prevProps.data.royaltyInfo === nextProps.data.royaltyInfo &&
   prevProps.data.qualifiedTiers[prevProps.index] === nextProps.data.qualifiedTiers[nextProps.index] &&
   prevProps.data.legProgress === nextProps.data.legProgress
@@ -258,10 +258,10 @@ const RoyaltySlab = () => {
   ], []);
 
   const { address } = useWallet();
-  const { 
-    checkRoyaltyQualification, 
-    getUserRoyaltyInfo, 
-    getLevelActivatedCount 
+  const {
+    checkRoyaltyQualification,
+    getUserRoyaltyInfo,
+    getLevelActivatedCount
   } = useContract();
 
   const [state, setState] = useState({
@@ -378,16 +378,16 @@ const RoyaltySlab = () => {
   const parsedRoyaltyInfo = useMemo(() => parseRoyaltyInfo(state.royaltyInfo), [state.royaltyInfo, parseRoyaltyInfo]);
 
   // Add this after the parsedRoyaltyInfo memo
-  const isAllTiersRegistered = useMemo(() => 
-    isFullyRegistered(parsedRoyaltyInfo), 
+  const isAllTiersRegistered = useMemo(() =>
+    isFullyRegistered(parsedRoyaltyInfo),
     [parsedRoyaltyInfo]
   );
 
   // Use it to prevent unnecessary renders
-  const renderedSlabs = useMemo(() => 
+  const renderedSlabs = useMemo(() =>
     !isAllTiersRegistered && slabs.map((slab, index) => (
       <TierCard
-        key={`${index+1}`}
+        key={`${index + 1}`}
         slab={slab}
         index={index}
         data={state}
@@ -396,7 +396,7 @@ const RoyaltySlab = () => {
         calculateStrongLegProgress={calculateStrongLegProgress}
         calculateWeakLegProgress={calculateWeakLegProgress}
       />
-    )), 
+    )),
     [slabs, state, parsedRoyaltyInfo, calculateTotalPoolAmount, calculateStrongLegProgress, calculateWeakLegProgress, isAllTiersRegistered]
   );
 
